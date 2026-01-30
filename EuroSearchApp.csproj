@@ -102,6 +102,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ExcelAssetHelper.cs" />
+    <Compile Include="Services\ExcelAnyLoader.cs" />
     <Compile Include="Services\ExcelLoader.cs" />
     <Compile Include="Models\PersonRecord.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -127,6 +129,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Resource Include="Assets\Templates\Template.xlsx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

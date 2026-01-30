@@ -2,21 +2,35 @@
     <Grid Background="#F6F6F4" SnapsToDevicePixels="True" UseLayoutRounding="True">
         <Grid.Resources>
 
-            <!--  ===== Premium Light + Gold Palette =====  -->
-            <Color x:Key="C_Bg">#F6F6F4</Color>
+            <!--  ===== EuroSearch Brand Light Palette (white-first) =====  -->
+            <!--  Brand colors (picked from logo)  -->
+            <Color x:Key="C_BrandBlue">#1034FC</Color>
+            <Color x:Key="C_BrandBlueDeep">#0A19A5</Color>
+            <Color x:Key="C_BrandPurple">#5121F7</Color>
+            <Color x:Key="C_BrandCyan">#35D7FC</Color>
+            <Color x:Key="C_BrandGreen">#18E194</Color>
+            <Color x:Key="C_BrandCyanSoft">#AAF9FE</Color>
+
+            <!--  App surfaces  -->
+            <Color x:Key="C_Bg">#FFFFFF</Color>
             <Color x:Key="C_Top">#FFFFFF</Color>
             <Color x:Key="C_Card">#FFFFFF</Color>
-            <Color x:Key="C_Card2">#FBFBFA</Color>
+            <Color x:Key="C_Card2">#F8FAFC</Color>
 
-            <Color x:Key="C_Stroke">#E3E0D8</Color>
-            <Color x:Key="C_Stroke2">#D8D2C7</Color>
+            <!--  Lines / text  -->
+            <Color x:Key="C_Stroke">#E5E7EB</Color>
+            <Color x:Key="C_Stroke2">#D1D5DB</Color>
 
-            <Color x:Key="C_Text">#121826</Color>
-            <Color x:Key="C_Muted">#6B7280</Color>
+            <Color x:Key="C_Text">#0F172A</Color>
+            <Color x:Key="C_Muted">#64748B</Color>
 
-            <Color x:Key="C_Gold">#D4AF37</Color>
-            <Color x:Key="C_GoldDark">#B8891B</Color>
-            <Color x:Key="C_GoldSoft">#FFF3CF</Color>
+            <!--  Keep old "Gold" keys so your XAML doesn't change  -->
+            <Color x:Key="C_Gold">#1034FC</Color>
+            <!--  Accent  -->
+            <Color x:Key="C_GoldDark">#0A19A5</Color>
+            <!--  Strong accent  -->
+            <Color x:Key="C_GoldSoft">#EAF2FF</Color>
+            <!--  Soft tint  -->
 
             <SolidColorBrush x:Key="Bg" Color="{StaticResource C_Bg}" />
             <SolidColorBrush x:Key="Top" Color="{StaticResource C_Top}" />
@@ -26,12 +40,39 @@
             <SolidColorBrush x:Key="Stroke2" Color="{StaticResource C_Stroke2}" />
             <SolidColorBrush x:Key="Text" Color="{StaticResource C_Text}" />
             <SolidColorBrush x:Key="Muted" Color="{StaticResource C_Muted}" />
+
             <SolidColorBrush x:Key="Gold" Color="{StaticResource C_Gold}" />
             <SolidColorBrush x:Key="GoldDark" Color="{StaticResource C_GoldDark}" />
             <SolidColorBrush x:Key="GoldSoft" Color="{StaticResource C_GoldSoft}" />
 
-            <DropShadowEffect x:Key="ShadowSoft" BlurRadius="24" Opacity="0.10" ShadowDepth="6" Color="#000000" />
+            <!--  Brand brushes  -->
+            <SolidColorBrush x:Key="BrandBlue" Color="{StaticResource C_BrandBlue}" />
+            <SolidColorBrush x:Key="BrandBlueDeep" Color="{StaticResource C_BrandBlueDeep}" />
+            <SolidColorBrush x:Key="BrandPurple" Color="{StaticResource C_BrandPurple}" />
+            <SolidColorBrush x:Key="BrandCyan" Color="{StaticResource C_BrandCyan}" />
+            <SolidColorBrush x:Key="BrandGreen" Color="{StaticResource C_BrandGreen}" />
+
+            <!--  Subtle watermark behind DataGrid (Excel area)  -->
+            <RadialGradientBrush x:Key="ExcelGlow" Center="0.5,0.45" GradientOrigin="0.5,0.45" RadiusX="0.95" RadiusY="0.95">
+                <!--  ARGB: very low alpha, so it's subtle on white  -->
+                <GradientStop Offset="0.00" Color="#1435D7FC" />
+                <GradientStop Offset="0.33" Color="#1018E194" />
+                <GradientStop Offset="0.62" Color="#125121F7" />
+                <GradientStop Offset="1.00" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+
+            <!--  Accent line for headers  -->
+            <LinearGradientBrush x:Key="AccentLine" StartPoint="0,0" EndPoint="1,0">
+                <GradientStop Offset="0.00" Color="#18E194" />
+                <GradientStop Offset="0.55" Color="#35D7FC" />
+                <GradientStop Offset="1.00" Color="#5121F7" />
+            </LinearGradientBrush>
+
+            <!--  Shadows  -->
+            <DropShadowEffect x:Key="ShadowSoft" BlurRadius="26" Opacity="0.10" ShadowDepth="8" Color="#000000" />
             <DropShadowEffect x:Key="ShadowTight" BlurRadius="14" Opacity="0.08" ShadowDepth="3" Color="#000000" />
+
+            <!--  Roundedness (easy tweak)  -->
 
             <!--  ===== Typography =====  -->
             <Style TargetType="TextBlock">
@@ -40,20 +81,24 @@
                 <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
             </Style>
 
-            <!--  ===== Gold pill (square) =====  -->
+            <!--  ===== Label pill =====  -->
             <Style x:Key="LabelPill" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource GoldSoft}" />
                 <Setter Property="BorderBrush" Value="{StaticResource Gold}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="0" />
                 <Setter Property="Padding" Value="10,4" />
                 <Setter Property="SnapsToDevicePixels" Value="True" />
             </Style>
 
             <!--  ===== Buttons =====  -->
             <LinearGradientBrush x:Key="GoldButtonBg" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Offset="0" Color="#D4AF37" />
-                <GradientStop Offset="1" Color="#B8891B" />
+                <GradientStop Offset="0" Color="#1034FC" />
+                <GradientStop Offset="1" Color="#5121F7" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="GoldButtonBgHover" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#0E7EEC" />
+                <GradientStop Offset="1" Color="#5121F7" />
             </LinearGradientBrush>
 
             <Style x:Key="BaseButton" TargetType="Button">
@@ -65,7 +110,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0" Effect="{StaticResource ShadowTight}" SnapsToDevicePixels="True">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Effect="{StaticResource ShadowTight}" SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
                             </Border>
                             <ControlTemplate.Triggers>
@@ -85,12 +130,19 @@
                 </Setter>
             </Style>
 
+            <!--  Primary (brand gradient)  -->
             <Style x:Key="PrimaryGoldButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource GoldButtonBg}" />
                 <Setter Property="Foreground" Value="#FFFFFF" />
                 <Setter Property="BorderThickness" Value="0" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource GoldButtonBgHover}" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
+            <!--  Outline (brand)  -->
             <Style x:Key="OutlineGoldButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
                 <Setter Property="Background" Value="#FFFFFF" />
                 <Setter Property="Foreground" Value="{StaticResource GoldDark}" />
@@ -99,16 +151,16 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0" SnapsToDevicePixels="True">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#FFFBF1" />
+                                    <Setter TargetName="bd" Property="Background" Value="#0DEAF2FF" />
                                     <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource GoldDark}" />
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#FFF3CF" />
+                                    <Setter TargetName="bd" Property="Background" Value="#14AAF9FE" />
                                 </Trigger>
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="bd" Property="Opacity" Value="0.60" />
@@ -119,6 +171,7 @@
                 </Setter>
             </Style>
 
+            <!--  Close button  -->
             <Style x:Key="CloseButton" BasedOn="{StaticResource BaseButton}" TargetType="Button">
                 <Setter Property="Width" Value="44" />
                 <Setter Property="Height" Value="44" />
@@ -131,16 +184,16 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#F8F8F6" />
+                                    <Setter TargetName="bd" Property="Background" Value="#F8FAFC" />
                                     <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Stroke2}" />
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#EFEDE7" />
+                                    <Setter TargetName="bd" Property="Background" Value="#EEF2F7" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -148,7 +201,7 @@
                 </Setter>
             </Style>
 
-            <!--  ===== TextBox (square + gold focus) =====  -->
+            <!--  ===== TextBox (rounded + brand focus) =====  -->
             <Style TargetType="TextBox">
                 <Setter Property="Height" Value="36" />
                 <Setter Property="Padding" Value="12,7" />
@@ -158,20 +211,20 @@
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="CaretBrush" Value="{StaticResource GoldDark}" />
-                <Setter Property="SelectionBrush" Value="#FFF3CF" />
+                <Setter Property="SelectionBrush" Value="#22AAF9FE" />
                 <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TextBox">
                             <Grid>
-                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0" />
-                                <Border x:Name="glow" BorderBrush="{StaticResource Gold}" BorderThickness="2" CornerRadius="0" Opacity="0" />
+                                <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                                <Border x:Name="glow" BorderBrush="{StaticResource Gold}" BorderThickness="2" Opacity="0" />
                                 <ScrollViewer x:Name="PART_ContentHost" Margin="2" />
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsKeyboardFocused" Value="True">
                                     <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource GoldDark}" />
-                                    <Setter TargetName="glow" Property="Opacity" Value="0.20" />
+                                    <Setter TargetName="glow" Property="Opacity" Value="0.22" />
                                 </Trigger>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource Stroke2}" />
@@ -185,7 +238,7 @@
                 </Setter>
             </Style>
 
-            <!--  ===== DataGrid (square) =====  -->
+            <!--  ===== DataGrid =====  -->
             <Style TargetType="DataGrid">
                 <Setter Property="Background" Value="{StaticResource Card}" />
                 <Setter Property="Foreground" Value="{StaticResource Text}" />
@@ -195,17 +248,17 @@
                 <Setter Property="RowHeaderWidth" Value="0" />
                 <Setter Property="RowHeight" Value="38" />
                 <Setter Property="ColumnHeaderHeight" Value="44" />
-                <Setter Property="AlternatingRowBackground" Value="#FBFBFA" />
+                <Setter Property="AlternatingRowBackground" Value="{StaticResource Card2}" />
                 <Setter Property="RowBackground" Value="#FFFFFF" />
                 <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
                 <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
             </Style>
 
             <Style TargetType="DataGridColumnHeader">
-                <Setter Property="Background" Value="#F8F8F6" />
+                <Setter Property="Background" Value="#F8FAFC" />
                 <Setter Property="Foreground" Value="{StaticResource Text}" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="BorderBrush" Value="{StaticResource Gold}" />
+                <Setter Property="BorderBrush" Value="{StaticResource AccentLine}" />
                 <Setter Property="BorderThickness" Value="0,0,0,2" />
                 <Setter Property="Padding" Value="14,0" />
             </Style>
@@ -215,32 +268,32 @@
                 <Setter Property="SnapsToDevicePixels" Value="True" />
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#FFFBF1" />
+                        <Setter Property="Background" Value="#0DEAF2FF" />
                     </Trigger>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#FFF3CF" />
+                        <Setter Property="Background" Value="#18AAF9FE" />
                     </Trigger>
                 </Style.Triggers>
             </Style>
 
             <Style TargetType="DataGridCell">
                 <Setter Property="BorderThickness" Value="0,0,0,1" />
-                <Setter Property="BorderBrush" Value="#EFEDE7" />
+                <Setter Property="BorderBrush" Value="#EEF2F7" />
                 <Setter Property="Padding" Value="14,0" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
 
-            <!--  ===== Card container (square) =====  -->
+            <!--  ===== Card container =====  -->
             <Style x:Key="CardBorder" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource Card}" />
                 <Setter Property="BorderBrush" Value="{StaticResource Stroke}" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="0" />
                 <Setter Property="Padding" Value="16" />
                 <Setter Property="Effect" Value="{StaticResource ShadowSoft}" />
             </Style>
 
         </Grid.Resources>
+
 
         <Grid.RowDefinitions>
             <RowDefinition Height="58" />
@@ -313,8 +366,11 @@
             <!--  DataGrid  -->
             <Border Grid.Row="2" Padding="0" Style="{StaticResource CardBorder}">
                 <Grid>
-                    <Border Margin="10" Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1" CornerRadius="0">
-                        <DataGrid Margin="0" AutoGenerateColumns="True" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" ItemsSource="{Binding RecordsView}" />
+                    <!--  Subtle brand glow behind the "Excel" area  -->
+                    <Rectangle Fill="{StaticResource ExcelGlow}" IsHitTestVisible="False" />
+
+                    <Border Margin="10" Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1">
+                        <DataGrid x:Name="RecordsGrid" Margin="0" AutoGenerateColumns="True" AutoGeneratingColumn="RecordsGrid_AutoGeneratingColumn" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" ItemsSource="{Binding RecordsView}" />
                     </Border>
                 </Grid>
             </Border>
