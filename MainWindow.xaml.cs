@@ -21,25 +21,33 @@ using System.Windows.Interop;
 using WinForms = System.Windows.Forms;
 using System.Windows.Threading;
 using System.Data;
+using System.IO;
 
 namespace EuroSearchApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private bool _startupLoaded;
+        private ICollectionView _recordsView;
+        public ICollectionView RecordsView
+        {
+            get { return _recordsView; }
+            set
+            {
+                _recordsView = value;
+                OnPropertyChanged(nameof(RecordsView));
+            }
+        }
 
-        private DataTable _table;
-        public DataView RecordsView { get; private set; }
-
+        // --- Πεδία Αναζήτησης ---
         private string _nameQuery = "";
         public string NameQuery
         {
             get { return _nameQuery; }
             set
             {
-                _nameQuery = value ?? "";
+                _nameQuery = value;
                 OnPropertyChanged(nameof(NameQuery));
-                ApplyRowFilter();
+                RefreshFilter();
             }
         }
 
@@ -49,9 +57,9 @@ namespace EuroSearchApp
             get { return _phoneQuery; }
             set
             {
-                _phoneQuery = value ?? "";
+                _phoneQuery = value;
                 OnPropertyChanged(nameof(PhoneQuery));
-                ApplyRowFilter();
+                RefreshFilter();
             }
         }
 
@@ -61,42 +69,41 @@ namespace EuroSearchApp
             get { return _afmQuery; }
             set
             {
-                _afmQuery = value ?? "";
+                _afmQuery = value;
                 OnPropertyChanged(nameof(AfmQuery));
-                ApplyRowFilter();
+                RefreshFilter();
             }
         }
 
-        // Kiosk fullscreen lock
         private bool _forcingKiosk;
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
-
-            _table = new DataTable();
-            _table.CaseSensitive = false;
-
-            RecordsView = _table.DefaultView; // DataView
-            OnPropertyChanged(nameof(RecordsView));
         }
 
-        // Loaded="Window_Loaded"
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             GoKioskFullScreen();
 
-            if (_startupLoaded) return;
-            _startupLoaded = true;
+            // Χτίζουμε τη διαδρομή
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
 
-            try
+            // Έλεγχος αν υπάρχει
+            if (File.Exists(defaultPath))
             {
-                LoadExcelIntoGridFromAssets();
+                LoadData(defaultPath);
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message, "Σφάλμα φόρτωσης Excel", MessageBoxButton.OK, MessageBoxImage.Error);
+                // ΤΩΡΑ ΘΑ ΣΟΥ ΠΕΙ ΤΟΝ ΛΟΓΟ:
+                MessageBox.Show($"Δεν βρέθηκε το αρχείο αυτόματης φόρτωσης.\n\n" +
+                                $"Έψαξα σε αυτή τη διαδρομή:\n{defaultPath}\n\n" +
+                                $"Σιγουρέψου ότι στα Properties του αρχείου στο Visual Studio " +
+                                $"το 'Copy to Output Directory' είναι 'Copy always'.",
+                                "Το αρχείο λείπει", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -105,109 +112,101 @@ namespace EuroSearchApp
             Close();
         }
 
-        // Click="LoadExcel_Click" (reload)
+        // Κουμπί για χειροκίνητη επιλογή άλλου αρχείου
         private void LoadExcel_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                LoadExcelIntoGridFromAssets();
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "Excel Files|*.xlsx;*.xls";
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    LoadData(openFileDialog.FileName); // Καλεί την ίδια μέθοδο
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Σφάλμα φόρτωσης", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Σφάλμα: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void LoadExcelIntoGridFromAssets()
+        // --- Η ΚΕΝΤΡΙΚΗ ΜΕΘΟΔΟΣ ΦΟΡΤΩΣΗΣ ---
+        // Αυτή κάνει όλη τη δουλειά και καλείται και από το Loaded και από το Click
+        private void LoadData(string filePath)
         {
-            const string assetPath = "Assets/Templates/Template.xlsx";
+            try
+            {
+                var rawList = ExcelLoader.Load(filePath);
 
-            // Resource -> temp path
-            string tempExcelPath = ExcelAssetHelper.ExtractExcelFromAssetsToTemp(assetPath);
+                if (rawList == null || rawList.Count == 0)
+                {
+                    // Αν είναι αυτόματη φόρτωση, ίσως δεν θες μήνυμα λάθους, 
+                    // αλλά εδώ το αφήνω για να ξέρεις αν απέτυχε.
+                    MessageBox.Show("Το αρχείο είναι κενό ή δεν φορτώθηκε σωστά.");
+                    return;
+                }
 
-            // true: 1η γραμμή headers, false: όλα data
-            _table = ExcelAnyLoader.LoadAllToDataTable(tempExcelPath, true);
-            _table.CaseSensitive = false;
+                RecordsView = CollectionViewSource.GetDefaultView(rawList);
+                RecordsView.Filter = FilterRecords;
 
-            RecordsView = _table.DefaultView;
-            OnPropertyChanged(nameof(RecordsView));
-
-            ApplyRowFilter();
+                // Προαιρετικό: Ένα μήνυμα ότι φορτώθηκαν (μπορείς να το σχολιάσεις αν σε ενοχλεί στην εκκίνηση)
+                // MessageBox.Show($"Φορτώθηκαν επιτυχώς {rawList.Count} εγγραφές!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Σφάλμα κατά τη φόρτωση του αρχείου: {ex.Message}");
+            }
         }
 
-        // AutoGeneratingColumn="RecordsGrid_AutoGeneratingColumn"
-        // Κλειδώνει όλες τις auto στήλες (εκτός από checkbox που το έχεις fixed στο XAML)
-        private void RecordsGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        // --- Η Λογική του Φιλτραρίσματος (Διορθωμένη με IndexOf) ---
+        private bool FilterRecords(object item)
         {
-            if (e.PropertyName == "Επιλογή")
+            var person = item as PersonRecord;
+            if (person == null) return false;
+
+            // 1. Φίλτρο Ονόματος
+            if (!string.IsNullOrWhiteSpace(NameQuery))
             {
-                e.Cancel = true; // να μη διπλασιαστεί
-                return;
+                if (string.IsNullOrEmpty(person.Επωνυμία) ||
+                    person.Επωνυμία.IndexOf(NameQuery, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    return false;
+                }
             }
 
-            e.Column.IsReadOnly = true;
+            // 2. Φίλτρο ΑΦΜ
+            if (!string.IsNullOrWhiteSpace(AfmQuery))
+            {
+                if (string.IsNullOrEmpty(person.ΑΦΜ) ||
+                    person.ΑΦΜ.IndexOf(AfmQuery, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    return false;
+                }
+            }
+
+            // 3. Φίλτρο Τηλεφώνου
+            if (!string.IsNullOrWhiteSpace(PhoneQuery))
+            {
+                string cleanQuery = NormalizeDigits(PhoneQuery);
+                string p1 = NormalizeDigits(person.Τηλέφωνο);
+                string p2 = NormalizeDigits(person.Τηλέφωνο2);
+
+                bool match1 = !string.IsNullOrEmpty(p1) && p1.Contains(cleanQuery);
+                bool match2 = !string.IsNullOrEmpty(p2) && p2.Contains(cleanQuery);
+
+                if (!match1 && !match2) return false;
+            }
+
+            return true;
         }
 
-        private void ApplyRowFilter()
+        private void RefreshFilter()
         {
-            if (RecordsView == null) return;
-            if (RecordsView.Table == null) return;
-
-            var table = RecordsView.Table;
-
-            string nameCol = ResolveColumn(table, new[] { "Όνομα", "Ονομα", "Name" });
-            string phoneCol = ResolveColumn(table, new[] { "Τηλέφωνο", "Τηλεφωνο", "Phone" });
-            string afmCol = ResolveColumn(table, new[] { "ΑΦΜ", "Α.Φ.Μ", "AFM", "Vat" });
-
-            string nameQ = (NameQuery ?? "").Trim();
-            string phoneQ = (PhoneQuery ?? "").Trim();
-            string afmQ = (AfmQuery ?? "").Trim();
-
-            var parts = new System.Collections.Generic.List<string>();
-
-            if (!string.IsNullOrWhiteSpace(nameQ) && !string.IsNullOrWhiteSpace(nameCol))
+            if (RecordsView != null)
             {
-                string v = EscapeLike(nameQ);
-                parts.Add(string.Format("[{0}] LIKE '%{1}%'", nameCol, v));
+                RecordsView.Refresh();
             }
-
-            if (!string.IsNullOrWhiteSpace(phoneQ) && !string.IsNullOrWhiteSpace(phoneCol))
-            {
-                // προσέγγιση: αφαιρεί space/./-/+/( ) από την τιμή για να ταιριάζει πιο συχνά
-                string v = EscapeLike(NormalizeDigits(phoneQ));
-                if (!string.IsNullOrEmpty(v))
-                    parts.Add(string.Format("{0} LIKE '%{1}%'", NormalizeExpr(phoneCol), v));
-            }
-
-            if (!string.IsNullOrWhiteSpace(afmQ) && !string.IsNullOrWhiteSpace(afmCol))
-            {
-                string v = EscapeLike(NormalizeDigits(afmQ));
-                if (!string.IsNullOrEmpty(v))
-                    parts.Add(string.Format("{0} LIKE '%{1}%'", NormalizeExpr(afmCol), v));
-            }
-
-            RecordsView.RowFilter = (parts.Count == 0) ? "" : string.Join(" AND ", parts.ToArray());
-        }
-
-        private static string ResolveColumn(DataTable table, string[] candidates)
-        {
-            foreach (var c in candidates)
-            {
-                if (table.Columns.Contains(c)) return c;
-            }
-            return null;
-        }
-
-        private static string EscapeLike(string input)
-        {
-            if (input == null) return "";
-            // escape ' and LIKE special chars
-            string s = input.Replace("'", "''");
-            s = s.Replace("[", "[[]");
-            s = s.Replace("%", "[%]");
-            s = s.Replace("_", "[_]");
-            s = s.Replace("]", "[]]");
-            return s;
         }
 
         private static string NormalizeDigits(string s)
@@ -216,22 +215,10 @@ namespace EuroSearchApp
             return new string(s.Where(char.IsDigit).ToArray());
         }
 
-        private static string NormalizeExpr(string colName)
+        private void RecordsGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
-            // REPLACE chain για “καθάρισμα” σε RowFilter
-            // Προσοχή: RowFilter δουλεύει με single quotes
-            string x = string.Format("[{0}]", colName);
-            x = string.Format("REPLACE({0}, ' ', '')", x);
-            x = string.Format("REPLACE({0}, '-', '')", x);
-            x = string.Format("REPLACE({0}, '+', '')", x);
-            x = string.Format("REPLACE({0}, '(', '')", x);
-            x = string.Format("REPLACE({0}, ')', '')", x);
-            x = string.Format("REPLACE({0}, '.', '')", x);
-            x = string.Format("REPLACE({0}, '/', '')", x);
-            return x;
         }
 
-        // Kiosk enforce
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
@@ -245,7 +232,6 @@ namespace EuroSearchApp
             try
             {
                 _forcingKiosk = true;
-
                 var handle = new WindowInteropHelper(this).Handle;
                 var screen = WinForms.Screen.FromHandle(handle);
                 var b = screen.Bounds;
@@ -255,7 +241,6 @@ namespace EuroSearchApp
                 Top = b.Top;
                 Width = b.Width;
                 Height = b.Height;
-
                 Topmost = true;
             }
             finally
@@ -267,8 +252,7 @@ namespace EuroSearchApp
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name)
         {
-            var h = PropertyChanged;
-            if (h != null) h(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         private void Aade_Click(object sender, RoutedEventArgs e) { }

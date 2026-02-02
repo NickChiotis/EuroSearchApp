@@ -1,63 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using ClosedXML.Excel;
 using EuroSearchApp.Models;
+using ExcelDataReader;
+using System.Text;
 
 namespace EuroSearchApp.Services
 {
     public static class ExcelLoader
     {
-        public static List<PersonRecord> Load(string filePath)
+        public static List<PersonRecord> Load(string path)
         {
-            using (var wb = new XLWorkbook(filePath))
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var list = new List<PersonRecord>();
+
+            using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                var ws = wb.Worksheet(1);
-
-                var headerRow = ws.Row(1);
-                int colName = FindColumn(headerRow, "Ονομα");
-                int colPhone = FindColumn(headerRow, "Τηλέφωνο");
-                int colAfm = FindColumn(headerRow, "ΑΦΜ");
-
-                if (colName == -1 || colPhone == -1 || colAfm == -1)
-                    throw new Exception("Δεν βρέθηκαν headers: Ονομα, Τηλέφωνο, ΑΦΜ (στην 1η γραμμή).");
-
-                int lastRow = ws.LastRowUsed() != null ? ws.LastRowUsed().RowNumber() : 1;
-                var list = new List<PersonRecord>();
-
-                for (int r = 2; r <= lastRow; r++)
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-                    var row = ws.Row(r);
-
-                    string name = row.Cell(colName).GetString().Trim();
-                    string phone = row.Cell(colPhone).GetString().Trim();
-                    string afm = row.Cell(colAfm).GetString().Trim();
-
-                    if (string.IsNullOrWhiteSpace(name) &&
-                        string.IsNullOrWhiteSpace(phone) &&
-                        string.IsNullOrWhiteSpace(afm))
-                        continue;
-
-                    list.Add(new PersonRecord
+                    var result = reader.AsDataSet(new ExcelDataSetConfiguration
                     {
-                        Ονομα = name,
-                        Τηλέφωνο = phone,
-                        ΑΦΜ = afm
+                        ConfigureDataTable = _ => new ExcelDataTableConfiguration
+                        {
+                            UseHeaderRow = true
+                        }
                     });
-                }
 
-                return list;
+                    // Παίρνουμε το 1ο φύλλο
+                    var table = result.Tables[0];
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        var record = new PersonRecord
+                        {
+                            Selected = false,
+
+                            // ΕΔΩ ΓΙΝΕΤΑΙ Η "ΜΑΓΕΙΑ" ΤΗΣ ΑΝΤΙΣΤΟΙΧΙΣΗΣ
+                            // Αριστερά: Η κλάση μας | Δεξιά: Η στήλη στο Excel
+                            Επωνυμία = Get(row, "Επωνυμία"),
+                            ΑΦΜ = Get(row, "Επαφές - Α.Φ.Μ"),
+                            Τηλέφωνο = Get(row, "Τηλέφωνο 1"),
+                            Τηλέφωνο2 = Get(row, "Τηλέφωνο 2")
+                        };
+
+                        list.Add(record);
+                    }
+                }
             }
+
+            return list;
         }
 
-        private static int FindColumn(IXLRow headerRow, string headerName)
+        private static string Get(DataRow row, string columnName)
         {
-            foreach (var cell in headerRow.CellsUsed())
-            {
-                var text = cell.GetString().Trim();
-                if (string.Equals(text, headerName, StringComparison.OrdinalIgnoreCase))
-                    return cell.Address.ColumnNumber;
-            }
-            return -1;
+            if (!row.Table.Columns.Contains(columnName)) return "";
+            return row[columnName]?.ToString()?.Trim() ?? "";
         }
     }
 }

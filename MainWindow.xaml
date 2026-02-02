@@ -370,7 +370,26 @@
                     <Rectangle Fill="{StaticResource ExcelGlow}" IsHitTestVisible="False" />
 
                     <Border Margin="10" Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1">
-                        <DataGrid x:Name="RecordsGrid" Margin="0" AutoGenerateColumns="True" AutoGeneratingColumn="RecordsGrid_AutoGeneratingColumn" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" ItemsSource="{Binding RecordsView}" />
+                        <DataGrid x:Name="RecordsGrid" Margin="0" AlternatingRowBackground="#F7F9FC" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" GridLinesVisibility="None" HeadersVisibility="Column" IsReadOnly="False"
+                                  ItemsSource="{Binding RecordsView}"
+                                  RowBackground="#FFFFFF" SelectionMode="Extended" SelectionUnit="FullRow">
+
+                            <DataGrid.Columns>
+
+                                <!--  ✅ Checkbox (editable)  -->
+                                <DataGridCheckBoxColumn Width="40" Binding="{Binding Selected, Mode=TwoWay}" Header="" />
+
+                                <!--  👁 Επωνυμία (κύρια στήλη)  -->
+                                <DataGridTextColumn Width="3*" Binding="{Binding Επωνυμία}" Header="Επωνυμία" IsReadOnly="True" />
+
+                                <!--  👁 ΑΦΜ  -->
+                                <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="ΑΦΜ" IsReadOnly="True" />
+
+                                <!--  👁 Τηλέφωνο  -->
+                                <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="Τηλέφωνο" IsReadOnly="True" />
+
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Border>
                 </Grid>
             </Border>

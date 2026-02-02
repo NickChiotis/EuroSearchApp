@@ -1,4 +1,3 @@
-C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.AssemblyReference.cache
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\MainWindow.g.cs
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\App.g.cs
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_MarkupCompile.cache
@@ -38,3 +37,11 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.CopyComplete
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.exe
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Text.Encoding.CodePages.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Text.Encoding.CodePages.xml
