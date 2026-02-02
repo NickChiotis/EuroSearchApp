@@ -22,6 +22,9 @@ using WinForms = System.Windows.Forms;
 using System.Windows.Threading;
 using System.Data;
 using System.IO;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Drawing;
 
 namespace EuroSearchApp
 {
@@ -75,6 +78,18 @@ namespace EuroSearchApp
             }
         }
 
+        private int _statusFilterIndex = 0; // 0=Όλα, 1=Checked, 2=Unchecked
+        public int StatusFilterIndex
+        {
+            get { return _statusFilterIndex; }
+            set
+            {
+                _statusFilterIndex = value;
+                OnPropertyChanged(nameof(StatusFilterIndex));
+                RefreshFilter(); // Ανανέωση της λίστας μόλις αλλάξει η επιλογή
+            }
+        }
+
         private bool _forcingKiosk;
 
         public MainWindow()
@@ -113,7 +128,7 @@ namespace EuroSearchApp
         }
 
         // Κουμπί για χειροκίνητη επιλογή άλλου αρχείου
-        private void LoadExcel_Click(object sender, RoutedEventArgs e)
+        private async void LoadExcel_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -122,7 +137,31 @@ namespace EuroSearchApp
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    LoadData(openFileDialog.FileName); // Καλεί την ίδια μέθοδο
+                    string path = openFileDialog.FileName;
+                    // Κλείδωσε το UI αν θες (π.χ. το κουμπί φόρτωσης)
+                    // BtnLoad.IsEnabled = false; 
+
+                    // 2. Τρέξε τη βαριά δουλειά σε άλλο Thread
+                    List<PersonRecord> rawList = null;
+
+                    await Task.Run(() =>
+                    {
+                        // Αυτό τώρα τρέχει στο background και δεν παγώνει το παράθυρο
+                        rawList = ExcelLoader.Load(path);
+                    });
+
+                    // BtnLoad.IsEnabled = true;
+
+                    if (rawList == null || rawList.Count == 0)
+                    {
+                        MessageBox.Show("Δεν βρέθηκαν εγγραφές.");
+                        return;
+                    }
+
+                    RecordsView = CollectionViewSource.GetDefaultView(rawList);
+                    RecordsView.Filter = FilterRecords;
+
+                    MessageBox.Show($"Φορτώθηκαν {rawList.Count} εγγραφές επιτυχώς!");
                 }
             }
             catch (Exception ex)
@@ -198,6 +237,16 @@ namespace EuroSearchApp
                 if (!match1 && !match2) return false;
             }
 
+            // --- ΦΙΛΤΡΟ ΚΑΤΑΣΤΑΣΗΣ ---
+            if (StatusFilterIndex == 1) // Θέλουμε μόνο τα Checked
+            {
+                if (!person.Selected) return false;
+            }
+            else if (StatusFilterIndex == 2) // Θέλουμε μόνο τα Unchecked
+            {
+                if (person.Selected) return false;
+            }
+
             return true;
         }
 
@@ -256,6 +305,143 @@ namespace EuroSearchApp
         }
 
         private void Aade_Click(object sender, RoutedEventArgs e) { }
-        private void ExportExcel_Click(object sender, RoutedEventArgs e) { }
+        // 1. Ανοίγει το μενού όταν πατάς το κουμπί
+        private void OpenExportMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            if (btn != null && btn.ContextMenu != null)
+            {
+                btn.ContextMenu.PlacementTarget = btn;
+                btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                btn.ContextMenu.IsOpen = true;
+            }
+        }
+
+        // 2. Επιλογή: Εξαγωγή ΟΛΩΝ (ανεξαρτήτως αν είναι τικαρισμένα ή όχι)
+        private void ExportAll_Click(object sender, RoutedEventArgs e)
+        {
+            var allRecords = RecordsView?.SourceCollection as IEnumerable<PersonRecord>;
+            if (allRecords == null) return;
+
+            // Τα παίρνουμε όλα σε λίστα
+            var listToExport = allRecords.ToList();
+
+            ExportToExcel(listToExport, "All");
+        }
+
+        // 3. Επιλογή: Εξαγωγή των UNCHECKED (όσα δεν έχουν τικ)
+        private void ExportUnchecked_Click(object sender, RoutedEventArgs e)
+        {
+            // Σιγουρεύουμε ότι το Grid έχει σώσει τυχόν αλλαγές της τελευταίας στιγμής
+            RecordsGrid.CommitEdit();
+            RecordsGrid.CommitEdit();
+
+            var allRecords = RecordsView?.SourceCollection as IEnumerable<PersonRecord>;
+            if (allRecords == null) return;
+
+            // Φιλτράρουμε όπου Selected == false
+            var listToExport = allRecords.Where(r => r.Selected == false).ToList();
+
+            ExportToExcel(listToExport, "Unchecked");
+        }
+
+        // --- ΒΟΗΘΗΤΙΚΗ ΜΕΘΟΔΟΣ (Κάνει την πραγματική δουλειά) ---
+        private void ExportToExcel(List<PersonRecord> records, string suffix)
+        {
+            if (records.Count == 0)
+            {
+                MessageBox.Show("Δεν βρέθηκαν εγγραφές.", "Προσοχή", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Ρύθμιση Άδειας (για EPPlus 7)
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = $"PYLON_Export_{suffix}_{DateTime.Now:yyyyMMdd}.xlsx",
+                Title = "Εξαγωγή για Pylon (Pro)"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    if (File.Exists(saveFileDialog.FileName)) File.Delete(saveFileDialog.FileName);
+
+                    using (var package = new ExcelPackage(new FileInfo(saveFileDialog.FileName)))
+                    {
+                        var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
+
+                        // --- 1. ΕΠΙΚΕΦΑΛΙΔΕΣ (Προστέθηκε η "Επιλογή" στην αρχή) ---
+                        string[] headers = {
+                    "Επιλογή", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
+                    "Έγινε Επίδειξη", "Πόλεις (Μεγέθυνση) - Όνομα", "Επαφές - Ημερομηνία 1",
+                    "E-mail 1", "E-mail 2", "Τηλέφωνο 2", "GDPR", "Παρουσίαση TWO",
+                    "Παλιός Πελάτης", "Επαφές - Σχόλιο", "ΠΡΟΓΡΑΜΜΑ"
+                };
+
+                        for (int i = 0; i < headers.Length; i++)
+                        {
+                            ws.Cells[1, i + 1].Value = headers[i];
+                        }
+
+                        // --- 2. ΓΕΜΙΣΜΑ ΔΕΔΟΜΕΝΩΝ ---
+                        int row = 2;
+                        foreach (var item in records)
+                        {
+                            // Στήλη 1: Αν είναι επιλεγμένο ή όχι
+                            ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
+
+                            // Οι υπόλοιπες στήλες μετατοπίστηκαν κατά +1
+                            ws.Cells[row, 2].Value = item.Επωνυμία;
+                            ws.Cells[row, 3].Value = item.ΑΦΜ;
+                            ws.Cells[row, 4].Value = item.Τηλέφωνο;
+                            // Κενά πεδία...
+                            ws.Cells[row, 11].Value = item.Τηλέφωνο2;
+
+                            row++;
+                        }
+
+                        // --- 3. PRO ΜΟΡΦΟΠΟΙΗΣΗ ---
+                        var dataRange = ws.Cells[1, 1, row - 1, headers.Length];
+
+                        // Δημιουργία Table
+                        var table = ws.Tables.Add(dataRange, "PylonData");
+                        table.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        table.ShowFilter = true;
+
+                        // Γραμματοσειρά
+                        ws.Cells.Style.Font.Name = "Segoe UI";
+                        ws.Cells.Style.Font.Size = 10;
+
+                        // Κεντράρισμα στηλών (Προστέθηκε η στήλη 1)
+                        ws.Column(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Επιλογή
+                        ws.Column(3).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // ΑΦΜ
+                        ws.Column(4).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Τηλ 1
+                        ws.Column(11).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Τηλ 2
+
+                        // AutoFit και "αέρας"
+                        ws.Cells.AutoFitColumns();
+                        for (int i = 1; i <= headers.Length; i++)
+                        {
+                            ws.Column(i).Width = ws.Column(i).Width + 2;
+                        }
+
+                        // Freeze Panes
+                        ws.View.FreezePanes(2, 1);
+
+                        package.Save();
+                    }
+
+                    MessageBox.Show($"Εγινε εξαγωγή Excel με!\n{saveFileDialog.FileName}", "Επιτυχία", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Σφάλμα: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 }

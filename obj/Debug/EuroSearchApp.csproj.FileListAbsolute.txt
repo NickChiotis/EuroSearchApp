@@ -45,3 +45,13 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.pdb
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Text.Encoding.CodePages.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.Interfaces.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.ComponentModel.Annotations.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Security.Cryptography.Xml.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Microsoft.IO.RecyclableMemoryStream.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Security.Cryptography.Xml.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.AssemblyReference.cache
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.System.Drawing.dll
