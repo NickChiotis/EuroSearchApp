@@ -224,10 +224,21 @@ namespace EuroSearchApp
                 }
             }
 
-            // 3. Φίλτρο Τηλεφώνου
+            // 3. Φίλτρο Τηλεφώνου (ΔΙΟΡΘΩΜΕΝΟ)
             if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
+                // Καθαρίζουμε αυτό που έγραψε ο χρήστης (κρατάμε μόνο ψηφία)
                 string cleanQuery = NormalizeDigits(PhoneQuery);
+
+                // --- Η ΔΙΟΡΘΩΣΗ ΕΙΝΑΙ ΕΔΩ ---
+                // Αν ο χρήστης έγραψε κάτι (π.χ. "abc" ή "-") που μετά τον καθαρισμό έμεινε κενό,
+                // τότε σημαίνει ότι δεν ψάχνει αριθμό. Άρα δεν πρέπει να ταιριάξει με κανέναν.
+                if (string.IsNullOrEmpty(cleanQuery))
+                {
+                    return false; // Επιστρέφει κενό αποτέλεσμα αντί για όλα
+                }
+
+                // Καθαρίζουμε τα τηλέφωνα της βάσης (για να ταιριάζουν ακόμα κι αν έχουν κενά ανάμεσα)
                 string p1 = NormalizeDigits(person.Τηλέφωνο);
                 string p2 = NormalizeDigits(person.Τηλέφωνο2);
 
@@ -237,12 +248,12 @@ namespace EuroSearchApp
                 if (!match1 && !match2) return false;
             }
 
-            // --- ΦΙΛΤΡΟ ΚΑΤΑΣΤΑΣΗΣ ---
-            if (StatusFilterIndex == 1) // Θέλουμε μόνο τα Checked
+            // 4. Φίλτρο Κατάστασης (Checked/Unchecked)
+            if (StatusFilterIndex == 1) // Checked
             {
                 if (!person.Selected) return false;
             }
-            else if (StatusFilterIndex == 2) // Θέλουμε μόνο τα Unchecked
+            else if (StatusFilterIndex == 2) // Unchecked
             {
                 if (person.Selected) return false;
             }
