@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace EuroSearchApp.Models
 {
     public class PersonRecord : INotifyPropertyChanged
     {
-        // --- 1. SELECTED ---
+        // --- 1. SELECTED (CHECKBOX) ---
         private bool _selected;
         public bool Selected
         {
@@ -19,7 +20,7 @@ namespace EuroSearchApp.Models
                 if (_selected != value)
                 {
                     _selected = value;
-                    OnPropertyChanged(nameof(Selected));
+                    OnPropertyChanged();
                 }
             }
         }
@@ -34,58 +35,102 @@ namespace EuroSearchApp.Models
                 if (_comments != value)
                 {
                     _comments = value;
-                    OnPropertyChanged(nameof(Comments));
+                    OnPropertyChanged();
                 }
             }
         }
 
-        // --- 3. ΑΠΛΑ ΠΕΔΙΑ (Δεν χρειάζονται ειδική λογική ακόμα) ---
-        public string Επωνυμία { get; set; }
-        public string ΑΦΜ { get; set; }
+        // --- 3. ΒΑΣΙΚΑ ΠΕΔΙΑ (ΕΠΩΝΥΜΙΑ & ΑΦΜ) ---
+        // Προσοχή: Εδώ βάλαμε OnPropertyChanged για να ενημερώνεται το UI
+        // αυτόματα μόλις έρθουν τα στοιχεία από την ΑΑΔΕ.
 
-        // --- 4. ΤΗΛΕΦΩΝΑ (ΒΕΛΤΙΣΤΟΠΟΙΗΜΕΝΑ) ---
-        // Εδώ γίνεται η μαγεία για να μην κολλάει η αναζήτηση
+        private string _eponymia;
+        public string Επωνυμία
+        {
+            get { return _eponymia; }
+            set
+            {
+                if (_eponymia != value)
+                {
+                    _eponymia = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
-        // Κρυφά πεδία (Backing fields)
-        private string _τηλέφωνο;
-        private string _τηλέφωνο2;
+        private string _afm;
+        public string ΑΦΜ
+        {
+            get { return _afm; }
+            set
+            {
+                if (_afm != value)
+                {
+                    _afm = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
-        // Πεδία που κρατάνε ΜΟΝΟ τα νούμερα (για γρήγορη αναζήτηση)
+        // Προαιρετικό: Αν έχεις ID στη βάση δεδομένων για το SQL Update
+        public int IDinDB { get; set; }
+
+        // --- 4. ΤΗΛΕΦΩΝΑ (PERFORMANCE OPTIMIZATION) ---
+        // Εδώ γίνεται ο αυτόματος καθαρισμός για να μην κολλάει η αναζήτηση.
+
+        private string _tilefono;
+        private string _tilefono2;
+
+        // Αυτά τα πεδία χρησιμοποιεί το φίλτρο (Μόνο νούμερα)
         public string CleanPhone1 { get; private set; }
         public string CleanPhone2 { get; private set; }
 
         public string Τηλέφωνο
         {
-            get { return _τηλέφωνο; }
+            get { return _tilefono; }
             set
             {
-                if (_τηλέφωνο != value)
+                if (_tilefono != value)
                 {
-                    _τηλέφωνο = value;
-                    // Υπολογίζουμε το καθαρό νούμερο ΜΙΑ φορά, εδώ!
+                    _tilefono = value;
+                    // Υπολογισμός καθαρού αριθμού ΜΙΑ φορά κατά την ανάθεση
                     CleanPhone1 = NormalizeDigits(value);
-                    OnPropertyChanged(nameof(Τηλέφωνο));
+                    OnPropertyChanged();
                 }
             }
         }
 
         public string Τηλέφωνο2
         {
-            get { return _τηλέφωνο2; }
+            get { return _tilefono2; }
             set
             {
-                if (_τηλέφωνο2 != value)
+                if (_tilefono2 != value)
                 {
-                    _τηλέφωνο2 = value;
-                    // Υπολογίζουμε το καθαρό νούμερο ΜΙΑ φορά, εδώ!
+                    _tilefono2 = value;
+                    // Υπολογισμός καθαρού αριθμού ΜΙΑ φορά κατά την ανάθεση
                     CleanPhone2 = NormalizeDigits(value);
-                    OnPropertyChanged(nameof(Τηλέφωνο2));
+                    OnPropertyChanged();
                 }
             }
         }
 
-        // --- ΒΟΗΘΗΤΙΚΗ ΜΕΘΟΔΟΣ ---
-        // Πολύ γρήγορος καθαρισμός συμβόλων (κρατάει μόνο ψηφία)
+        // --- 5. ΔΙΕΥΘΥΝΣΗ (Προαιρετικό, για την ΑΑΔΕ) ---
+        private string _address;
+        public string Διεύθυνση
+        {
+            get { return _address; }
+            set
+            {
+                if (_address != value)
+                {
+                    _address = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        // --- HELPER: ΓΡΗΓΟΡΟΣ ΚΑΘΑΡΙΣΜΟΣ STRING ---
         private static string NormalizeDigits(string s)
         {
             if (string.IsNullOrEmpty(s)) return "";
@@ -105,7 +150,9 @@ namespace EuroSearchApp.Models
 
         // --- INotifyPropertyChanged Implementation ---
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string name)
+
+        // Η μέθοδος αυτή ειδοποιεί το UI ότι άλλαξε κάποια τιμή
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

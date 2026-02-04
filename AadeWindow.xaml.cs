@@ -1,0 +1,75 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using EuroSearchApp.Services;
+
+namespace EuroSearchApp
+{
+    public partial class AadeWindow : Window
+    {
+        // Εδώ θα αποθηκεύσουμε τα αποτελέσματα για να τα πάρει το κεντρικό παράθυρο
+        public string FetchedName { get; private set; }
+        public string FetchedAddress { get; private set; }
+
+        public AadeWindow(string currentAfm)
+        {
+            InitializeComponent();
+            TxtSearchAfm.Text = currentAfm; // Βάζουμε το ΑΦΜ που μας έστειλε το κεντρικό παράθυρο
+        }
+
+        private async void FetchAade_Click(object sender, RoutedEventArgs e)
+        {
+            TxtStatus.Text = "Γίνεται σύνδεση με ΑΑΔΕ...";
+            TxtStatus.Foreground = System.Windows.Media.Brushes.Blue;
+            string afm = TxtSearchAfm.Text;
+
+            // Κλήση της πραγματικής υπηρεσίας (την τρέχουμε σε άλλο thread για να μην κολλήσει το UI)
+            var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(afm));
+
+            if (result.Success)
+            {
+                TxtResultName.Text = result.Name;
+                TxtResultAddress.Text = result.Address;
+
+                TxtStatus.Text = "Επιτυχής ανάκτηση στοιχείων!";
+                TxtStatus.Foreground = System.Windows.Media.Brushes.Green;
+            }
+            else
+            {
+                TxtStatus.Text = result.ErrorMessage;
+                TxtStatus.Foreground = System.Windows.Media.Brushes.Red;
+
+                // Καθαρίζουμε τα πεδία αν απέτυχε
+                TxtResultName.Text = "";
+                TxtResultAddress.Text = "";
+            }
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            // Αποθηκεύουμε αυτά που γράφουν τα TextBox στα Properties
+            FetchedName = TxtResultName.Text;
+            FetchedAddress = TxtResultAddress.Text;
+
+            // Επιστρέφουμε "True" στο κεντρικό παράθυρο (σημαίνει ΟΚ)
+            DialogResult = true;
+            Close();
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
+    }
+}

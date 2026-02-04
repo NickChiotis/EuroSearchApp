@@ -53,7 +53,6 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Security.Crypt
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Microsoft.IO.RecyclableMemoryStream.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Security.Cryptography.Xml.xml
-C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.AssemblyReference.cache
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EPPlus.System.Drawing.dll
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Assets\Templates\Template.xlsx
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EuroSearchApp.exe.manifest
@@ -61,3 +60,8 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\EuroSearchApp.applica
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_Content.g.cs
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.exe.manifest
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.application
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeWindow.g.cs
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_MarkupCompile.lref
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeSettingsWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeSettingsWindow.g.cs

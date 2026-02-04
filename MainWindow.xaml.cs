@@ -117,6 +117,7 @@ namespace EuroSearchApp
         {
             GoKioskFullScreen();
 
+
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
 
@@ -164,6 +165,16 @@ namespace EuroSearchApp
             }
         }
 
+        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            AadeSettingsWindow settingsWin = new AadeSettingsWindow();
+            settingsWin.Owner = this;
+            settingsWin.Topmost = true; // Για να φαίνεται πάνω από το main window
+            settingsWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            settingsWin.ShowDialog();
+        }
+
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -183,6 +194,8 @@ namespace EuroSearchApp
 
                 RecordsView = CollectionViewSource.GetDefaultView(rawList);
                 RecordsView.Filter = FilterRecords;
+
+                RefreshFilter();
             }
             catch (Exception ex)
             {
@@ -194,6 +207,7 @@ namespace EuroSearchApp
         {
             var person = item as PersonRecord;
             if (person == null) return false;
+            // -------------------------
 
             // 1. Φίλτρο Ονόματος
             if (!string.IsNullOrWhiteSpace(NameQuery))
@@ -208,8 +222,10 @@ namespace EuroSearchApp
             // 2. Φίλτρο ΑΦΜ
             if (!string.IsNullOrWhiteSpace(AfmQuery))
             {
+                // Χρησιμοποιούμε StartsWith που είναι πιο γρήγορο για ΑΦΜ
+                // Αν δεν υπάρχει ΑΦΜ ή δεν ξεκινάει με τα ψηφία που έγραψες -> false
                 if (string.IsNullOrEmpty(person.ΑΦΜ) ||
-                    person.ΑΦΜ.IndexOf(AfmQuery, StringComparison.OrdinalIgnoreCase) < 0)
+                    !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
@@ -219,26 +235,23 @@ namespace EuroSearchApp
             if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
                 string cleanQuery = NormalizeDigits(PhoneQuery);
-                if (string.IsNullOrEmpty(cleanQuery)) return false;
 
-                string p1 = NormalizeDigits(person.Τηλέφωνο);
-                string p2 = NormalizeDigits(person.Τηλέφωνο2);
+                if (!string.IsNullOrEmpty(cleanQuery))
+                {
+                    // Ελέγχουμε αν είναι null πριν καλέσουμε το Normalize
+                    string p1 = person.Τηλέφωνο != null ? NormalizeDigits(person.Τηλέφωνο) : "";
+                    string p2 = person.Τηλέφωνο2 != null ? NormalizeDigits(person.Τηλέφωνο2) : "";
 
-                bool match1 = !string.IsNullOrEmpty(p1) && p1.Contains(cleanQuery);
-                bool match2 = !string.IsNullOrEmpty(p2) && p2.Contains(cleanQuery);
+                    bool match1 = p1.Contains(cleanQuery);
+                    bool match2 = p2.Contains(cleanQuery);
 
-                if (!match1 && !match2) return false;
+                    if (!match1 && !match2) return false;
+                }
             }
 
             // 4. Φίλτρο Κατάστασης
-            if (StatusFilterIndex == 1) // Checked
-            {
-                if (!person.Selected) return false;
-            }
-            else if (StatusFilterIndex == 2) // Unchecked
-            {
-                if (person.Selected) return false;
-            }
+            if (StatusFilterIndex == 1 && !person.Selected) return false;
+            if (StatusFilterIndex == 2 && person.Selected) return false;
 
             return true;
         }
@@ -270,8 +283,21 @@ namespace EuroSearchApp
 
         private static string NormalizeDigits(string s)
         {
-            if (string.IsNullOrEmpty(s)) return "";
-            return new string(s.Where(char.IsDigit).ToArray());
+            if (string.IsNullOrEmpty(s)) return " - ";
+
+            // Χρήση unsafe pointer-like logic με char array για ταχύτητα
+            char[] buffer = new char[s.Length];
+            int idx = 0;
+
+            foreach (char c in s)
+            {
+                if (char.IsDigit(c))
+                {
+                    buffer[idx++] = c;
+                }
+            }
+
+            return new string(buffer, 0, idx);
         }
 
         private void RecordsGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -314,7 +340,70 @@ namespace EuroSearchApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private void Aade_Click(object sender, RoutedEventArgs e) { }
+        private void Aade_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Παίρνουμε το ΑΦΜ από το πεδίο αναζήτησης
+            string afmFromFilter = TxtAfm.Text.Trim();
+
+            if (string.IsNullOrEmpty(afmFromFilter))
+            {
+                MessageBox.Show("Παρακαλώ πληκτρολογήστε ένα ΑΦΜ στο πεδίο αναζήτησης.", "Λείπει ΑΦΜ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                TxtAfm.Focus();
+                return;
+            }
+
+            // 2. Ανοίγουμε το παράθυρο της ΑΑΔΕ (χωρίς να μας νοιάζει αν υπάρχει ο πελάτης)
+            AadeWindow aadeWin = new AadeWindow(afmFromFilter);
+
+            // --- ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ 3 ΓΡΑΜΜΕΣ ---
+            aadeWin.Owner = this; // 1. Συνδέει τα παράθυρα ώστε να μην χάνεται από πίσω
+            aadeWin.WindowStartupLocation = WindowStartupLocation.CenterOwner; // 2. Κεντράρισμα
+            aadeWin.Topmost = true; // 3. ΣΗΜΑΝΤΙΚΟ: Επειδή το Main είναι Topmost, πρέπει να είναι και αυτό!
+            // ------------------------------------
+
+            if (aadeWin.ShowDialog() == true)
+            {
+                // Ο χρήστης πάτησε "Αποθήκευση" στο παράθυρο της ΑΑΔΕ.
+                // Τώρα πρέπει να βρούμε αν αυτό το ΑΦΜ υπάρχει ήδη στη λίστα μας.
+
+                // Παίρνουμε την αρχική λίστα δεδομένων
+                var sourceList = RecordsView.SourceCollection as List<PersonRecord>;
+
+                if (sourceList == null) return;
+
+                // Ψάχνουμε αν υπάρχει ήδη εγγραφή με αυτό το ΑΦΜ
+                var existingPerson = sourceList.FirstOrDefault(p => p.ΑΦΜ == afmFromFilter);
+
+                if (existingPerson != null)
+                {
+                    // ΠΕΡΙΠΤΩΣΗ 1: Υπάρχει ήδη -> Τον ενημερώνουμε
+                    existingPerson.Επωνυμία = aadeWin.FetchedName;
+                    // existingPerson.Διεύθυνση = aadeWin.FetchedAddress; // Αν έχεις διεύθυνση
+
+                    MessageBox.Show($"Ο πελάτης βρέθηκε στη λίστα και ενημερώθηκε!\n\nΕπωνυμία: {existingPerson.Επωνυμία}", "Ενημέρωση Υπάρχοντος", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // ΠΕΡΙΠΤΩΣΗ 2: Δεν υπάρχει -> Φτιάχνουμε ΝΕΟ
+                    var newPerson = new PersonRecord
+                    {
+                        ΑΦΜ = afmFromFilter,
+                        Επωνυμία = aadeWin.FetchedName,
+                        Τηλέφωνο = "", // Κενό ή μπορείς να βάλεις "N/A"
+                        Comments = "Προστέθηκε από ΑΑΔΕ",
+                        Selected = true // Τον επιλέγουμε για να φαίνεται έντονα
+                    };
+
+                    // Τον προσθέτουμε στη λίστα
+                    sourceList.Add(newPerson);
+
+                    MessageBox.Show($"Δημιουργήθηκε νέα εγγραφή!\n\nΕπωνυμία: {newPerson.Επωνυμία}", "Νέος Πελάτης", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
+                // 3. Σημαντικό: Ανανεώνουμε τον πίνακα για να φανεί η αλλαγή (ή η νέα εγγραφή)
+                RefreshFilter();
+            }
+        }
 
         // --- ΒΟΗΘΗΤΙΚΗ: Παίρνει μόνο τα ορατά ---
         private List<PersonRecord> GetVisibleRecords()
@@ -356,7 +445,7 @@ namespace EuroSearchApp
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = $"PYLON_Export_{suffix}_{DateTime.Now:yyyyMMdd}.xlsx",
+                FileName = $"ΛΙΣΤΑ_ΕΠΩΝΥΜΙΩΝ_{DateTime.Now:dd_MM_yyyy_HH:mm}.xlsx",
                 Title = "Εξαγωγή για Pylon (Pro)"
             };
 
@@ -372,10 +461,10 @@ namespace EuroSearchApp
 
                         // --- 1. ΕΠΙΚΕΦΑΛΙΔΕΣ ---
                         string[] headers = {
-                            "Επιλογή", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
+                            "Επιλογή", "Επαφές - Σχόλιο", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
                             "Έγινε Επίδειξη", "Πόλεις (Μεγέθυνση) - Όνομα", "Επαφές - Ημερομηνία 1",
                             "E-mail 1", "E-mail 2", "Τηλέφωνο 2", "GDPR", "Παρουσίαση TWO",
-                            "Παλιός Πελάτης", "Επαφές - Σχόλιο", "ΠΡΟΓΡΑΜΜΑ"
+                            "Παλιός Πελάτης", "ΠΡΟΓΡΑΜΜΑ"
                         };
 
                         for (int i = 0; i < headers.Length; i++)

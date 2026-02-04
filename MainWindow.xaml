@@ -3,28 +3,39 @@
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
                 <Storyboard AutoReverse="True" RepeatBehavior="Forever">
-                    <ColorAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Color" From="#660099" To="#0066CC" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Color" From="#660099" To="#660099" Duration="0:0:3" />
                     <ColorAnimation Storyboard.TargetName="Stop2" Storyboard.TargetProperty="Color" From="#00CCCC" To="#33CC66" Duration="0:0:3" />
                     <DoubleAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Offset" From="0.0" To="0.3" Duration="0:0:4" />
                     <DoubleAnimation Storyboard.TargetName="Stop3" Storyboard.TargetProperty="Offset" From="1.0" To="0.7" Duration="0:0:4" />
-
-                    <ColorAnimation Storyboard.TargetName="MainBgStop1" Storyboard.TargetProperty="Color" From="#660099" To="#0066CC" Duration="0:0:3" />
-                    <ColorAnimation Storyboard.TargetName="MainBgStop2" Storyboard.TargetProperty="Color" From="#00CCCC" To="#33CC66" Duration="0:0:3" />
-                    <ColorAnimation Storyboard.TargetName="MainBgStop3" Storyboard.TargetProperty="Color" From="#660099" To="#0066CC" Duration="0:0:3" />
 
                     <ColorAnimation Storyboard.TargetName="LineStop1" Storyboard.TargetProperty="Color" From="#660099" To="#0066CC" Duration="0:0:3" />
                     <ColorAnimation Storyboard.TargetName="LineStop2" Storyboard.TargetProperty="Color" From="#00CCCC" To="#33CC66" Duration="0:0:3" />
                     <DoubleAnimation Storyboard.TargetName="LineStop1" Storyboard.TargetProperty="Offset" From="0.0" To="0.4" Duration="0:0:5" />
                     <DoubleAnimation Storyboard.TargetName="LineStop3" Storyboard.TargetProperty="Offset" From="1.0" To="0.6" Duration="0:0:5" />
+
+                    <ColorAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Color" From="#00CCCC" To="#fff" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="back2" Storyboard.TargetProperty="Color" From="#fff" To="#00CCCC" Duration="0:0:3" />
+                    <DoubleAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Offset" From="0.0" To="0.3" Duration="0:0:4" />
+                    <DoubleAnimation Storyboard.TargetName="back3" Storyboard.TargetProperty="Offset" From="1.0" To="0.7" Duration="0:0:4" />
+
+                    <ColorAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Color" From="#00CCCC" To="#fff" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="back2" Storyboard.TargetProperty="Color" From="#fff" To="#00CCCC" Duration="0:0:3" />
+                    <DoubleAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Offset" From="0.0" To="0.4" Duration="0:0:5" />
+                    <DoubleAnimation Storyboard.TargetName="back3" Storyboard.TargetProperty="Offset" From="1.0" To="0.6" Duration="0:0:5" />
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
     </Window.Triggers>
 
-    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="16">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="10" Opacity="0.2" ShadowDepth="10" Color="#1E293B" />
-        </Border.Effect>
+    <Border BorderBrush="#E2E8F0" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop x:Name="back1" Offset="0.0" Color="#00CCCC" />
+                <GradientStop x:Name="back2" Offset="0.5" Color="#fff" />
+                <GradientStop x:Name="back3" Offset="1.0" Color="#00CCCC" />
+            </LinearGradientBrush>
+        </Border.Background>
+
 
         <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
             <Grid.Resources>
@@ -57,11 +68,6 @@
                                     </Trigger>
                                     <Trigger Property="IsFocused" Value="True">
                                         <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Primary}" />
-                                        <Setter TargetName="border" Property="Effect">
-                                            <Setter.Value>
-                                                <DropShadowEffect BlurRadius="4" Opacity="0.15" ShadowDepth="0" Color="#3B82F6" />
-                                            </Setter.Value>
-                                        </Setter>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -145,10 +151,15 @@
 
                 <Style TargetType="DataGrid">
                     <Setter Property="Background" Value="White" />
-                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="BorderThickness" Value="1" />
+                    <Setter Property="BorderBrush" Value="#E2E8F0" />
                     <Setter Property="RowHeaderWidth" Value="0" />
-                    <Setter Property="GridLinesVisibility" Value="Horizontal" />
-                    <Setter Property="HorizontalGridLinesBrush" Value="#F1F5F9" />
+
+                    <Setter Property="GridLinesVisibility" Value="All" />
+
+                    <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0" />
+                    <Setter Property="VerticalGridLinesBrush" Value="#E2E8F0" />
+
                     <Setter Property="HeadersVisibility" Value="Column" />
                     <Setter Property="RowHeight" Value="48" />
                     <Setter Property="FontSize" Value="14" />
@@ -284,9 +295,7 @@
                         <GradientStop x:Name="Stop3" Offset="1.0" Color="#660099" />
                     </LinearGradientBrush>
                 </Border.Background>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" Direction="270" Opacity="0.04" ShadowDepth="4" />
-                </Border.Effect>
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -309,6 +318,9 @@
                                 <TextBlock Text="Εξαγωγή" />
                             </StackPanel>
                         </Button>
+                        <Button Width="40" Height="40" Click="OpenSettings_Click" Style="{StaticResource BtnIcon}" ToolTip="Ρυθμίσεις ΑΑΔΕ">
+                            <Path Width="18" Height="18" Fill="White" Data="M19.14,12.94C19.14,12.78 19.14,12.61 19.14,12.44C19.14,12.27 19.14,12.11 19.14,11.94L21.41,10.19C21.62,10.03 21.68,9.75 21.56,9.5L19.5,6.08C19.38,5.83 19.06,5.75 18.81,5.83L16.14,6.94C15.61,6.5 15,6.17 14.38,5.89L13.94,3C13.94,2.75 13.69,2.56 13.44,2.56H9.44C9.19,2.56 8.94,2.75 8.94,3L8.5,5.89C7.88,6.14 7.25,6.5 6.75,6.94L4.06,5.83C3.81,5.75 3.5,5.83 3.38,6.08L1.31,9.5C1.19,9.75 1.25,10.03 1.44,10.19L3.75,11.94C3.75,12.11 3.75,12.28 3.75,12.44C3.75,12.61 3.75,12.78 3.75,12.94L1.44,14.69C1.25,14.86 1.19,15.14 1.31,15.39L3.38,18.81C3.5,19.06 3.81,19.14 4.06,19.06L6.75,17.94C7.25,18.39 7.88,18.75 8.5,19L8.94,21.89C8.94,22.14 9.19,22.33 9.44,22.33H13.44C13.69,22.33 13.94,22.14 13.94,21.89L14.38,19C15,18.72 15.61,18.39 16.14,17.94L18.81,19.06C19.06,19.14 19.38,19.06 19.5,18.81L21.56,15.39C21.68,15.14 21.62,14.86 21.41,14.69L19.14,12.94M11.44,15.44C9.75,15.44 8.44,14.11 8.44,12.44C8.44,10.78 9.75,9.44 11.44,9.44C13.11,9.44 14.44,10.78 14.44,12.44C14.44,14.11 13.11,15.44 11.44,15.44Z" Stretch="Uniform"/>
+                        </Button>
                         <Button Width="40" Height="40" Click="Close_Click" Style="{StaticResource BtnIcon}">
                             <Path Width="12" Height="12" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="White" Stretch="Uniform" />
                         </Button>
@@ -316,15 +328,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Padding="24" ClipToBounds="True">
-                <Border.Background>
-                    <LinearGradientBrush Opacity="0.9" StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop x:Name="MainBgStop1" Offset="0.0" Color="#660099" />
-                        <GradientStop x:Name="MainBgStop2" Offset="0.5" Color="#0066CC" />
-                        <GradientStop x:Name="MainBgStop3" Offset="1.0" Color="#660099" />
-                    </LinearGradientBrush>
-                </Border.Background>
-
+            <Border Grid.Row="1" Padding="24" ClipToBounds="True" CornerRadius="10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -332,10 +336,8 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="16">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="4" Color="#0F172A" />
-                        </Border.Effect>
+                    <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="10">
+
                         <Grid Margin="24,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -389,10 +391,8 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="1" Margin="0,0,0,20" Background="White" CornerRadius="16">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="4" Color="#0F172A" />
-                        </Border.Effect>
+                    <Border Grid.Row="1" Margin="0,0,0,20" Background="White" CornerRadius="10">
+
                         <Grid Margin="24,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -419,10 +419,8 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="2" Margin="0,0,0,24" Background="White" ClipToBounds="True" CornerRadius="16">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="4" Color="#0F172A" />
-                        </Border.Effect>
+                    <Border Grid.Row="2" Margin="0,0,0,24" Background="White" ClipToBounds="True">
+
                         <Grid>
                             <Border Height="4" VerticalAlignment="Top" Panel.ZIndex="1">
                                 <Border.Background>
@@ -464,7 +462,7 @@
                                         </DataGridTextColumn.EditingElementStyle>
                                     </DataGridTextColumn>
 
-                                    <DataGridTextColumn Width="3*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
+                                    <DataGridTextColumn Width="*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="Α.Φ.Μ." IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="ΤΗΛΕΦΩΝΟ" IsReadOnly="True" />
                                 </DataGrid.Columns>
