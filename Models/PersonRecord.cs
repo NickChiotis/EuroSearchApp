@@ -7,11 +7,9 @@ using System.ComponentModel;
 
 namespace EuroSearchApp.Models
 {
-    // Προσθέσαμε το ": INotifyPropertyChanged" δίπλα στο όνομα της κλάσης
     public class PersonRecord : INotifyPropertyChanged
     {
-        // --- Η ΙΔΙΟΤΗΤΑ SELECTED (ΑΛΛΑΓΜΕΝΗ) ---
-        // Την αλλάξαμε για να ειδοποιεί όταν τικάρεται/ξετικάρεται
+        // --- 1. SELECTED ---
         private bool _selected;
         public bool Selected
         {
@@ -21,25 +19,91 @@ namespace EuroSearchApp.Models
                 if (_selected != value)
                 {
                     _selected = value;
-                    // Αυτή η εντολή λέει στο σύστημα: "Εί, άλλαξε το Selected! Κάνε τα κουμάντα σου!"
                     OnPropertyChanged(nameof(Selected));
                 }
             }
         }
 
-        // --- ΤΑ ΥΠΟΛΟΙΠΑ ΠΕΔΙΑ ---
-        // Αυτά μπορούν να μείνουν απλά (όπως τα είχες), γιατί δεν τα αλλάζεις εσύ στο Grid
-        public string Επωνυμία { get; set; }
+        // --- 2. ΣΧΟΛΙΑ ---
+        private string _comments;
+        public string Comments
+        {
+            get { return _comments; }
+            set
+            {
+                if (_comments != value)
+                {
+                    _comments = value;
+                    OnPropertyChanged(nameof(Comments));
+                }
+            }
+        }
 
+        // --- 3. ΑΠΛΑ ΠΕΔΙΑ (Δεν χρειάζονται ειδική λογική ακόμα) ---
+        public string Επωνυμία { get; set; }
         public string ΑΦΜ { get; set; }
 
-        public string Τηλέφωνο { get; set; }
+        // --- 4. ΤΗΛΕΦΩΝΑ (ΒΕΛΤΙΣΤΟΠΟΙΗΜΕΝΑ) ---
+        // Εδώ γίνεται η μαγεία για να μην κολλάει η αναζήτηση
 
-        public string Τηλέφωνο2 { get; set; }
+        // Κρυφά πεδία (Backing fields)
+        private string _τηλέφωνο;
+        private string _τηλέφωνο2;
 
+        // Πεδία που κρατάνε ΜΟΝΟ τα νούμερα (για γρήγορη αναζήτηση)
+        public string CleanPhone1 { get; private set; }
+        public string CleanPhone2 { get; private set; }
 
-        // --- ΚΩΔΙΚΑΣ ΕΙΔΟΠΟΙΗΣΗΣ (BOILERPLATE) ---
-        // Αυτό είναι στάνταρ κώδικας που χρειάζεται πάντα το WPF
+        public string Τηλέφωνο
+        {
+            get { return _τηλέφωνο; }
+            set
+            {
+                if (_τηλέφωνο != value)
+                {
+                    _τηλέφωνο = value;
+                    // Υπολογίζουμε το καθαρό νούμερο ΜΙΑ φορά, εδώ!
+                    CleanPhone1 = NormalizeDigits(value);
+                    OnPropertyChanged(nameof(Τηλέφωνο));
+                }
+            }
+        }
+
+        public string Τηλέφωνο2
+        {
+            get { return _τηλέφωνο2; }
+            set
+            {
+                if (_τηλέφωνο2 != value)
+                {
+                    _τηλέφωνο2 = value;
+                    // Υπολογίζουμε το καθαρό νούμερο ΜΙΑ φορά, εδώ!
+                    CleanPhone2 = NormalizeDigits(value);
+                    OnPropertyChanged(nameof(Τηλέφωνο2));
+                }
+            }
+        }
+
+        // --- ΒΟΗΘΗΤΙΚΗ ΜΕΘΟΔΟΣ ---
+        // Πολύ γρήγορος καθαρισμός συμβόλων (κρατάει μόνο ψηφία)
+        private static string NormalizeDigits(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+
+            char[] buffer = new char[s.Length];
+            int idx = 0;
+
+            foreach (char c in s)
+            {
+                if (char.IsDigit(c))
+                {
+                    buffer[idx++] = c;
+                }
+            }
+            return new string(buffer, 0, idx);
+        }
+
+        // --- INotifyPropertyChanged Implementation ---
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
         {
@@ -47,4 +111,3 @@ namespace EuroSearchApp.Models
         }
     }
 }
-
