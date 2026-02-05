@@ -1,4 +1,5 @@
 ﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroSearch" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -36,7 +37,6 @@
             </LinearGradientBrush>
         </Border.Background>
 
-
         <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
             <Grid.Resources>
                 <SolidColorBrush x:Key="Primary" Color="#3B82F6" />
@@ -45,6 +45,37 @@
                 <SolidColorBrush x:Key="TextMuted" Color="#64748B" />
                 <SolidColorBrush x:Key="BorderColor" Color="#E2E8F0" />
                 <SolidColorBrush x:Key="HeaderBg" Color="#F1F5F9" />
+
+                <Style x:Key="SuggestionListBoxStyle" TargetType="ListBox">
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                    <Style.Resources>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="12,10" />
+                            <Setter Property="Margin" Value="2" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="itemBorder" Background="Transparent" CornerRadius="6" SnapsToDevicePixels="True">
+                                            <ContentPresenter Margin="{TemplateBinding Padding}" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="itemBorder" Property="Background" Value="#F1F5F9" />
+                                                <Setter Property="Foreground" Value="#3B82F6" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="itemBorder" Property="Background" Value="#EFF6FF" />
+                                                <Setter Property="Foreground" Value="#3B82F6" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Style.Resources>
+                </Style>
 
                 <Style x:Key="ModernTextBox" TargetType="TextBox">
                     <Setter Property="Height" Value="42" />
@@ -154,12 +185,9 @@
                     <Setter Property="BorderThickness" Value="1" />
                     <Setter Property="BorderBrush" Value="#E2E8F0" />
                     <Setter Property="RowHeaderWidth" Value="0" />
-
                     <Setter Property="GridLinesVisibility" Value="All" />
-
                     <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0" />
                     <Setter Property="VerticalGridLinesBrush" Value="#E2E8F0" />
-
                     <Setter Property="HeadersVisibility" Value="Column" />
                     <Setter Property="RowHeight" Value="48" />
                     <Setter Property="FontSize" Value="14" />
@@ -334,7 +362,6 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="10">
-
                         <Grid Margin="24,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -347,6 +374,15 @@
                                     <Grid>
                                         <TextBox x:Name="TxtName" Padding="42,0,10,0" KeyDown="Input_KeyDown" Style="{StaticResource ModernTextBox}" Text="{Binding NameQuery, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                                         <Path Width="16" Height="16" Margin="14,0,0,0" HorizontalAlignment="Left" Data="M15.5,14H14.71L14.43,13.73C15.41,12.59 16,11.11 16,9.5A6.5,6.5 0 1,0 9.5,16C11.11,16 12.59,15.41 13.73,14.43L14,14.71V15.5L19,20.49L20.49,19L15.5,14M9.5,14C7.01,14 5,11.99 5,9.5C5,7.01 7.01,5 9.5,5C11.99,5 14,7.01 14,9.5C14,11.99 11.99,14 9.5,14Z" Fill="#94A3B8" IsHitTestVisible="False" Stretch="Uniform" />
+
+                                        <Popup x:Name="PopName" AllowsTransparency="True" IsOpen="{Binding IsNamePopupOpen}" Placement="Bottom" PlacementTarget="{Binding ElementName=TxtName}" PopupAnimation="Slide" StaysOpen="False">
+                                            <Border Width="280" Margin="0,4,0,10" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.15" RenderingBias="Quality" ShadowDepth="3" />
+                                                </Border.Effect>
+                                                <ListBox x:Name="LstNameSuggestions" MaxHeight="250" ItemsSource="{Binding NameSuggestions}" SelectionChanged="Suggestion_SelectionChanged" Style="{StaticResource SuggestionListBoxStyle}" />
+                                            </Border>
+                                        </Popup>
                                     </Grid>
                                 </StackPanel>
 
@@ -355,6 +391,15 @@
                                     <Grid>
                                         <TextBox x:Name="TxtPhone" Padding="42,0,10,0" KeyDown="Input_KeyDown" Style="{StaticResource ModernTextBox}" Text="{Binding PhoneQuery, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
                                         <Path Width="16" Height="16" Margin="14,0,0,0" HorizontalAlignment="Left" Data="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z" Fill="#94A3B8" IsHitTestVisible="False" Stretch="Uniform" />
+
+                                        <Popup x:Name="PopPhone" AllowsTransparency="True" IsOpen="{Binding IsPhonePopupOpen}" Placement="Bottom" PlacementTarget="{Binding ElementName=TxtPhone}" PopupAnimation="Slide" StaysOpen="False">
+                                            <Border Width="220" Margin="0,4,0,10" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12">
+                                                <Border.Effect>
+                                                    <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.15" RenderingBias="Quality" ShadowDepth="3" />
+                                                </Border.Effect>
+                                                <ListBox x:Name="LstPhoneSuggestions" MaxHeight="250" ItemsSource="{Binding PhoneSuggestions}" SelectionChanged="Suggestion_SelectionChanged" Style="{StaticResource SuggestionListBoxStyle}" />
+                                            </Border>
+                                        </Popup>
                                     </Grid>
                                 </StackPanel>
 
@@ -372,21 +417,25 @@
 
                                 <StackPanel>
                                     <TextBlock Margin="0,0,0,8" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="Α.Φ.Μ." />
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="180" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-
                                         <Grid Grid.Column="0">
                                             <TextBox x:Name="TxtAfm" Padding="42,0,10,0" KeyDown="Input_KeyDown" Style="{StaticResource ModernTextBox}" Text="{Binding AfmQuery, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
-
                                             <Path Width="18" Height="18" Margin="14,0,0,0" HorizontalAlignment="Left" Data="M20,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6A2,2 0 0,0 20,4M20,18H4V6H20V18M12,14H18V16H12V14M12,8H18V10H12V8M6,8H10V12H6V8M6,14H10V16H6V14Z" Fill="#94A3B8" IsHitTestVisible="False" Stretch="Uniform" />
+
+                                            <Popup x:Name="PopAfm" AllowsTransparency="True" IsOpen="{Binding IsAfmPopupOpen}" Placement="Bottom" PlacementTarget="{Binding ElementName=TxtAfm}" PopupAnimation="Slide" StaysOpen="False">
+                                                <Border Width="180" Margin="0,4,0,10" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.15" RenderingBias="Quality" ShadowDepth="3" />
+                                                    </Border.Effect>
+                                                    <ListBox x:Name="LstAfmSuggestions" MaxHeight="250" ItemsSource="{Binding AfmSuggestions}" SelectionChanged="Suggestion_SelectionChanged" Style="{StaticResource SuggestionListBoxStyle}" />
+                                                </Border>
+                                            </Popup>
                                         </Grid>
-
                                         <Button Grid.Column="1" Width="35" Margin="5,0,0,0" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" Click="Aade_Click" Cursor="Hand" ToolTip="Αναζήτηση ΑΦΜ στην υπηρεσία ΑΑΔΕ">
-
                                             <Button.Style>
                                                 <Style BasedOn="{StaticResource BtnPrimary}" TargetType="Button">
                                                     <Setter Property="IsEnabled" Value="False" />
@@ -399,12 +448,10 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
-
                                             <Path Width="16" Height="16" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="#3B82F6" Stretch="Uniform" />
                                         </Button>
                                     </Grid>
                                 </StackPanel>
-
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
@@ -417,13 +464,11 @@
                     </Border>
 
                     <Border Grid.Row="1" Margin="0,0,0,20" Background="White" CornerRadius="10">
-
                         <Grid Margin="24,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                 <Border Margin="0,0,12,0" Padding="8" Background="#EFF6FF" CornerRadius="8">
                                     <Path Width="16" Height="16" Data="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" Fill="#3B82F6" Stretch="Uniform" />
@@ -436,7 +481,6 @@
                     </Border>
 
                     <Border Grid.Row="2" Margin="0,0,0,24" Background="White" ClipToBounds="True">
-
                         <Grid>
                             <Border Height="4" VerticalAlignment="Top" Panel.ZIndex="1">
                                 <Border.Background>
@@ -447,9 +491,8 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
                             </Border>
-
                             <DataGrid x:Name="RecordsGrid" Margin="0,4,0,0" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" IsReadOnly="False"
-                                      ItemsSource="{Binding RecordsView}"
+                                      ItemsSource="{Binding SelectedRecordsView}"
                                       ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" SelectionMode="Extended" SelectionUnit="FullRow" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Width="60">
@@ -463,7 +506,6 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
-
                                     <DataGridTextColumn Width="150" Binding="{Binding Comments, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Header="ΣΥΜΜΕΤΈΧΩΝ" IsReadOnly="False">
                                         <DataGridTextColumn.ElementStyle>
                                             <Style TargetType="TextBlock">
@@ -477,7 +519,6 @@
                                             </Style>
                                         </DataGridTextColumn.EditingElementStyle>
                                     </DataGridTextColumn>
-
                                     <DataGridTextColumn Width="*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="Α.Φ.Μ." IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="ΤΗΛΕΦΩΝΟ" IsReadOnly="True" />
@@ -489,9 +530,7 @@
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-
                                                     <ComboBox x:Name="ComboGifts" Height="32" DisplayMemberPath="Eidos" ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Eidos" Style="{StaticResource ModernComboBox}" />
-
                                                     <Button Grid.Column="1" Width="30" Height="30" Margin="4,0,0,0" Click="GiftInfo_Click" Style="{StaticResource BtnIcon}" ToolTip="Πληροφορίες Δώρων">
                                                         <Path Width="14" Height="14" Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="{StaticResource Primary}" Stretch="Uniform" />
                                                     </Button>
