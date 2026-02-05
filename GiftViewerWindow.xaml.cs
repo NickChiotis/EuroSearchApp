@@ -7,9 +7,6 @@ namespace EuroSearchApp
 {
     public partial class GiftViewerWindow : Window
     {
-        private DataView _fullView;
-
-        // Ιδιότητα που θα κρατάει το όνομα του δώρου για να το διαβάσει το MainWindow
         public string SelectedGiftName { get; private set; }
 
         public GiftViewerWindow()
@@ -17,48 +14,47 @@ namespace EuroSearchApp
             InitializeComponent();
         }
 
-        // Αυτό καλείται από το MainWindow για να γεμίσει τα δεδομένα στον πίνακα
-        public void SetData(DataView dv)
-        {
-            _fullView = dv;
-            GiftsGrid.ItemsSource = _fullView;
-        }
-
-        // Λειτουργία αναζήτησης μέσα στον viewer
+        // Η μέθοδος αναζήτησης διορθωμένη
         private void TxtGiftSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (_fullView == null) return;
+            // Παίρνουμε το DataView από τον πίνακα
+            var dv = GiftsGrid.ItemsSource as DataView;
 
-            string query = TxtGiftSearch.Text.Replace("'", "''"); // Ασφάλεια για ειδικούς χαρακτήρες
+            if (dv == null) return;
 
-            try
+            // Καθαρίζουμε το κείμενο αναζήτησης
+            string query = TxtGiftSearch.Text.Trim().Replace("'", "''");
+
+            if (string.IsNullOrEmpty(query))
             {
-                // Προσπαθεί να κάνει φιλτράρισμα στη στήλη "ΕΙΔΟΣ"
-                _fullView.RowFilter = $"[ΕΙΔΟΣ] LIKE '%{query}%'";
+                dv.RowFilter = ""; // Αν είναι άδειο, δείξε τα πάντα
             }
-            catch
+            else
             {
-                // Αν η στήλη έχει κενά ή άλλο όνομα, ψάχνει στην πρώτη διαθέσιμη στήλη
-                if (_fullView.Table.Columns.Count > 0)
+                try
                 {
-                    string colName = _fullView.Table.Columns[0].ColumnName;
-                    _fullView.RowFilter = $"[{colName}] LIKE '%{query}%'";
+                    // Παίρνουμε το όνομα της 1ης στήλης (ΕΙΔΟΣ)
+                    string colName = dv.Table.Columns[0].ColumnName;
+
+                    // Αλλάζουμε το φίλτρο: 
+                    // Αφαιρώντας το % από την αρχή, η αναζήτηση γίνεται "Starts With"
+                    dv.RowFilter = $"[{colName}] LIKE '{query}%'";
+                }
+                catch
+                {
+                    // Σε περίπτωση σφάλματος, επαναφορά
+                    dv.RowFilter = "";
                 }
             }
         }
 
-        // Λειτουργία Quick Pick: Με διπλό κλικ επιλέγεται το δώρο και κλείνει το παράθυρο
+        // Διπλό κλικ για επιλογή
         private void GiftsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // Παίρνουμε τη γραμμή που έγινε το κλικ
             var row = GiftsGrid.SelectedItem as DataRowView;
-
             if (row != null)
             {
-                // Αποθηκεύουμε το κείμενο της πρώτης στήλης (το όνομα του δώρου)
                 SelectedGiftName = row[0].ToString();
-
-                // Θέτουμε το DialogResult σε true για να ξέρει το MainWindow ότι έγινε επιλογή
                 this.DialogResult = true;
                 this.Close();
             }

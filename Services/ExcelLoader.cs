@@ -35,14 +35,17 @@ namespace EuroSearchApp.Services
                     {
                         var record = new PersonRecord
                         {
-                            Selected = false,
+                            Selected = Get(row, "Επιλογή") == "ΝΑΙ", // Αν θες να κρατάει και το checkbox
 
-                            // ΕΔΩ ΓΙΝΕΤΑΙ Η "ΜΑΓΕΙΑ" ΤΗΣ ΑΝΤΙΣΤΟΙΧΙΣΗΣ
-                            // Αριστερά: Η κλάση μας | Δεξιά: Η στήλη στο Excel
+                            // Οι υπάρχουσες αντιστοιχίσεις σου
                             Επωνυμία = Get(row, "Επωνυμία"),
                             ΑΦΜ = Get(row, "Επαφές - Α.Φ.Μ"),
                             Τηλέφωνο = Get(row, "Τηλέφωνο 1"),
-                            Τηλέφωνο2 = Get(row, "Τηλέφωνο 2")
+                            Τηλέφωνο2 = Get(row, "Τηλέφωνο 2"),
+
+                            // ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ ΔΥΟ ΓΡΑΜΜΕΣ:
+                            Comments = Get(row, "Συμμετέχων"),      // Διαβάζει το όνομα συμμετέχοντος
+                            SelectedGift = Get(row, "SelectedGift") // Διαβάζει το επιλεγμένο δώρο
                         };
 
                         list.Add(record);

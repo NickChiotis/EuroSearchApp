@@ -114,20 +114,26 @@ namespace EuroSearchApp
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
+            string tempPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "temp_data.xlsx");
 
-            if (File.Exists(defaultPath))
+            // 1. Έλεγχος αν υπάρχει το Temp (Προτεραιότητα)
+            if (File.Exists(tempPath))
+            {
+                LoadData(tempPath);
+            }
+            // 2. Αν δεν υπάρχει, φόρτωσε το κανονικό Template
+            else if (File.Exists(defaultPath))
             {
                 LoadData(defaultPath);
             }
             else
             {
-                MessageBox.Show("Δεν βρέθηκε το αρχείο αυτόματης φόρτωσης.");
+                MessageBox.Show("Δεν βρέθηκε κανένα αρχείο δεδομένων (Template ή Temp).");
             }
 
-            TxtName.Focus();
-
-            // Φόρτωση των δώρων κατά την εκκίνηση
+            // Φόρτωση των δώρων στο dropdown και focus στο όνομα
             LoadGifts();
+            TxtName.Focus();
         }
 
         private void LoadGifts()
@@ -145,7 +151,12 @@ namespace EuroSearchApp
 
                     int rowCount = ws.Dimension.End.Row;
 
-                    Application.Current.Dispatcher.Invoke(() => GiftsList.Clear());
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        GiftsList.Clear();
+                        // ΠΡΟΣΘΗΚΗ PLACEHOLDER: Βάζουμε χειροκίνητα την πρώτη επιλογή
+                        GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου" });
+                    });
 
                     for (int row = 2; row <= rowCount; row++) // Ξεκινάμε από 2 για να πηδήξουμε το "ΕΙΔΟΣ"
                     {
@@ -256,20 +267,47 @@ namespace EuroSearchApp
             var person = item as PersonRecord;
             if (person == null) return false;
 
+            // 1. Φίλτρο ΟΝΟΜΑΤΟΣ (Starts With)
             if (!string.IsNullOrWhiteSpace(NameQuery))
-                if (string.IsNullOrEmpty(person.Επωνυμία) || person.Επωνυμία.IndexOf(NameQuery, StringComparison.OrdinalIgnoreCase) < 0) return false;
-
-            if (!string.IsNullOrWhiteSpace(AfmQuery))
-                if (string.IsNullOrEmpty(person.ΑΦΜ) || !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase)) return false;
-
-            if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
-                string cleanQuery = NormalizeDigits(PhoneQuery);
-                string p1 = person.Τηλέφωνο != null ? NormalizeDigits(person.Τηλέφωνο) : "";
-                string p2 = person.Τηλέφωνο2 != null ? NormalizeDigits(person.Τηλέφωνο2) : "";
-                if (!p1.Contains(cleanQuery) && !p2.Contains(cleanQuery)) return false;
+                if (string.IsNullOrEmpty(person.Επωνυμία) ||
+                    !person.Επωνυμία.StartsWith(NameQuery, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
             }
 
+            // 2. Φίλτρο ΑΦΜ (Starts With)
+            if (!string.IsNullOrWhiteSpace(AfmQuery))
+            {
+                if (string.IsNullOrEmpty(person.ΑΦΜ) ||
+                    !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            // 3. Φίλτρο Τηλεφώνου (Διορθωμένο StartsWith)
+            if (!string.IsNullOrWhiteSpace(PhoneQuery))
+            {
+                // Καθαρίζουμε αυτό που πληκτρολογεί ο χρήστης
+                string cleanQuery = NormalizeDigits(PhoneQuery).Trim();
+
+                if (!string.IsNullOrEmpty(cleanQuery))
+                {
+                    // Καθαρίζουμε τα τηλέφωνα της εγγραφής από κενά, παύλες κλπ
+                    string p1 = !string.IsNullOrEmpty(person.Τηλέφωνο) ? NormalizeDigits(person.Τηλέφωνο) : "";
+                    string p2 = !string.IsNullOrEmpty(person.Τηλέφωνο2) ? NormalizeDigits(person.Τηλέφωνο2) : "";
+
+                    // Έλεγχος αν ΞΕΚΙΝΑΕΙ το καθαρό τηλέφωνο με το καθαρό query
+                    bool match1 = p1.StartsWith(cleanQuery);
+                    bool match2 = p2.StartsWith(cleanQuery);
+
+                    if (!match1 && !match2) return false;
+                }
+            }
+
+            // 4. Φίλτρο ΚΑΤΑΣΤΑΣΗΣ (Selected/Unselected)
             if (StatusFilterIndex == 1 && !person.Selected) return false;
             if (StatusFilterIndex == 2 && person.Selected) return false;
 
@@ -374,10 +412,105 @@ namespace EuroSearchApp
             }
         }
 
+        private void SaveToTemp()
+        {
+            try
+            {
+                string tempPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Templates", "temp_data.xlsx");
+                var allRecords = RecordsView.SourceCollection as IEnumerable<PersonRecord>;
+                if (allRecords == null) return;
+
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    var ws = package.Workbook.Worksheets.Add("TempData");
+
+                    // ΑΥΤΑ ΤΑ ΟΝΟΜΑΤΑ ΠΡΕΠΕΙ ΝΑ ΕΙΝΑΙ ΙΔΙΑ ΜΕ ΤΟ TEMPLATE.XLSX
+                    string[] headers = {
+                "Επιλογή",
+                "Συμμετέχων",
+                "Επωνυμία",
+                "Επαφές - Α.Φ.Μ",
+                "Τηλέφωνο 1",
+                "Τηλέφωνο 2",
+                "SelectedGift"
+            };
+
+                    for (int i = 0; i < headers.Length; i++) ws.Cells[1, i + 1].Value = headers[i];
+
+                    int row = 2;
+                    foreach (var item in allRecords)
+                    {
+                        ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
+                        ws.Cells[row, 2].Value = item.Comments;
+                        ws.Cells[row, 3].Value = item.Επωνυμία;
+                        ws.Cells[row, 4].Value = item.ΑΦΜ;
+                        ws.Cells[row, 5].Value = item.Τηλέφωνο;
+                        ws.Cells[row, 6].Value = item.Τηλέφωνο2;
+                        ws.Cells[row, 7].Value = item.SelectedGift;
+                        row++;
+                    }
+                    package.SaveAs(new FileInfo(tempPath));
+                }
+            }
+            catch { }
+        }
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            SaveToTemp(); // Σώζει τα πάντα πριν κλείσει
+            base.OnClosing(e);
+        }
+
+
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
-        private void OpenSettings_Click(object sender, RoutedEventArgs e) { /* Λογική ρυθμίσεων */ }
+        private async void OpenSettings_Click(object sender, RoutedEventArgs e)
+        {
+            // 1. Δημιουργία του παραθύρου ρυθμίσεων
+            AadeSettingsWindow settingsWin = new AadeSettingsWindow();
+            settingsWin.Owner = this;
+            settingsWin.Topmost = true;
+            settingsWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+            // 2. Εμφάνιση παραθύρου (ShowDialog)
+            // Αν ο χρήστης πατήσει "Αποθήκευση", το αποτέλεσμα είναι true
+            if (settingsWin.ShowDialog() == true)
+            {
+                // 3. ΛΟΓΙΚΗ VALIDATION (Όπως στο παράδειγμά σου)
+                // Μόλις κλείσει το παράθυρο με επιτυχία, κάνουμε αυτόματη δοκιμή σύνδεσης.
+                // Χρησιμοποιούμε το ΑΦΜ της ΓΓΠΣ (999977386) για το τεστ, όπως ακριβώς στον κώδικά σου.
+                string testAfm = "999977386";
+
+                // Δείχνουμε έναν κέρσορα αναμονής γιατί μπορεί να πάρει 1-2 δευτερόλεπτα
+                Mouse.OverrideCursor = Cursors.Wait;
+                try
+                {
+                    // Κάνουμε την κλήση στην ΑΑΔΕ (χρησιμοποιώντας τα νέα settings που μόλις σώθηκαν)
+                    var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
+
+                    Mouse.OverrideCursor = null; // Επαναφορά κέρσορα
+                    if (result.Success)
+                    {
+                        // Αντιστοιχεί στο: activeService = valid;
+                        MessageBox.Show("Οι ρυθμίσεις αποθηκεύτηκαν και η υπηρεσία ΑΑΔΕ είναι ΕΝΕΡΓΗ!",
+                                        "Επιτυχής Σύνδεση", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        // Αν οι κωδικοί είναι λάθος
+                        MessageBox.Show($"Οι ρυθμίσεις αποθηκεύτηκαν, αλλά ο έλεγχος σύνδεσης απέτυχε.\n\nΑιτία: {result.ErrorMessage}",
+                                        "Πρόβλημα Σύνδεσης", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Mouse.OverrideCursor = null;
+                    MessageBox.Show($"Σφάλμα κατά τον έλεγχο: {ex.Message}");
+                }
+            }
+        }
     }
 
     public class GiftRecord

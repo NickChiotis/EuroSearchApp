@@ -85,7 +85,20 @@ namespace EuroSearchApp.Models
         public string CleanPhone1 { get; private set; }
         public string CleanPhone2 { get; private set; }
 
-        public string SelectedGift { get; set; } // Εδώ θα αποθηκεύεται η επιλογή από το dropdown
+        private string _selectedGift;
+        public string SelectedGift
+        {
+            get
+            {
+                // Αν είναι null ή κενό, επέστρεψε το placeholder
+                return string.IsNullOrEmpty(_selectedGift) ? "Επιλογή Δώρου" : _selectedGift;
+            }
+            set
+            {
+                _selectedGift = value;
+                OnPropertyChanged(nameof(SelectedGift));
+            }
+        } // Εδώ θα αποθηκεύεται η επιλογή από το dropdown
 
         public string Τηλέφωνο
         {
