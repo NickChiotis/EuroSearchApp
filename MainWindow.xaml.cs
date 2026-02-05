@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,7 +29,7 @@ namespace EuroSearchApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        // 1. Ορισμός της λίστας δώρων (Μόνο μία φορά)
+        // 1. Λίστα Δώρων
         private ObservableCollection<GiftRecord> _giftsList = new ObservableCollection<GiftRecord>();
         public ObservableCollection<GiftRecord> GiftsList
         {
@@ -38,9 +37,50 @@ namespace EuroSearchApp
             set { _giftsList = value; OnPropertyChanged(nameof(GiftsList)); }
         }
 
-        // Το path για το αρχείο των δώρων (βεβαιώσου ότι το όνομα είναι σωστό, π.χ. EuroGifts.xlsx)
+        // 2. Λίστα Επιλεγμένων Συμμετεχόντων (για τον κάτω πίνακα)
+        private ObservableCollection<PersonRecord> _selectedParticipants = new ObservableCollection<PersonRecord>();
+        public ObservableCollection<PersonRecord> SelectedParticipants
+        {
+            get => _selectedParticipants;
+            set { _selectedParticipants = value; OnPropertyChanged(nameof(SelectedParticipants)); }
+        }
+
+        // --- Μέθοδος Προσθήκης (ΔΙΟΡΘΩΜΕΝΗ) ---
+        public void AddParticipant(PersonRecord person)
+        {
+            bool exists = false;
+
+            // 1. Αν έχει ΑΦΜ, ελέγχουμε βάσει ΑΦΜ
+            if (!string.IsNullOrEmpty(person.ΑΦΜ))
+            {
+                exists = SelectedParticipants.Any(p => p.ΑΦΜ == person.ΑΦΜ);
+            }
+            // 2. Αν ΔΕΝ έχει ΑΦΜ, ελέγχουμε να μην υπάρχει ακριβώς το ίδιο Όνομα ΚΑΙ Τηλέφωνο
+            else
+            {
+                exists = SelectedParticipants.Any(p => p.Επωνυμία == person.Επωνυμία && p.Τηλέφωνο == person.Τηλέφωνο);
+            }
+
+            if (!exists)
+            {
+                var newEntry = new PersonRecord
+                {
+                    Επωνυμία = person.Επωνυμία,
+                    ΑΦΜ = person.ΑΦΜ,
+                    Τηλέφωνο = person.Τηλέφωνο,
+                    Τηλέφωνο2 = person.Τηλέφωνο2,
+                    Comments = person.Comments,
+                    Selected = true,
+                    SelectedGift = person.SelectedGift
+                };
+                SelectedParticipants.Add(newEntry);
+            }
+        }
+
+        // Paths
         private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
 
+        // 3. View για τα αποτελέσματα αναζήτησης
         private ICollectionView _recordsView;
         public ICollectionView RecordsView
         {
@@ -104,10 +144,25 @@ namespace EuroSearchApp
             }
         }
 
+        private string _resultCount = "0";
+        public string ResultCount
+        {
+            get { return _resultCount; }
+            set { _resultCount = value; OnPropertyChanged(nameof(ResultCount)); }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
+
+            // Παρακολουθούμε τις αλλαγές στον κάτω πίνακα για να ενημερώνουμε το σύνολο
+            SelectedParticipants.CollectionChanged += (s, e) => UpdateTotalCount();
+        }
+
+        private void UpdateTotalCount()
+        {
+            ResultCount = SelectedParticipants.Count.ToString("N0");
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -116,139 +171,28 @@ namespace EuroSearchApp
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
             string tempPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "temp_data.xlsx");
 
-            // 1. Έλεγχος αν υπάρχει το Temp (Προτεραιότητα)
-            if (File.Exists(tempPath))
+            // 1. Φόρτωση Κύριας Βάσης (Αναζήτηση) -> Template.xlsx
+            if (File.Exists(defaultPath))
             {
-                LoadData(tempPath);
-            }
-            // 2. Αν δεν υπάρχει, φόρτωσε το κανονικό Template
-            else if (File.Exists(defaultPath))
-            {
-                LoadData(defaultPath);
+                LoadDataForSearch(defaultPath);
             }
             else
             {
-                MessageBox.Show("Δεν βρέθηκε κανένα αρχείο δεδομένων (Template ή Temp).");
+                MessageBox.Show("Δεν βρέθηκε το αρχείο δεδομένων Template.xlsx");
             }
 
-            // Φόρτωση των δώρων στο dropdown και focus στο όνομα
+            // 2. Φόρτωση Αποθηκευμένων (Κάτω Πίνακας) -> temp_data.xlsx
+            if (File.Exists(tempPath))
+            {
+                LoadSavedParticipants(tempPath);
+            }
+
             LoadGifts();
             TxtName.Focus();
+            UpdateTotalCount();
         }
 
-        private void LoadGifts()
-        {
-            try
-            {
-                if (!File.Exists(giftPath)) return;
-
-                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
-                using (var package = new ExcelPackage(new FileInfo(giftPath)))
-                {
-                    var ws = package.Workbook.Worksheets[0];
-                    if (ws.Dimension == null) return;
-
-                    int rowCount = ws.Dimension.End.Row;
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        GiftsList.Clear();
-                        // ΠΡΟΣΘΗΚΗ PLACEHOLDER: Βάζουμε χειροκίνητα την πρώτη επιλογή
-                        GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου" });
-                    });
-
-                    for (int row = 2; row <= rowCount; row++) // Ξεκινάμε από 2 για να πηδήξουμε το "ΕΙΔΟΣ"
-                    {
-                        var val = ws.Cells[row, 1].Value?.ToString()?.Trim();
-
-                        if (!string.IsNullOrEmpty(val))
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                GiftsList.Add(new GiftRecord { Eidos = val });
-                            });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) { /* Handle error */ }
-        }
-
-        private void GiftInfo_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // 1. Έλεγχος αν υπάρχει το αρχείο
-                if (!File.Exists(giftPath)) return;
-
-                // 2. Διάβασμα του Excel και γέμισμα του DataTable (όπως το κάναμε πριν)
-                DataTable dt = new DataTable();
-                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
-                using (var package = new ExcelPackage(new FileInfo(giftPath)))
-                {
-                    var ws = package.Workbook.Worksheets[0];
-                    if (ws.Dimension == null) return;
-
-                    for (int i = 1; i <= ws.Dimension.End.Column; i++)
-                    {
-                        string header = ws.Cells[1, i].Value?.ToString()?.Trim() ?? $"Column {i}";
-                        dt.Columns.Add(header);
-                    }
-
-                    for (int rowNum = 2; rowNum <= ws.Dimension.End.Row; rowNum++)
-                    {
-                        DataRow dr = dt.NewRow();
-                        for (int colNum = 1; colNum <= ws.Dimension.End.Column; colNum++)
-                        {
-                            dr[colNum - 1] = ws.Cells[rowNum, colNum].Value?.ToString()?.Trim() ?? "";
-                        }
-                        dt.Rows.Add(dr);
-                    }
-                }
-
-                // 3. ΑΝΟΙΓΜΑ ΤΟΥ ΠΑΡΑΘΥΡΟΥ
-                var viewer = new GiftViewerWindow();
-                viewer.Owner = this;
-                viewer.GiftsGrid.ItemsSource = dt.DefaultView;
-
-                viewer.GiftsGrid.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
-                // Εδώ είναι το "μαγικό" σημείο 3:
-                // Περιμένουμε να κλείσει το παράθυρο. Αν ο χρήστης έκανε διπλό κλικ (DialogResult = true)
-                if (viewer.ShowDialog() == true)
-                {
-                    // Α) Βρίσκουμε ποια γραμμή είναι επιλεγμένη στον ΚΕΝΤΡΙΚΟ πίνακα (MainWindow)
-                    var selectedPerson = RecordsGrid.SelectedItem as PersonRecord;
-
-                    if (selectedPerson != null)
-                    {
-                        // Β) Παίρνουμε το όνομα του δώρου που αποθηκεύτηκε στον Viewer
-                        // (Πρέπει να έχεις φτιάξει την ιδιότητα SelectedGiftName στον Viewer - δες παρακάτω)
-                        selectedPerson.SelectedGift = viewer.SelectedGiftName;
-
-                        // Γ) Ενημερώνουμε το UI
-                        RecordsGrid.Items.Refresh();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        // --- Υπόλοιπες Μέθοδοι (Αμετάβλητες) ---
-
-        private void ResetFilters_Click(object sender, RoutedEventArgs e)
-        {
-            NameQuery = "";
-            PhoneQuery = "";
-            AfmQuery = "";
-            StatusFilterIndex = 0;
-        }
-
-        private void LoadData(string filePath)
+        private void LoadDataForSearch(string filePath)
         {
             try
             {
@@ -262,52 +206,163 @@ namespace EuroSearchApp
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
+        private void LoadSavedParticipants(string filePath)
+        {
+            try
+            {
+                var savedList = ExcelLoader.Load(filePath);
+                if (savedList != null)
+                {
+                    SelectedParticipants.Clear();
+                    foreach (var item in savedList)
+                    {
+                        item.Selected = true;
+                        SelectedParticipants.Add(item);
+                    }
+                    UpdateTotalCount();
+                }
+            }
+            catch { }
+        }
+
+        private void LoadGifts()
+        {
+            try
+            {
+                if (!File.Exists(giftPath)) return;
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(giftPath)))
+                {
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension == null) return;
+
+                    int rowCount = ws.Dimension.End.Row;
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        GiftsList.Clear();
+                        GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου" });
+                    });
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var val = ws.Cells[row, 1].Value?.ToString()?.Trim();
+                        if (!string.IsNullOrEmpty(val))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                GiftsList.Add(new GiftRecord { Eidos = val });
+                            });
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void GiftInfo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 1. Έλεγχος αν υπάρχει το αρχείο δώρων
+                if (!File.Exists(giftPath)) return;
+
+                // 2. Διάβασμα του Excel και γέμισμα του DataTable
+                DataTable dt = new DataTable();
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(giftPath)))
+                {
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension == null) return;
+
+                    // Δημιουργία στηλών
+                    for (int i = 1; i <= ws.Dimension.End.Column; i++)
+                    {
+                        string header = ws.Cells[1, i].Value?.ToString()?.Trim() ?? $"Column {i}";
+                        dt.Columns.Add(header);
+                    }
+
+                    // Γέμισμα γραμμών
+                    for (int rowNum = 2; rowNum <= ws.Dimension.End.Row; rowNum++)
+                    {
+                        DataRow dr = dt.NewRow();
+                        bool hasValue = false;
+                        for (int colNum = 1; colNum <= ws.Dimension.End.Column; colNum++)
+                        {
+                            var val = ws.Cells[rowNum, colNum].Value?.ToString()?.Trim() ?? "";
+                            dr[colNum - 1] = val;
+                            if (!string.IsNullOrEmpty(val)) hasValue = true;
+                        }
+                        if (hasValue) dt.Rows.Add(dr);
+                    }
+                }
+
+                // 3. Άνοιγμα του παραθύρου προβολής
+                // Βεβαιώσου ότι έχεις την κλάση GiftViewerWindow στο project σου
+                var viewer = new GiftViewerWindow();
+                viewer.Owner = this;
+                viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
+                // Πέρνα τα δεδομένα στο Grid του viewer (υποθέτουμε ότι το DataGrid εκεί λέγεται GiftsGrid)
+                viewer.GiftsGrid.ItemsSource = dt.DefaultView;
+                viewer.GiftsGrid.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
+
+                // 4. Λογική Επιλογής (Αν ο χρήστης διαλέξει δώρο από το παράθυρο)
+                if (viewer.ShowDialog() == true)
+                {
+                    // Βρίσκουμε ποια γραμμή πατήθηκε στον ΚΕΝΤΡΙΚΟ πίνακα (MainWindow)
+                    // Χρησιμοποιούμε το κουμπί που πατήθηκε (sender) για να βρούμε την εγγραφή
+                    var button = sender as Button;
+                    var selectedPerson = button.DataContext as PersonRecord;
+
+                    if (selectedPerson != null && !string.IsNullOrEmpty(viewer.SelectedGiftName))
+                    {
+                        // Ενημερώνουμε το δώρο του συγκεκριμένου ατόμου
+                        selectedPerson.SelectedGift = viewer.SelectedGiftName;
+
+                        // Ανανεώνουμε τον πίνακα για να φανεί η αλλαγή
+                        ParticipantsGrid.Items.Refresh();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Σφάλμα κατά το άνοιγμα των δώρων: " + ex.Message);
+            }
+        }
+
         private bool FilterRecords(object item)
         {
             var person = item as PersonRecord;
             if (person == null) return false;
 
-            // 1. Φίλτρο ΟΝΟΜΑΤΟΣ (Starts With)
             if (!string.IsNullOrWhiteSpace(NameQuery))
             {
-                if (string.IsNullOrEmpty(person.Επωνυμία) ||
-                    !person.Επωνυμία.StartsWith(NameQuery, StringComparison.OrdinalIgnoreCase))
-                {
+                if (string.IsNullOrEmpty(person.Επωνυμία) || !person.Επωνυμία.StartsWith(NameQuery, StringComparison.OrdinalIgnoreCase))
                     return false;
-                }
             }
 
-            // 2. Φίλτρο ΑΦΜ (Starts With)
             if (!string.IsNullOrWhiteSpace(AfmQuery))
             {
-                if (string.IsNullOrEmpty(person.ΑΦΜ) ||
-                    !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase))
-                {
+                if (string.IsNullOrEmpty(person.ΑΦΜ) || !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase))
                     return false;
-                }
             }
 
-            // 3. Φίλτρο Τηλεφώνου (Διορθωμένο StartsWith)
             if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
-                // Καθαρίζουμε αυτό που πληκτρολογεί ο χρήστης
                 string cleanQuery = NormalizeDigits(PhoneQuery).Trim();
-
                 if (!string.IsNullOrEmpty(cleanQuery))
                 {
-                    // Καθαρίζουμε τα τηλέφωνα της εγγραφής από κενά, παύλες κλπ
                     string p1 = !string.IsNullOrEmpty(person.Τηλέφωνο) ? NormalizeDigits(person.Τηλέφωνο) : "";
                     string p2 = !string.IsNullOrEmpty(person.Τηλέφωνο2) ? NormalizeDigits(person.Τηλέφωνο2) : "";
-
-                    // Έλεγχος αν ΞΕΚΙΝΑΕΙ το καθαρό τηλέφωνο με το καθαρό query
                     bool match1 = p1.StartsWith(cleanQuery);
                     bool match2 = p2.StartsWith(cleanQuery);
-
                     if (!match1 && !match2) return false;
                 }
             }
 
-            // 4. Φίλτρο ΚΑΤΑΣΤΑΣΗΣ (Selected/Unselected)
             if (StatusFilterIndex == 1 && !person.Selected) return false;
             if (StatusFilterIndex == 2 && person.Selected) return false;
 
@@ -321,94 +376,127 @@ namespace EuroSearchApp
                 RecordsView.Refresh();
                 int count = 0;
                 foreach (var item in RecordsView) count++;
-                ResultCount = count.ToString("N0");
+
+                // ΔΕΝ ενημερώνουμε το ResultCount εδώ πλέον (το κάνουμε από το SelectedParticipants)
+
+                bool hasText = !string.IsNullOrEmpty(NameQuery) || !string.IsNullOrEmpty(PhoneQuery) || !string.IsNullOrEmpty(AfmQuery);
+
+                if (hasText && count > 0)
+                {
+                    SearchPopup.IsOpen = true;
+                }
+                else
+                {
+                    SearchPopup.IsOpen = false;
+                }
             }
         }
 
-        private string _resultCount = "0";
-        public string ResultCount
-        {
-            get { return _resultCount; }
-            set { _resultCount = value; OnPropertyChanged(nameof(ResultCount)); }
-        }
-
-        private static string NormalizeDigits(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return "";
-            return new string(s.Where(char.IsDigit).ToArray());
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
         private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Escape)
+            {
+                SearchPopup.IsOpen = false;
+                return;
+            }
+
+            if (e.Key == Key.Enter && !SearchPopup.IsOpen)
             {
                 var source = sender as TextBox;
                 if (source == TxtName) TxtPhone.Focus();
                 else if (source == TxtPhone) TxtAfm.Focus();
-                else if (source == TxtAfm) RecordsGrid.Focus();
+                else if (source == TxtAfm && SuggestionList.Items.Count > 0)
+                {
+                    SearchPopup.IsOpen = true;
+                    SuggestionList.SelectedIndex = 0;
+                    var item = SuggestionList.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem;
+                    item?.Focus();
+                    SuggestionList.Focus();
+                }
+                return;
+            }
+
+            if (e.Key == Key.Down && SearchPopup.IsOpen)
+            {
+                if (SuggestionList.Items.Count > 0)
+                {
+                    SuggestionList.SelectedIndex = 0;
+                    var item = SuggestionList.ItemContainerGenerator.ContainerFromIndex(0) as ListBoxItem;
+                    item?.Focus();
+                    SuggestionList.Focus();
+                    e.Handled = true;
+                }
             }
         }
 
+        private void SuggestionList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                var person = SuggestionList.SelectedItem as PersonRecord;
+                if (person != null)
+                {
+                    AddParticipant(person);
+                    ResetFilters_Click(null, null);
+                }
+                e.Handled = true;
+            }
+            if (e.Key == Key.Escape)
+            {
+                SearchPopup.IsOpen = false;
+                TxtName.Focus();
+            }
+        }
+
+        private void RemoveParticipant_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var person = button.DataContext as PersonRecord;
+            if (person != null)
+            {
+                SelectedParticipants.Remove(person);
+            }
+        }
+
+        private void ResetFilters_Click(object sender, RoutedEventArgs e)
+        {
+            _nameQuery = ""; OnPropertyChanged(nameof(NameQuery));
+            _phoneQuery = ""; OnPropertyChanged(nameof(PhoneQuery));
+            _afmQuery = ""; OnPropertyChanged(nameof(AfmQuery));
+
+            StatusFilterIndex = 0;
+            SearchPopup.IsOpen = false;
+            TxtName.Focus();
+
+            RefreshFilter();
+        }
+
+        private void ResultsList_KeyDown(object sender, KeyEventArgs e) { }
+
         private async void Aade_Click(object sender, RoutedEventArgs e)
         {
-            string afmFromFilter = TxtAfm.Text.Trim();
-            if (string.IsNullOrEmpty(afmFromFilter)) return;
+            string afm = TxtAfm.Text.Trim();
+            if (string.IsNullOrEmpty(afm)) return;
 
-            AadeWindow aadeWin = new AadeWindow(afmFromFilter);
+            AadeWindow aadeWin = new AadeWindow(afm);
             aadeWin.Owner = this;
             aadeWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             if (aadeWin.ShowDialog() == true)
             {
                 var sourceList = RecordsView.SourceCollection as List<PersonRecord>;
-                if (sourceList == null) return;
-
-                var existingPerson = sourceList.FirstOrDefault(p => p.ΑΦΜ == afmFromFilter);
-                if (existingPerson != null) existingPerson.Επωνυμία = aadeWin.FetchedName;
-                else sourceList.Add(new PersonRecord { ΑΦΜ = afmFromFilter, Επωνυμία = aadeWin.FetchedName, Selected = true });
-
-                RefreshFilter();
-            }
-        }
-
-        private void ExportVisible_Click(object sender, RoutedEventArgs e)
-        {
-            RecordsGrid.CommitEdit();
-            var visibleRecords = new List<PersonRecord>();
-            foreach (var item in RecordsView) visibleRecords.Add(item as PersonRecord);
-            ExportToExcel(visibleRecords, "Export");
-        }
-
-        private void ExportToExcel(List<PersonRecord> records, string suffix)
-        {
-            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"ΛΙΣΤΑ_{DateTime.Now:dd_MM_yyyy}.xlsx" };
-
-            if (saveFileDialog.ShowDialog() == true)
-            {
-                using (var package = new ExcelPackage(new FileInfo(saveFileDialog.FileName)))
+                if (sourceList != null)
                 {
-                    var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
-                    string[] headers = { "Επιλογή", "Συμμετέχων", "Επωνυμία", "ΑΦΜ", "Τηλέφωνο 1", "ΔΩΡΟ" };
-                    for (int i = 0; i < headers.Length; i++) ws.Cells[1, i + 1].Value = headers[i];
-
-                    int row = 2;
-                    foreach (var item in records)
+                    var existingPerson = sourceList.FirstOrDefault(p => p.ΑΦΜ == afm);
+                    if (existingPerson != null) existingPerson.Επωνυμία = aadeWin.FetchedName;
+                    else
                     {
-                        ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
-                        ws.Cells[row, 2].Value = item.Comments;
-                        ws.Cells[row, 3].Value = item.Επωνυμία;
-                        ws.Cells[row, 4].Value = item.ΑΦΜ;
-                        ws.Cells[row, 5].Value = item.Τηλέφωνο;
-                        ws.Cells[row, 6].Value = item.SelectedGift; // Εξαγωγή του επιλεγμένου δώρου
-                        row++;
+                        var newPerson = new PersonRecord { ΑΦΜ = afm, Επωνυμία = aadeWin.FetchedName, Selected = true };
+                        sourceList.Add(newPerson);
+                        AddParticipant(newPerson);
                     }
-                    package.Save();
+                    RefreshFilter();
                 }
-                MessageBox.Show("Η εξαγωγή ολοκληρώθηκε!");
             }
         }
 
@@ -417,32 +505,26 @@ namespace EuroSearchApp
             try
             {
                 string tempPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Templates", "temp_data.xlsx");
-                var allRecords = RecordsView.SourceCollection as IEnumerable<PersonRecord>;
-                if (allRecords == null) return;
+
+                // ΣΩΖΟΥΜΕ ΜΟΝΟ ΤΟΥΣ SelectedParticipants
+                var itemsToSave = SelectedParticipants;
+
+                if (itemsToSave == null) return;
 
                 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
                 using (var package = new OfficeOpenXml.ExcelPackage())
                 {
                     var ws = package.Workbook.Worksheets.Add("TempData");
-
-                    // ΑΥΤΑ ΤΑ ΟΝΟΜΑΤΑ ΠΡΕΠΕΙ ΝΑ ΕΙΝΑΙ ΙΔΙΑ ΜΕ ΤΟ TEMPLATE.XLSX
-                    string[] headers = {
-                "Επιλογή",
-                "Συμμετέχων",
-                "Επωνυμία",
-                "Επαφές - Α.Φ.Μ",
-                "Τηλέφωνο 1",
-                "Τηλέφωνο 2",
-                "SelectedGift"
-            };
+                    // Τα headers πρέπει να είναι ίδια με το Template για να δουλεύει ο Loader
+                    string[] headers = { "Επιλογή", "Συμμετέχων", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Τηλέφωνο 2", "SelectedGift" };
 
                     for (int i = 0; i < headers.Length; i++) ws.Cells[1, i + 1].Value = headers[i];
 
                     int row = 2;
-                    foreach (var item in allRecords)
+                    foreach (var item in itemsToSave)
                     {
-                        ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
+                        ws.Cells[row, 1].Value = "ΝΑΙ";
                         ws.Cells[row, 2].Value = item.Comments;
                         ws.Cells[row, 3].Value = item.Επωνυμία;
                         ws.Cells[row, 4].Value = item.ΑΦΜ;
@@ -456,61 +538,53 @@ namespace EuroSearchApp
             }
             catch { }
         }
+
+        private void ExportToExcel(List<PersonRecord> records, string suffix) { }
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            SaveToTemp(); // Σώζει τα πάντα πριν κλείσει
+            SaveToTemp();
             base.OnClosing(e);
         }
-
 
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
         private async void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
-            // 1. Δημιουργία του παραθύρου ρυθμίσεων
             AadeSettingsWindow settingsWin = new AadeSettingsWindow();
             settingsWin.Owner = this;
-            settingsWin.Topmost = true;
             settingsWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-            // 2. Εμφάνιση παραθύρου (ShowDialog)
-            // Αν ο χρήστης πατήσει "Αποθήκευση", το αποτέλεσμα είναι true
             if (settingsWin.ShowDialog() == true)
             {
-                // 3. ΛΟΓΙΚΗ VALIDATION (Όπως στο παράδειγμά σου)
-                // Μόλις κλείσει το παράθυρο με επιτυχία, κάνουμε αυτόματη δοκιμή σύνδεσης.
-                // Χρησιμοποιούμε το ΑΦΜ της ΓΓΠΣ (999977386) για το τεστ, όπως ακριβώς στον κώδικά σου.
                 string testAfm = "999977386";
-
-                // Δείχνουμε έναν κέρσορα αναμονής γιατί μπορεί να πάρει 1-2 δευτερόλεπτα
                 Mouse.OverrideCursor = Cursors.Wait;
                 try
                 {
-                    // Κάνουμε την κλήση στην ΑΑΔΕ (χρησιμοποιώντας τα νέα settings που μόλις σώθηκαν)
                     var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
-
-                    Mouse.OverrideCursor = null; // Επαναφορά κέρσορα
+                    Mouse.OverrideCursor = null;
                     if (result.Success)
-                    {
-                        // Αντιστοιχεί στο: activeService = valid;
-                        MessageBox.Show("Οι ρυθμίσεις αποθηκεύτηκαν και η υπηρεσία ΑΑΔΕ είναι ΕΝΕΡΓΗ!",
-                                        "Επιτυχής Σύνδεση", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                        MessageBox.Show("Επιτυχής Σύνδεση με ΑΑΔΕ!", "Επιτυχία", MessageBoxButton.OK, MessageBoxImage.Information);
                     else
-                    {
-                        // Αν οι κωδικοί είναι λάθος
-                        MessageBox.Show($"Οι ρυθμίσεις αποθηκεύτηκαν, αλλά ο έλεγχος σύνδεσης απέτυχε.\n\nΑιτία: {result.ErrorMessage}",
-                                        "Πρόβλημα Σύνδεσης", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    }
+                        MessageBox.Show("Πρόβλημα Σύνδεσης: " + result.ErrorMessage, "Σφάλμα", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch (Exception ex)
                 {
                     Mouse.OverrideCursor = null;
-                    MessageBox.Show($"Σφάλμα κατά τον έλεγχο: {ex.Message}");
+                    MessageBox.Show("Σφάλμα: " + ex.Message);
                 }
             }
         }
+
+        private static string NormalizeDigits(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return new string(s.Where(char.IsDigit).ToArray());
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     public class GiftRecord

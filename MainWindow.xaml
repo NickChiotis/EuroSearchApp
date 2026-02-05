@@ -1,4 +1,9 @@
-﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroSearch" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+﻿<Window x:Class="EuroSearchApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EuroSearch" Loaded="Window_Loaded"
+        ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -221,9 +226,9 @@
                             <Setter Property="BorderBrush" Value="Transparent" />
                         </Trigger>
                         <DataTrigger Binding="{Binding Selected}" Value="True">
-                            <Setter Property="Foreground" Value="#DC2626" />
+                            <Setter Property="Foreground" Value="#15803D" />
                             <Setter Property="FontWeight" Value="Bold" />
-                            <Setter Property="Background" Value="#FEF2F2" />
+                            <Setter Property="Background" Value="#F0FDF4" />
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
@@ -312,12 +317,6 @@
                         </Border>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Width="120" Margin="0,0,12,0" Click="ExportVisible_Click" Style="{StaticResource BtnOutline}">
-                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
-                                <Path Width="14" Height="14" Margin="0,0,8,0" Data="M19,9H15V3H9V9H5L12,16L19,9M5,18V20H19V18H5Z" Fill="White" Stretch="Uniform" />
-                                <TextBlock Text="Εξαγωγή" />
-                            </StackPanel>
-                        </Button>
                         <Button Width="40" Height="40" Click="OpenSettings_Click" Style="{StaticResource BtnIcon}" ToolTip="Ρυθμίσεις ΑΑΔΕ">
                             <Path Width="18" Height="18" Data="M19.14,12.94C19.14,12.78 19.14,12.61 19.14,12.44C19.14,12.27 19.14,12.11 19.14,11.94L21.41,10.19C21.62,10.03 21.68,9.75 21.56,9.5L19.5,6.08C19.38,5.83 19.06,5.75 18.81,5.83L16.14,6.94C15.61,6.5 15,6.17 14.38,5.89L13.94,3C13.94,2.75 13.69,2.56 13.44,2.56H9.44C9.19,2.56 8.94,2.75 8.94,3L8.5,5.89C7.88,6.14 7.25,6.5 6.75,6.94L4.06,5.83C3.81,5.75 3.5,5.83 3.38,6.08L1.31,9.5C1.19,9.75 1.25,10.03 1.44,10.19L3.75,11.94C3.75,12.11 3.75,12.28 3.75,12.44C3.75,12.61 3.75,12.78 3.75,12.94L1.44,14.69C1.25,14.86 1.19,15.14 1.31,15.39L3.38,18.81C3.5,19.06 3.81,19.14 4.06,19.06L6.75,17.94C7.25,18.39 7.88,18.75 8.5,19L8.94,21.89C8.94,22.14 9.19,22.33 9.44,22.33H13.44C13.69,22.33 13.94,22.14 13.94,21.89L14.38,19C15,18.72 15.61,18.39 16.14,17.94L18.81,19.06C19.06,19.14 19.38,19.06 19.5,18.81L21.56,15.39C21.68,15.14 21.62,14.86 21.41,14.69L19.14,12.94M11.44,15.44C9.75,15.44 8.44,14.11 8.44,12.44C8.44,10.78 9.75,9.44 11.44,9.44C13.11,9.44 14.44,10.78 14.44,12.44C14.44,14.11 13.11,15.44 11.44,15.44Z" Fill="White" Stretch="Uniform" />
                         </Button>
@@ -325,7 +324,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Padding="24" ClipToBounds="True" CornerRadius="10">
+            <Border Grid.Row="1" x:Name="FilterBorder" Padding="24" ClipToBounds="True" CornerRadius="10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -334,7 +333,6 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="10">
-
                         <Grid Margin="24,20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -372,7 +370,6 @@
 
                                 <StackPanel>
                                     <TextBlock Margin="0,0,0,8" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="Α.Φ.Μ." />
-
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="180" />
@@ -381,12 +378,10 @@
 
                                         <Grid Grid.Column="0">
                                             <TextBox x:Name="TxtAfm" Padding="42,0,10,0" KeyDown="Input_KeyDown" Style="{StaticResource ModernTextBox}" Text="{Binding AfmQuery, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
-
                                             <Path Width="18" Height="18" Margin="14,0,0,0" HorizontalAlignment="Left" Data="M20,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6A2,2 0 0,0 20,4M20,18H4V6H20V18M12,14H18V16H12V14M12,8H18V10H12V8M6,8H10V12H6V8M6,14H10V16H6V14Z" Fill="#94A3B8" IsHitTestVisible="False" Stretch="Uniform" />
                                         </Grid>
 
                                         <Button Grid.Column="1" Width="35" Margin="5,0,0,0" Background="White" BorderBrush="#CBD5E1" BorderThickness="1" Click="Aade_Click" Cursor="Hand" ToolTip="Αναζήτηση ΑΦΜ στην υπηρεσία ΑΑΔΕ">
-
                                             <Button.Style>
                                                 <Style BasedOn="{StaticResource BtnPrimary}" TargetType="Button">
                                                     <Setter Property="IsEnabled" Value="False" />
@@ -399,12 +394,10 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
-
                                             <Path Width="16" Height="16" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="#3B82F6" Stretch="Uniform" />
                                         </Button>
                                     </Grid>
                                 </StackPanel>
-
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
@@ -417,13 +410,11 @@
                     </Border>
 
                     <Border Grid.Row="1" Margin="0,0,0,20" Background="White" CornerRadius="10">
-
                         <Grid Margin="24,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
                             <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                                 <Border Margin="0,0,12,0" Padding="8" Background="#EFF6FF" CornerRadius="8">
                                     <Path Width="16" Height="16" Data="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" Fill="#3B82F6" Stretch="Uniform" />
@@ -435,8 +426,55 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="2" Margin="0,0,0,24" Background="White" ClipToBounds="True">
+                    <Popup x:Name="SearchPopup" Placement="Bottom" PlacementTarget="{Binding ElementName=TxtName}" StaysOpen="False" AllowsTransparency="True" PopupAnimation="Slide">
+                        <Border Background="White" BorderBrush="#3B82F6" BorderThickness="1" CornerRadius="4" MaxHeight="300" Width="900" Margin="24,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.2"/>
+                            </Border.Effect>
+                            <ListBox x:Name="SuggestionList" ItemsSource="{Binding RecordsView}" KeyDown="SuggestionList_KeyDown" BorderThickness="0" Background="White">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="10,6"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="#F1F5F9"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="bd" Property="Background" Value="#EFF6FF"/>
+                                                            <Setter TargetName="bd" Property="BorderBrush" Value="#3B82F6"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Επωνυμία}" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ΑΦΜ}" Foreground="#64748B"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Τηλέφωνο}" Foreground="#64748B"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Popup>
 
+                    <Border Grid.Row="2" Margin="0,0,0,24" Background="White" ClipToBounds="True">
                         <Grid>
                             <Border Height="4" VerticalAlignment="Top" Panel.ZIndex="1">
                                 <Border.Background>
@@ -448,40 +486,30 @@
                                 </Border.Background>
                             </Border>
 
-                            <DataGrid x:Name="RecordsGrid" Margin="0,4,0,0" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" EnableColumnVirtualization="True" EnableRowVirtualization="True" IsReadOnly="False"
-                                      ItemsSource="{Binding RecordsView}"
-                                      ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" SelectionMode="Extended" SelectionUnit="FullRow" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
+                            <DataGrid x:Name="ParticipantsGrid" Margin="0,4,0,0"
+                                      ItemsSource="{Binding SelectedParticipants}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="False"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="Horizontal"
+                                      RowHeight="40">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Width="60">
+                                    <DataGridTemplateColumn Width="40">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                                    <CheckBox.LayoutTransform>
-                                                        <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
-                                                    </CheckBox.LayoutTransform>
-                                                </CheckBox>
+                                                <Button Click="RemoveParticipant_Click" Style="{StaticResource BtnIcon}" ToolTip="Αφαίρεση">
+                                                    <Path Width="10" Height="10" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="#EF4444" Stretch="Uniform"/>
+                                                </Button>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
 
-                                    <DataGridTextColumn Width="150" Binding="{Binding Comments, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Header="ΣΥΜΜΕΤΈΧΩΝ" IsReadOnly="False">
-                                        <DataGridTextColumn.ElementStyle>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Padding" Value="5,0" />
-                                                <Setter Property="VerticalAlignment" Value="Center" />
-                                            </Style>
-                                        </DataGridTextColumn.ElementStyle>
-                                        <DataGridTextColumn.EditingElementStyle>
-                                            <Style TargetType="TextBox">
-                                                <Setter Property="Padding" Value="2" />
-                                            </Style>
-                                        </DataGridTextColumn.EditingElementStyle>
-                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Header="ΕΠΩΝΥΜΙΑ" Binding="{Binding Επωνυμία}" Width="*" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="ΑΦΜ" Binding="{Binding ΑΦΜ}" Width="120" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="ΤΗΛΕΦΩΝΟ" Binding="{Binding Τηλέφωνο}" Width="120" IsReadOnly="True"/>
 
-                                    <DataGridTextColumn Width="*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
-                                    <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="Α.Φ.Μ." IsReadOnly="True" />
-                                    <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="ΤΗΛΕΦΩΝΟ" IsReadOnly="True" />
-                                    <DataGridTemplateColumn Width="220" Header="ΔΩΡΑ">
+                                    <DataGridTemplateColumn Header="ΔΩΡΟ" Width="230">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="2">
@@ -490,10 +518,14 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <ComboBox x:Name="ComboGifts" Height="32" DisplayMemberPath="Eidos" ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Eidos" Style="{StaticResource ModernComboBox}" />
-
-                                                    <Button Grid.Column="1" Width="30" Height="30" Margin="4,0,0,0" Click="GiftInfo_Click" Style="{StaticResource BtnIcon}" ToolTip="Πληροφορίες Δώρων">
-                                                        <Path Width="14" Height="14" Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="{StaticResource Primary}" Stretch="Uniform" />
+                                                    <ComboBox Grid.Column="0"
+                                                      ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                      DisplayMemberPath="Eidos"
+                                                      SelectedValuePath="Eidos"
+                                                      SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      Style="{StaticResource ModernComboBox}" Height="30"/>
+                                                    <Button Grid.Column="1" Width="30" Height="30" Margin="4,0,0,0" Click="GiftInfo_Click" Style="{StaticResource BtnIcon}" ToolTip="Προβολή όλων των δώρων">
+                                                        <Path Width="14" Height="14" Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="#3B82F6" Stretch="Uniform" />
                                                     </Button>
                                                 </Grid>
                                             </DataTemplate>
