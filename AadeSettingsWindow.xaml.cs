@@ -1,5 +1,7 @@
-﻿using System.Windows;
-using EuroSearchApp.Services;
+﻿using System;
+using System.Windows;
+using System.Windows.Input;
+using EuroSearchApp.Services; // Σιγουρέψου ότι έχεις αυτό το using
 
 namespace EuroSearchApp
 {
@@ -13,59 +15,76 @@ namespace EuroSearchApp
 
         private void LoadCurrentSettings()
         {
-            // Φορτώνουμε τις αποθηκευμένες ρυθμίσεις στα κουτάκια
+            // Φορτώνουμε μόνο User & Pass
             TxtUser.Text = Properties.Settings.Default.AadeUser;
             TxtPass.Password = Properties.Settings.Default.AadePass;
-            TxtMyAfm.Text = Properties.Settings.Default.MyAfm;
         }
 
         private async void TestConnection_Click(object sender, RoutedEventArgs e)
         {
-            LblStatus.Text = "Γίνεται δοκιμή...";
-            LblStatus.Foreground = System.Windows.Media.Brushes.Blue;
+            // Προετοιμασία UI
+            LoadingSpinner.Visibility = Visibility.Visible;
+            LblStatus.Text = "Γίνεται σύνδεση...";
+            LblStatus.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#D97706"));
 
-            // Προσωρινή αποθήκευση για το τεστ (χωρίς Save)
+            // Προσωρινή ανάθεση κωδικών για τη δοκιμή
             Properties.Settings.Default.AadeUser = TxtUser.Text;
             Properties.Settings.Default.AadePass = TxtPass.Password;
-            Properties.Settings.Default.MyAfm = TxtMyAfm.Text;
 
-            // Δοκιμαστικό ΑΦΜ (π.χ. Υπουργείο Οικονομικών 090165560 ή ΓΓΠΣ 999977386)
-            string testAfm = "090165560";
+            string testAfm = "999977386";
 
-            var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
-
-            if (result.Success)
+            try
             {
-                LblStatus.Text = $"ΕΠΙΤΥΧΙΑ! Η σύνδεση λειτουργεί.\nΒρέθηκε: {result.Name}";
-                LblStatus.Foreground = System.Windows.Media.Brushes.Green;
+                var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
+
+                LoadingSpinner.Visibility = Visibility.Collapsed;
+
+                if (result.Success)
+                {
+                    LblStatus.Text = "Επιτυχής σύνδεση!";
+                    LblStatus.Foreground = System.Windows.Media.Brushes.Green;
+                }
+                else
+                {
+                    LblStatus.Text = "Αποτυχία: " + result.ErrorMessage;
+                    LblStatus.Foreground = System.Windows.Media.Brushes.Red;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                LblStatus.Text = $"ΑΠΟΤΥΧΙΑ: {result.ErrorMessage}";
+                LoadingSpinner.Visibility = Visibility.Collapsed;
+                LblStatus.Text = "Σφάλμα συστήματος.";
                 LblStatus.Foreground = System.Windows.Media.Brushes.Red;
             }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Αποθήκευση μόνιμα
+            // Αποθηκεύουμε τα νέα στοιχεία
             Properties.Settings.Default.AadeUser = TxtUser.Text;
             Properties.Settings.Default.AadePass = TxtPass.Password;
-            Properties.Settings.Default.MyAfm = TxtMyAfm.Text;
 
-            Properties.Settings.Default.Save(); // <--- Αυτό γράφει στο δίσκο
+            Properties.Settings.Default.Save();
 
-            MessageBox.Show("Οι ρυθμίσεις αποθηκεύτηκαν!", "Επιτυχία", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Επιστρέφουμε true για να κάνει το MainWindow τη δοκιμή
             DialogResult = true;
             Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            // Επαναφορά (Reload) σε περίπτωση που πειράξαμε κάτι στο Test αλλά πατήσαμε Cancel
             Properties.Settings.Default.Reload();
             DialogResult = false;
             Close();
+        }
+
+        // Πρόσθεσε αυτό μέσα στην κλάση του παραθύρου
+        private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
         }
     }
 }

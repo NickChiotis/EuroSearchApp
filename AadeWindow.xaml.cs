@@ -29,12 +29,16 @@ namespace EuroSearchApp
 
         private async void FetchAade_Click(object sender, RoutedEventArgs e)
         {
-            TxtStatus.Text = "Γίνεται σύνδεση με ΑΑΔΕ...";
-            TxtStatus.Foreground = System.Windows.Media.Brushes.Blue;
-            string afm = TxtSearchAfm.Text;
+            // 1. Εμφάνιση Spinner και αρχικό χρώμα
+            LoadingSpinner.Visibility = Visibility.Visible;
+            TxtStatus.Text = "Γίνεται σύνδεση...";
+            TxtStatus.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FEF3C7"));
 
-            // Κλήση της πραγματικής υπηρεσίας (την τρέχουμε σε άλλο thread για να μην κολλήσει το UI)
+            string afm = TxtSearchAfm.Text;
             var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(afm));
+
+            // 2. Όταν τελειώσει, κρύβουμε τον Spinner
+            LoadingSpinner.Visibility = Visibility.Collapsed;
 
             if (result.Success)
             {
@@ -42,16 +46,12 @@ namespace EuroSearchApp
                 TxtResultAddress.Text = result.Address;
 
                 TxtStatus.Text = "Επιτυχής ανάκτηση στοιχείων!";
-                TxtStatus.Foreground = System.Windows.Media.Brushes.Green;
+                TxtStatus.Foreground = Brushes.Green; // Ή όποιο χρώμα θέλεις για την επιτυχία
             }
             else
             {
                 TxtStatus.Text = result.ErrorMessage;
-                TxtStatus.Foreground = System.Windows.Media.Brushes.Red;
-
-                // Καθαρίζουμε τα πεδία αν απέτυχε
-                TxtResultName.Text = "";
-                TxtResultAddress.Text = "";
+                TxtStatus.Foreground = Brushes.Red;
             }
         }
 
@@ -70,6 +70,15 @@ namespace EuroSearchApp
         {
             DialogResult = false;
             Close();
+        }
+
+        // Πρόσθεσε αυτό μέσα στην κλάση του παραθύρου
+        private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
         }
     }
 }

@@ -61,7 +61,6 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_Content
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.exe.manifest
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.application
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeWindow.g.cs
-C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_MarkupCompile.lref
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeWindow.baml
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeSettingsWindow.baml
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\AadeSettingsWindow.g.cs

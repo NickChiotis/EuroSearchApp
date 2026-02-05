@@ -7,14 +7,14 @@
     <framework targetVersion="4.7.2" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="EuroSearchApp.exe.manifest" size="18485">
+    <dependentAssembly dependencyType="install" codebase="EuroSearchApp.exe.manifest" size="18978">
       <assemblyIdentity name="EuroSearchApp.exe" version="1.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>n/6G7Xq75IYZsPqMdCK78XNQcPDxNDxC5hv9fgoWQ4A=</dsig:DigestValue>
+        <dsig:DigestValue>RH29i1l/lNuvKoYvQBkCbCwADudElsl6dCKAXQYTMt0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

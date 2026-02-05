@@ -115,8 +115,6 @@ namespace EuroSearchApp
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            GoKioskFullScreen();
-
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
@@ -165,15 +163,75 @@ namespace EuroSearchApp
             }
         }
 
-        private void OpenSettings_Click(object sender, RoutedEventArgs e)
+        // ΠΡΟΣΟΧΗ: Πρόσθεσε το 'async' πριν το void γιατί θα κάνουμε κλήση στο δίκτυο
+        private async void OpenSettings_Click(object sender, RoutedEventArgs e)
         {
+            // 1. Δημιουργία του παραθύρου ρυθμίσεων
             AadeSettingsWindow settingsWin = new AadeSettingsWindow();
             settingsWin.Owner = this;
-            settingsWin.Topmost = true; // Για να φαίνεται πάνω από το main window
+            settingsWin.Topmost = true;
             settingsWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
-            settingsWin.ShowDialog();
+            // 2. Εμφάνιση παραθύρου (ShowDialog)
+            // Αν ο χρήστης πατήσει "Αποθήκευση", το αποτέλεσμα είναι true
+            if (settingsWin.ShowDialog() == true)
+            {
+                // 3. ΛΟΓΙΚΗ VALIDATION (Όπως στο παράδειγμά σου)
+                // Μόλις κλείσει το παράθυρο με επιτυχία, κάνουμε αυτόματη δοκιμή σύνδεσης.
+
+                // Χρησιμοποιούμε το ΑΦΜ της ΓΓΠΣ (999977386) για το τεστ, όπως ακριβώς στον κώδικά σου.
+                string testAfm = "999977386";
+
+                // Δείχνουμε έναν κέρσορα αναμονής γιατί μπορεί να πάρει 1-2 δευτερόλεπτα
+                Mouse.OverrideCursor = Cursors.Wait;
+
+                try
+                {
+                    // Κάνουμε την κλήση στην ΑΑΔΕ (χρησιμοποιώντας τα νέα settings που μόλις σώθηκαν)
+                    var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
+
+                    Mouse.OverrideCursor = null; // Επαναφορά κέρσορα
+
+                    if (result.Success)
+                    {
+                        // Αντιστοιχεί στο: activeService = valid;
+                        MessageBox.Show("Οι ρυθμίσεις αποθηκεύτηκαν και η υπηρεσία ΑΑΔΕ είναι ΕΝΕΡΓΗ!",
+                                        "Επιτυχής Σύνδεση", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        // Αν οι κωδικοί είναι λάθος
+                        MessageBox.Show($"Οι ρυθμίσεις αποθηκεύτηκαν, αλλά ο έλεγχος σύνδεσης απέτυχε.\n\nΑιτία: {result.ErrorMessage}",
+                                        "Πρόβλημα Σύνδεσης", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Mouse.OverrideCursor = null;
+                    MessageBox.Show($"Σφάλμα κατά τον έλεγχο: {ex.Message}");
+                }
+            }
         }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            // Κρύβει το παράθυρο στη γραμμή εργασιών
+            WindowState = WindowState.Minimized;
+        }
+
+        private void Maximize_Click(object sender, RoutedEventArgs e)
+        {
+            // Ελέγχουμε: Αν είναι ήδη μεγάλο -> το κάνουμε κανονικό.
+            // Αν είναι κανονικό -> το κάνουμε μεγάλο.
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }   
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
@@ -307,32 +365,9 @@ namespace EuroSearchApp
         protected override void OnStateChanged(EventArgs e)
         {
             base.OnStateChanged(e);
-            if (!_forcingKiosk) GoKioskFullScreen();
         }
 
-        private void GoKioskFullScreen()
-        {
-            if (_forcingKiosk) return;
 
-            try
-            {
-                _forcingKiosk = true;
-                var handle = new WindowInteropHelper(this).Handle;
-                var screen = System.Windows.Forms.Screen.FromHandle(handle);
-                var b = screen.Bounds;
-
-                WindowState = WindowState.Normal;
-                Left = b.Left;
-                Top = b.Top;
-                Width = b.Width;
-                Height = b.Height;
-                Topmost = true;
-            }
-            finally
-            {
-                _forcingKiosk = false;
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name)
@@ -358,7 +393,6 @@ namespace EuroSearchApp
             // --- ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ 3 ΓΡΑΜΜΕΣ ---
             aadeWin.Owner = this; // 1. Συνδέει τα παράθυρα ώστε να μην χάνεται από πίσω
             aadeWin.WindowStartupLocation = WindowStartupLocation.CenterOwner; // 2. Κεντράρισμα
-            aadeWin.Topmost = true; // 3. ΣΗΜΑΝΤΙΚΟ: Επειδή το Main είναι Topmost, πρέπει να είναι και αυτό!
             // ------------------------------------
 
             if (aadeWin.ShowDialog() == true)
@@ -445,7 +479,7 @@ namespace EuroSearchApp
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = $"ΛΙΣΤΑ_ΕΠΩΝΥΜΙΩΝ_{DateTime.Now:dd_MM_yyyy_HH:mm}.xlsx",
+                FileName = $"ΛΙΣΤΑ_ΕΠΩΝΥΜΙΩΝ_{DateTime.Now:dd_MM_yyyy_HH-mm}.xlsx",
                 Title = "Εξαγωγή για Pylon (Pro)"
             };
 
@@ -461,9 +495,9 @@ namespace EuroSearchApp
 
                         // --- 1. ΕΠΙΚΕΦΑΛΙΔΕΣ ---
                         string[] headers = {
-                            "Επιλογή", "Επαφές - Σχόλιο", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
+                            "Επιλογή", "Όνομα Συμμετέχοντος", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
                             "Έγινε Επίδειξη", "Πόλεις (Μεγέθυνση) - Όνομα", "Επαφές - Ημερομηνία 1",
-                            "E-mail 1", "E-mail 2", "Τηλέφωνο 2", "GDPR", "Παρουσίαση TWO",
+                            "E-mail 1", "E-mail 2", "Τηλέφωνο 2", "GDPR", "Παρουσίαση TWO", 
                             "Παλιός Πελάτης", "ΠΡΟΓΡΑΜΜΑ"
                         };
 
@@ -477,11 +511,11 @@ namespace EuroSearchApp
                         foreach (var item in records)
                         {
                             ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
-                            ws.Cells[row, 2].Value = item.Επωνυμία;
-                            ws.Cells[row, 3].Value = item.ΑΦΜ;
-                            ws.Cells[row, 4].Value = item.Τηλέφωνο;
-                            ws.Cells[row, 11].Value = item.Τηλέφωνο2;
-                            ws.Cells[row, 15].Value = item.Comments;
+                            ws.Cells[row, 2].Value = item.Comments;
+                            ws.Cells[row, 3].Value = item.Επωνυμία;
+                            ws.Cells[row, 4].Value = item.ΑΦΜ;
+                            ws.Cells[row, 11].Value = item.Τηλέφωνο;
+                            ws.Cells[row, 15].Value = item.Τηλέφωνο2;
 
                             row++;
                         }
