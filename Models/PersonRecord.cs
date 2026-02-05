@@ -85,6 +85,8 @@ namespace EuroSearchApp.Models
         public string CleanPhone1 { get; private set; }
         public string CleanPhone2 { get; private set; }
 
+        public string SelectedGift { get; set; } // Εδώ θα αποθηκεύεται η επιλογή από το dropdown
+
         public string Τηλέφωνο
         {
             get { return _tilefono; }
@@ -129,6 +131,7 @@ namespace EuroSearchApp.Models
                 }
             }
         }
+
 
         // --- HELPER: ΓΡΗΓΟΡΟΣ ΚΑΘΑΡΙΣΜΟΣ STRING ---
         private static string NormalizeDigits(string s)

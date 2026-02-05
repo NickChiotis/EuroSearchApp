@@ -127,14 +127,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EuroSearchApp.exe" size="4812248">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EuroSearchApp.exe" size="4819928">
       <assemblyIdentity name="EuroSearchApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>aXxm34SH7Oxbbig2FYf6MF2YFNO9Njy2NQ2Q6Ciqry0=</dsig:DigestValue>
+        <dsig:DigestValue>rg6dxTQQIviQ3xUAq9vp9F7nWUQaxwzdWlg1+axX+Ko=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

@@ -1,0 +1,120 @@
+﻿<Window x:Class="EuroSearchApp.GiftViewerWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroSearch - Κατάλογος Δώρων" Width="1000" Height="700" WindowStartupLocation="CenterOwner" WindowState="Normal">
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard AutoReverse="True" RepeatBehavior="Forever">
+                    <ColorAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Color" From="#660099" To="#660099" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="Stop2" Storyboard.TargetProperty="Color" From="#00CCCC" To="#33CC66" Duration="0:0:3" />
+                    <DoubleAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Offset" From="0.0" To="0.3" Duration="0:0:4" />
+                    <DoubleAnimation Storyboard.TargetName="Stop3" Storyboard.TargetProperty="Offset" From="1.0" To="0.7" Duration="0:0:4" />
+
+                    <ColorAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Color" From="#00CCCC" To="#fff" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="back2" Storyboard.TargetProperty="Color" From="#fff" To="#00CCCC" Duration="0:0:3" />
+                    <DoubleAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Offset" From="0.0" To="0.3" Duration="0:0:4" />
+                    <DoubleAnimation Storyboard.TargetName="back3" Storyboard.TargetProperty="Offset" From="1.0" To="0.7" Duration="0:0:4" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border BorderBrush="#E2E8F0" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop x:Name="back1" Offset="0.0" Color="#00CCCC" />
+                <GradientStop x:Name="back2" Offset="0.5" Color="#fff" />
+                <GradientStop x:Name="back3" Offset="1.0" Color="#00CCCC" />
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid SnapsToDevicePixels="True" UseLayoutRounding="True">
+            <Grid.Resources>
+                <SolidColorBrush x:Key="Primary" Color="#3B82F6" />
+                <SolidColorBrush x:Key="TextDark" Color="#0F172A" />
+                <SolidColorBrush x:Key="TextMuted" Color="#64748B" />
+                <SolidColorBrush x:Key="BorderColor" Color="#E2E8F0" />
+                <SolidColorBrush x:Key="HeaderBg" Color="#F1F5F9" />
+
+                <Style TargetType="DataGrid">
+                    <Setter Property="Background" Value="White" />
+                    <Setter Property="BorderThickness" Value="1" />
+                    <Setter Property="BorderBrush" Value="#E2E8F0" />
+                    <Setter Property="RowHeaderWidth" Value="0" />
+                    <Setter Property="GridLinesVisibility" Value="All" />
+                    <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0" />
+                    <Setter Property="VerticalGridLinesBrush" Value="#E2E8F0" />
+                    <Setter Property="HeadersVisibility" Value="Column" />
+                    <Setter Property="RowHeight" Value="48" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="Foreground" Value="{StaticResource TextDark}" />
+                    <Setter Property="AlternatingRowBackground" Value="#FAFAFA" />
+                </Style>
+
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{StaticResource HeaderBg}" />
+                    <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+                    <Setter Property="FontWeight" Value="Bold" />
+                    <Setter Property="Height" Value="44" />
+                    <Setter Property="Padding" Value="12,0" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="BorderBrush" Value="{StaticResource BorderColor}" />
+                </Style>
+            </Grid.Resources>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Padding="24,18">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop x:Name="Stop1" Offset="0.0" Color="#53DDDD" />
+                        <GradientStop x:Name="Stop2" Offset="0.5" Color="#0066CC" />
+                        <GradientStop x:Name="Stop3" Offset="1.0" Color="#660099" />
+                    </LinearGradientBrush>
+                </Border.Background>
+
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <Path Width="24" Height="24" Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="White" Stretch="Uniform" />
+                    <TextBlock Margin="14,0,0,0" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="White" Text="Πλήρης Κατάλογος Δώρων" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Padding="24" CornerRadius="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="10">
+                        <StackPanel Margin="24,15">
+                            <TextBlock Margin="0,0,0,8" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="Αναζήτηση στον κατάλογο" />
+                            <TextBox x:Name="TxtGiftSearch" Height="40" Padding="10,0" VerticalContentAlignment="Center" TextChanged="TxtGiftSearch_TextChanged">
+                                <TextBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8" />
+                                    </Style>
+                                </TextBox.Resources>
+                            </TextBox>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" Background="White" ClipToBounds="True" CornerRadius="5">
+                        <DataGrid x:Name="GiftsGrid" AutoGenerateColumns="True" CanUserAddRows="False" IsReadOnly="True" MouseDoubleClick="GiftsGrid_MouseDoubleClick">
+                            <DataGrid.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                    <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                                    <Setter Property="MaxWidth" Value="50" />
+                                    <Setter Property="Padding" Value="5,0" />
+                                </Style>
+                            </DataGrid.Resources>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

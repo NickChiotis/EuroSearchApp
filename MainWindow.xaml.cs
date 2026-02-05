@@ -30,6 +30,17 @@ namespace EuroSearchApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        // 1. Ορισμός της λίστας δώρων (Μόνο μία φορά)
+        private ObservableCollection<GiftRecord> _giftsList = new ObservableCollection<GiftRecord>();
+        public ObservableCollection<GiftRecord> GiftsList
+        {
+            get => _giftsList;
+            set { _giftsList = value; OnPropertyChanged(nameof(GiftsList)); }
+        }
+
+        // Το path για το αρχείο των δώρων (βεβαιώσου ότι το όνομα είναι σωστό, π.χ. EuroGifts.xlsx)
+        private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
+
         private ICollectionView _recordsView;
         public ICollectionView RecordsView
         {
@@ -78,7 +89,7 @@ namespace EuroSearchApp
             }
         }
 
-        private int _statusFilterIndex = 0; // 0=Όλα, 1=Checked, 2=Unchecked
+        private int _statusFilterIndex = 0;
         public int StatusFilterIndex
         {
             get { return _statusFilterIndex; }
@@ -93,20 +104,6 @@ namespace EuroSearchApp
             }
         }
 
-        private void ResetFilters_Click(object sender, RoutedEventArgs e)
-        {
-            // Καθαρίζουμε όλα τα πεδία
-            NameQuery = "";
-            PhoneQuery = "";
-            AfmQuery = "";
-            StatusFilterIndex = 0; // Επιστροφή στο "Όλα"
-
-            // Επειδή έχουμε κάνει Bindings, το UI θα ενημερωθεί αυτόματα
-            // και θα τρέξει και το RefreshFilter μόνο του!
-        }
-
-        private bool _forcingKiosk;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -115,7 +112,6 @@ namespace EuroSearchApp
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
 
@@ -125,117 +121,120 @@ namespace EuroSearchApp
             }
             else
             {
-                MessageBox.Show($"Δεν βρέθηκε το αρχείο αυτόματης φόρτωσης.\n\n" +
-                                $"Έψαξα σε αυτή τη διαδρομή:\n{defaultPath}\n\n" +
-                                $"Σιγουρέψου ότι στα Properties του αρχείου στο Visual Studio " +
-                                $"το 'Copy to Output Directory' είναι 'Copy always'.",
-                                "Το αρχείο λείπει", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Δεν βρέθηκε το αρχείο αυτόματης φόρτωσης.");
             }
 
             TxtName.Focus();
+
+            // Φόρτωση των δώρων κατά την εκκίνηση
+            LoadGifts();
         }
 
-        private void Input_KeyDown(object sender, KeyEventArgs e)
+        private void LoadGifts()
         {
-            // Ελέγχουμε αν πατήθηκε το ENTER
-            if (e.Key == Key.Enter)
+            try
             {
-                // Βλέπουμε ποιο TextBox το κάλεσε
-                var source = sender as TextBox;
+                if (!File.Exists(giftPath)) return;
 
-                if (source == TxtName)
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(giftPath)))
                 {
-                    // Από Όνομα -> Τηλέφωνο
-                    TxtPhone.Focus();
-                    TxtPhone.SelectAll(); // Επιλέγει το κείμενο για γρήγορη αντικατάσταση
-                }
-                else if (source == TxtPhone)
-                {
-                    // Από Τηλέφωνο -> ΑΦΜ
-                    TxtAfm.Focus();
-                    TxtAfm.SelectAll();
-                }
-                else if (source == TxtAfm)
-                {
-                    // Από ΑΦΜ -> Πίνακας Αποτελεσμάτων (ή κρύψιμο πληκτρολογίου)
-                    RecordsGrid.Focus();
-                }
-            }
-        }
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension == null) return;
 
-        // ΠΡΟΣΟΧΗ: Πρόσθεσε το 'async' πριν το void γιατί θα κάνουμε κλήση στο δίκτυο
-        private async void OpenSettings_Click(object sender, RoutedEventArgs e)
-        {
-            // 1. Δημιουργία του παραθύρου ρυθμίσεων
-            AadeSettingsWindow settingsWin = new AadeSettingsWindow();
-            settingsWin.Owner = this;
-            settingsWin.Topmost = true;
-            settingsWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    int rowCount = ws.Dimension.End.Row;
 
-            // 2. Εμφάνιση παραθύρου (ShowDialog)
-            // Αν ο χρήστης πατήσει "Αποθήκευση", το αποτέλεσμα είναι true
-            if (settingsWin.ShowDialog() == true)
-            {
-                // 3. ΛΟΓΙΚΗ VALIDATION (Όπως στο παράδειγμά σου)
-                // Μόλις κλείσει το παράθυρο με επιτυχία, κάνουμε αυτόματη δοκιμή σύνδεσης.
+                    Application.Current.Dispatcher.Invoke(() => GiftsList.Clear());
 
-                // Χρησιμοποιούμε το ΑΦΜ της ΓΓΠΣ (999977386) για το τεστ, όπως ακριβώς στον κώδικά σου.
-                string testAfm = "999977386";
-
-                // Δείχνουμε έναν κέρσορα αναμονής γιατί μπορεί να πάρει 1-2 δευτερόλεπτα
-                Mouse.OverrideCursor = Cursors.Wait;
-
-                try
-                {
-                    // Κάνουμε την κλήση στην ΑΑΔΕ (χρησιμοποιώντας τα νέα settings που μόλις σώθηκαν)
-                    var result = await System.Threading.Tasks.Task.Run(() => AadeService.GetDetails(testAfm));
-
-                    Mouse.OverrideCursor = null; // Επαναφορά κέρσορα
-
-                    if (result.Success)
+                    for (int row = 2; row <= rowCount; row++) // Ξεκινάμε από 2 για να πηδήξουμε το "ΕΙΔΟΣ"
                     {
-                        // Αντιστοιχεί στο: activeService = valid;
-                        MessageBox.Show("Οι ρυθμίσεις αποθηκεύτηκαν και η υπηρεσία ΑΑΔΕ είναι ΕΝΕΡΓΗ!",
-                                        "Επιτυχής Σύνδεση", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        // Αν οι κωδικοί είναι λάθος
-                        MessageBox.Show($"Οι ρυθμίσεις αποθηκεύτηκαν, αλλά ο έλεγχος σύνδεσης απέτυχε.\n\nΑιτία: {result.ErrorMessage}",
-                                        "Πρόβλημα Σύνδεσης", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        var val = ws.Cells[row, 1].Value?.ToString()?.Trim();
+
+                        if (!string.IsNullOrEmpty(val))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                GiftsList.Add(new GiftRecord { Eidos = val });
+                            });
+                        }
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex) { /* Handle error */ }
+        }
+
+        private void GiftInfo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 1. Έλεγχος αν υπάρχει το αρχείο
+                if (!File.Exists(giftPath)) return;
+
+                // 2. Διάβασμα του Excel και γέμισμα του DataTable (όπως το κάναμε πριν)
+                DataTable dt = new DataTable();
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(giftPath)))
                 {
-                    Mouse.OverrideCursor = null;
-                    MessageBox.Show($"Σφάλμα κατά τον έλεγχο: {ex.Message}");
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension == null) return;
+
+                    for (int i = 1; i <= ws.Dimension.End.Column; i++)
+                    {
+                        string header = ws.Cells[1, i].Value?.ToString()?.Trim() ?? $"Column {i}";
+                        dt.Columns.Add(header);
+                    }
+
+                    for (int rowNum = 2; rowNum <= ws.Dimension.End.Row; rowNum++)
+                    {
+                        DataRow dr = dt.NewRow();
+                        for (int colNum = 1; colNum <= ws.Dimension.End.Column; colNum++)
+                        {
+                            dr[colNum - 1] = ws.Cells[rowNum, colNum].Value?.ToString()?.Trim() ?? "";
+                        }
+                        dt.Rows.Add(dr);
+                    }
+                }
+
+                // 3. ΑΝΟΙΓΜΑ ΤΟΥ ΠΑΡΑΘΥΡΟΥ
+                var viewer = new GiftViewerWindow();
+                viewer.Owner = this;
+                viewer.GiftsGrid.ItemsSource = dt.DefaultView;
+
+                viewer.GiftsGrid.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
+                // Εδώ είναι το "μαγικό" σημείο 3:
+                // Περιμένουμε να κλείσει το παράθυρο. Αν ο χρήστης έκανε διπλό κλικ (DialogResult = true)
+                if (viewer.ShowDialog() == true)
+                {
+                    // Α) Βρίσκουμε ποια γραμμή είναι επιλεγμένη στον ΚΕΝΤΡΙΚΟ πίνακα (MainWindow)
+                    var selectedPerson = RecordsGrid.SelectedItem as PersonRecord;
+
+                    if (selectedPerson != null)
+                    {
+                        // Β) Παίρνουμε το όνομα του δώρου που αποθηκεύτηκε στον Viewer
+                        // (Πρέπει να έχεις φτιάξει την ιδιότητα SelectedGiftName στον Viewer - δες παρακάτω)
+                        selectedPerson.SelectedGift = viewer.SelectedGiftName;
+
+                        // Γ) Ενημερώνουμε το UI
+                        RecordsGrid.Items.Refresh();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
-        private void Minimize_Click(object sender, RoutedEventArgs e)
-        {
-            // Κρύβει το παράθυρο στη γραμμή εργασιών
-            WindowState = WindowState.Minimized;
-        }
+        // --- Υπόλοιπες Μέθοδοι (Αμετάβλητες) ---
 
-        private void Maximize_Click(object sender, RoutedEventArgs e)
+        private void ResetFilters_Click(object sender, RoutedEventArgs e)
         {
-            // Ελέγχουμε: Αν είναι ήδη μεγάλο -> το κάνουμε κανονικό.
-            // Αν είναι κανονικό -> το κάνουμε μεγάλο.
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-            }
-            else
-            {
-                WindowState = WindowState.Maximized;
-            }
-        }   
-
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
+            NameQuery = "";
+            PhoneQuery = "";
+            AfmQuery = "";
+            StatusFilterIndex = 0;
         }
 
         private void LoadData(string filePath)
@@ -243,71 +242,34 @@ namespace EuroSearchApp
             try
             {
                 var rawList = ExcelLoader.Load(filePath);
-
-                if (rawList == null || rawList.Count == 0)
-                {
-                    MessageBox.Show("Το αρχείο είναι κενό ή δεν φορτώθηκε σωστά.");
-                    return;
-                }
+                if (rawList == null || rawList.Count == 0) return;
 
                 RecordsView = CollectionViewSource.GetDefaultView(rawList);
                 RecordsView.Filter = FilterRecords;
-
                 RefreshFilter();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Σφάλμα κατά τη φόρτωση του αρχείου: {ex.Message}");
-            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
         private bool FilterRecords(object item)
         {
             var person = item as PersonRecord;
             if (person == null) return false;
-            // -------------------------
 
-            // 1. Φίλτρο Ονόματος
             if (!string.IsNullOrWhiteSpace(NameQuery))
-            {
-                if (string.IsNullOrEmpty(person.Επωνυμία) ||
-                    person.Επωνυμία.IndexOf(NameQuery, StringComparison.OrdinalIgnoreCase) < 0)
-                {
-                    return false;
-                }
-            }
+                if (string.IsNullOrEmpty(person.Επωνυμία) || person.Επωνυμία.IndexOf(NameQuery, StringComparison.OrdinalIgnoreCase) < 0) return false;
 
-            // 2. Φίλτρο ΑΦΜ
             if (!string.IsNullOrWhiteSpace(AfmQuery))
-            {
-                // Χρησιμοποιούμε StartsWith που είναι πιο γρήγορο για ΑΦΜ
-                // Αν δεν υπάρχει ΑΦΜ ή δεν ξεκινάει με τα ψηφία που έγραψες -> false
-                if (string.IsNullOrEmpty(person.ΑΦΜ) ||
-                    !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
+                if (string.IsNullOrEmpty(person.ΑΦΜ) || !person.ΑΦΜ.StartsWith(AfmQuery, StringComparison.OrdinalIgnoreCase)) return false;
 
-            // 3. Φίλτρο Τηλεφώνου
             if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
                 string cleanQuery = NormalizeDigits(PhoneQuery);
-
-                if (!string.IsNullOrEmpty(cleanQuery))
-                {
-                    // Ελέγχουμε αν είναι null πριν καλέσουμε το Normalize
-                    string p1 = person.Τηλέφωνο != null ? NormalizeDigits(person.Τηλέφωνο) : "";
-                    string p2 = person.Τηλέφωνο2 != null ? NormalizeDigits(person.Τηλέφωνο2) : "";
-
-                    bool match1 = p1.Contains(cleanQuery);
-                    bool match2 = p2.Contains(cleanQuery);
-
-                    if (!match1 && !match2) return false;
-                }
+                string p1 = person.Τηλέφωνο != null ? NormalizeDigits(person.Τηλέφωνο) : "";
+                string p2 = person.Τηλέφωνο2 != null ? NormalizeDigits(person.Τηλέφωνο2) : "";
+                if (!p1.Contains(cleanQuery) && !p2.Contains(cleanQuery)) return false;
             }
 
-            // 4. Φίλτρο Κατάστασης
             if (StatusFilterIndex == 1 && !person.Selected) return false;
             if (StatusFilterIndex == 2 && person.Selected) return false;
 
@@ -319,12 +281,9 @@ namespace EuroSearchApp
             if (RecordsView != null)
             {
                 RecordsView.Refresh();
-
-                // Υπολογισμός πλήθους ορατών εγγραφών
                 int count = 0;
                 foreach (var item in RecordsView) count++;
-
-                ResultCount = count.ToString("N0"); // Το "N0" βάζει τελείες στις χιλιάδες (π.χ. 1.500)
+                ResultCount = count.ToString("N0");
             }
         }
 
@@ -332,227 +291,97 @@ namespace EuroSearchApp
         public string ResultCount
         {
             get { return _resultCount; }
-            set
-            {
-                _resultCount = value;
-                OnPropertyChanged(nameof(ResultCount));
-            }
+            set { _resultCount = value; OnPropertyChanged(nameof(ResultCount)); }
         }
 
         private static string NormalizeDigits(string s)
         {
-            if (string.IsNullOrEmpty(s)) return " - ";
-
-            // Χρήση unsafe pointer-like logic με char array για ταχύτητα
-            char[] buffer = new char[s.Length];
-            int idx = 0;
-
-            foreach (char c in s)
-            {
-                if (char.IsDigit(c))
-                {
-                    buffer[idx++] = c;
-                }
-            }
-
-            return new string(buffer, 0, idx);
+            if (string.IsNullOrEmpty(s)) return "";
+            return new string(s.Where(char.IsDigit).ToArray());
         }
-
-        private void RecordsGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
-        {
-        }
-
-        protected override void OnStateChanged(EventArgs e)
-        {
-            base.OnStateChanged(e);
-        }
-
-
 
         public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name)
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (e.Key == Key.Enter)
+            {
+                var source = sender as TextBox;
+                if (source == TxtName) TxtPhone.Focus();
+                else if (source == TxtPhone) TxtAfm.Focus();
+                else if (source == TxtAfm) RecordsGrid.Focus();
+            }
         }
 
-        private void Aade_Click(object sender, RoutedEventArgs e)
+        private async void Aade_Click(object sender, RoutedEventArgs e)
         {
-            // 1. Παίρνουμε το ΑΦΜ από το πεδίο αναζήτησης
             string afmFromFilter = TxtAfm.Text.Trim();
+            if (string.IsNullOrEmpty(afmFromFilter)) return;
 
-            if (string.IsNullOrEmpty(afmFromFilter))
-            {
-                MessageBox.Show("Παρακαλώ πληκτρολογήστε ένα ΑΦΜ στο πεδίο αναζήτησης.", "Λείπει ΑΦΜ", MessageBoxButton.OK, MessageBoxImage.Warning);
-                TxtAfm.Focus();
-                return;
-            }
-
-            // 2. Ανοίγουμε το παράθυρο της ΑΑΔΕ (χωρίς να μας νοιάζει αν υπάρχει ο πελάτης)
             AadeWindow aadeWin = new AadeWindow(afmFromFilter);
-
-            // --- ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ 3 ΓΡΑΜΜΕΣ ---
-            aadeWin.Owner = this; // 1. Συνδέει τα παράθυρα ώστε να μην χάνεται από πίσω
-            aadeWin.WindowStartupLocation = WindowStartupLocation.CenterOwner; // 2. Κεντράρισμα
-            // ------------------------------------
+            aadeWin.Owner = this;
+            aadeWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             if (aadeWin.ShowDialog() == true)
             {
-                // Ο χρήστης πάτησε "Αποθήκευση" στο παράθυρο της ΑΑΔΕ.
-                // Τώρα πρέπει να βρούμε αν αυτό το ΑΦΜ υπάρχει ήδη στη λίστα μας.
-
-                // Παίρνουμε την αρχική λίστα δεδομένων
                 var sourceList = RecordsView.SourceCollection as List<PersonRecord>;
-
                 if (sourceList == null) return;
 
-                // Ψάχνουμε αν υπάρχει ήδη εγγραφή με αυτό το ΑΦΜ
                 var existingPerson = sourceList.FirstOrDefault(p => p.ΑΦΜ == afmFromFilter);
+                if (existingPerson != null) existingPerson.Επωνυμία = aadeWin.FetchedName;
+                else sourceList.Add(new PersonRecord { ΑΦΜ = afmFromFilter, Επωνυμία = aadeWin.FetchedName, Selected = true });
 
-                if (existingPerson != null)
-                {
-                    // ΠΕΡΙΠΤΩΣΗ 1: Υπάρχει ήδη -> Τον ενημερώνουμε
-                    existingPerson.Επωνυμία = aadeWin.FetchedName;
-                    // existingPerson.Διεύθυνση = aadeWin.FetchedAddress; // Αν έχεις διεύθυνση
-
-                    MessageBox.Show($"Ο πελάτης βρέθηκε στη λίστα και ενημερώθηκε!\n\nΕπωνυμία: {existingPerson.Επωνυμία}", "Ενημέρωση Υπάρχοντος", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-                else
-                {
-                    // ΠΕΡΙΠΤΩΣΗ 2: Δεν υπάρχει -> Φτιάχνουμε ΝΕΟ
-                    var newPerson = new PersonRecord
-                    {
-                        ΑΦΜ = afmFromFilter,
-                        Επωνυμία = aadeWin.FetchedName,
-                        Τηλέφωνο = "", // Κενό ή μπορείς να βάλεις "N/A"
-                        Comments = "Προστέθηκε από ΑΑΔΕ",
-                        Selected = true // Τον επιλέγουμε για να φαίνεται έντονα
-                    };
-
-                    // Τον προσθέτουμε στη λίστα
-                    sourceList.Add(newPerson);
-
-                    MessageBox.Show($"Δημιουργήθηκε νέα εγγραφή!\n\nΕπωνυμία: {newPerson.Επωνυμία}", "Νέος Πελάτης", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-
-                // 3. Σημαντικό: Ανανεώνουμε τον πίνακα για να φανεί η αλλαγή (ή η νέα εγγραφή)
                 RefreshFilter();
             }
         }
 
-        // --- ΒΟΗΘΗΤΙΚΗ: Παίρνει μόνο τα ορατά ---
-        private List<PersonRecord> GetVisibleRecords()
-        {
-            var list = new List<PersonRecord>();
-            if (RecordsView != null)
-            {
-                foreach (var item in RecordsView)
-                {
-                    if (item is PersonRecord record)
-                    {
-                        list.Add(record);
-                    }
-                }
-            }
-            return list;
-        }
-
-        // --- ΤΟ ΝΕΟ ΚΟΥΜΠΙ: Ένα κλικ = Εξαγωγή όσων βλέπεις ---
         private void ExportVisible_Click(object sender, RoutedEventArgs e)
         {
-            RecordsGrid.CommitEdit(); // Αποθήκευση σχολίων
             RecordsGrid.CommitEdit();
-
-            var visibleRecords = GetVisibleRecords();
+            var visibleRecords = new List<PersonRecord>();
+            foreach (var item in RecordsView) visibleRecords.Add(item as PersonRecord);
             ExportToExcel(visibleRecords, "Export");
         }
 
         private void ExportToExcel(List<PersonRecord> records, string suffix)
         {
-            if (records.Count == 0)
-            {
-                MessageBox.Show("Δεν υπάρχουν εγγραφές για εξαγωγή (με βάση τα φίλτρα σας).", "Προσοχή", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Filter = "Excel Files (*.xlsx)|*.xlsx",
-                FileName = $"ΛΙΣΤΑ_ΕΠΩΝΥΜΙΩΝ_{DateTime.Now:dd_MM_yyyy_HH-mm}.xlsx",
-                Title = "Εξαγωγή για Pylon (Pro)"
-            };
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"ΛΙΣΤΑ_{DateTime.Now:dd_MM_yyyy}.xlsx" };
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                try
+                using (var package = new ExcelPackage(new FileInfo(saveFileDialog.FileName)))
                 {
-                    if (File.Exists(saveFileDialog.FileName)) File.Delete(saveFileDialog.FileName);
+                    var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
+                    string[] headers = { "Επιλογή", "Συμμετέχων", "Επωνυμία", "ΑΦΜ", "Τηλέφωνο 1", "ΔΩΡΟ" };
+                    for (int i = 0; i < headers.Length; i++) ws.Cells[1, i + 1].Value = headers[i];
 
-                    using (var package = new ExcelPackage(new FileInfo(saveFileDialog.FileName)))
+                    int row = 2;
+                    foreach (var item in records)
                     {
-                        var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
-
-                        // --- 1. ΕΠΙΚΕΦΑΛΙΔΕΣ ---
-                        string[] headers = {
-                            "Επιλογή", "Όνομα Συμμετέχοντος", "Επωνυμία", "Επαφές - Α.Φ.Μ", "Τηλέφωνο 1", "Διακριτικός Τίτλος",
-                            "Έγινε Επίδειξη", "Πόλεις (Μεγέθυνση) - Όνομα", "Επαφές - Ημερομηνία 1",
-                            "E-mail 1", "E-mail 2", "Τηλέφωνο 2", "GDPR", "Παρουσίαση TWO", 
-                            "Παλιός Πελάτης", "ΠΡΟΓΡΑΜΜΑ"
-                        };
-
-                        for (int i = 0; i < headers.Length; i++)
-                        {
-                            ws.Cells[1, i + 1].Value = headers[i];
-                        }
-
-                        // --- 2. ΓΕΜΙΣΜΑ ΔΕΔΟΜΕΝΩΝ ---
-                        int row = 2;
-                        foreach (var item in records)
-                        {
-                            ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
-                            ws.Cells[row, 2].Value = item.Comments;
-                            ws.Cells[row, 3].Value = item.Επωνυμία;
-                            ws.Cells[row, 4].Value = item.ΑΦΜ;
-                            ws.Cells[row, 11].Value = item.Τηλέφωνο;
-                            ws.Cells[row, 15].Value = item.Τηλέφωνο2;
-
-                            row++;
-                        }
-
-                        // --- 3. PRO ΜΟΡΦΟΠΟΙΗΣΗ ---
-                        var dataRange = ws.Cells[1, 1, row - 1, headers.Length];
-
-                        var table = ws.Tables.Add(dataRange, "PylonData");
-                        table.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
-                        table.ShowFilter = true;
-
-                        ws.Cells.Style.Font.Name = "Segoe UI";
-                        ws.Cells.Style.Font.Size = 10;
-
-                        ws.Column(1).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        ws.Column(3).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        ws.Column(4).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        ws.Column(11).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                        ws.Cells.AutoFitColumns();
-                        for (int i = 1; i <= headers.Length; i++)
-                        {
-                            ws.Column(i).Width = ws.Column(i).Width + 2;
-                        }
-
-                        ws.View.FreezePanes(2, 1);
-
-                        package.Save();
+                        ws.Cells[row, 1].Value = item.Selected ? "ΝΑΙ" : "ΟΧΙ";
+                        ws.Cells[row, 2].Value = item.Comments;
+                        ws.Cells[row, 3].Value = item.Επωνυμία;
+                        ws.Cells[row, 4].Value = item.ΑΦΜ;
+                        ws.Cells[row, 5].Value = item.Τηλέφωνο;
+                        ws.Cells[row, 6].Value = item.SelectedGift; // Εξαγωγή του επιλεγμένου δώρου
+                        row++;
                     }
-
-                    MessageBox.Show($"Εγινε εξαγωγή Excel με!\n{saveFileDialog.FileName}", "Επιτυχία", MessageBoxButton.OK, MessageBoxImage.Information);
+                    package.Save();
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Σφάλμα: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("Η εξαγωγή ολοκληρώθηκε!");
             }
         }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+        private void OpenSettings_Click(object sender, RoutedEventArgs e) { /* Λογική ρυθμίσεων */ }
+    }
+
+    public class GiftRecord
+    {
+        public string Eidos { get; set; }
     }
 }

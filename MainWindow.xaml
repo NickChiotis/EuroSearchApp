@@ -404,6 +404,7 @@
                                         </Button>
                                     </Grid>
                                 </StackPanel>
+
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
@@ -480,6 +481,24 @@
                                     <DataGridTextColumn Width="*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="Α.Φ.Μ." IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="ΤΗΛΕΦΩΝΟ" IsReadOnly="True" />
+                                    <DataGridTemplateColumn Width="220" Header="ΔΩΡΑ">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <ComboBox x:Name="ComboGifts" Height="32" DisplayMemberPath="Eidos" ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Eidos" Style="{StaticResource ModernComboBox}" />
+
+                                                    <Button Grid.Column="1" Width="30" Height="30" Margin="4,0,0,0" Click="GiftInfo_Click" Style="{StaticResource BtnIcon}" ToolTip="Πληροφορίες Δώρων">
+                                                        <Path Width="14" Height="14" Data="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" Fill="{StaticResource Primary}" Stretch="Uniform" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

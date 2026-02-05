@@ -64,3 +64,6 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\System.Text.Encoding.
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ClosedXML.pdb
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.pdb
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\ExcelDataReader.DataSet.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\GiftViewerWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\GiftViewerWindow.g.cs
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Assets\Gifts\EuroGifts.xlsx
