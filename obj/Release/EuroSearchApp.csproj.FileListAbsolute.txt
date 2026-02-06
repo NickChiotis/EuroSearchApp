@@ -60,7 +60,12 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Release\System.Numerics.Vec
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Release\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Release\System.Security.Cryptography.Xml.xml
 C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Release\System.Text.Encoding.CodePages.xml
-C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.csproj.AssemblyReference.cache
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.exe.manifest
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.application
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.csproj.CopyComplete
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Release\Assets\Gifts\EuroGifts.xlsx
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\GiftViewerWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\GiftViewerWindow.g.cs
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\GeneratedInternalTypeHelper.g.cs
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp_MarkupCompile.lref
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.csproj.AssemblyReference.cache

@@ -1,0 +1,143 @@
+﻿<Window x:Class="EuroSearchApp.QuickAddWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Γρήγορη Προσθήκη" Width="420" Height="500" AllowsTransparency="True"
+        Background="Transparent" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBlue" Color="#2563EB" />
+        <SolidColorBrush x:Key="HoverBlue" Color="#1D4ED8" />
+        <SolidColorBrush x:Key="CancelGrey" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="CancelHover" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="TextDark" Color="#1E293B" />
+        <SolidColorBrush x:Key="TextMuted" Color="#64748B" />
+
+        <Style x:Key="ModernInput" TargetType="TextBox">
+            <Setter Property="Height" Value="45" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="15,0" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1.5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" HorizontalContentAlignment="Left" Focusable="false" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBlue}" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="2" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#CBD5E1" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryBlue}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Height" Value="45" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <Border.Effect>
+                                <DropShadowEffect x:Name="shadow" BlurRadius="8" Opacity="0.1" ShadowDepth="2" Color="Black" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource HoverBlue}" />
+                                <Setter TargetName="border" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="12" Opacity="0.2" ShadowDepth="4" Color="Black" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform CenterX="100" CenterY="22" ScaleX="0.97" ScaleY="0.97" />
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CancelBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CancelGrey}" />
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+            <Setter Property="Height" Value="45" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource CancelHover}" />
+                                <Setter Property="Foreground" Value="{StaticResource TextDark}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Margin="15" Background="White" CornerRadius="20">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.2" ShadowDepth="5" />
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Padding="25,20,25,10">
+                <StackPanel>
+                    <TextBlock FontSize="24" FontWeight="ExtraBold" Foreground="{StaticResource TextDark}" Text="Προσθήκη Νέου" />
+                    <TextBlock Margin="0,5,0,0" FontSize="13" Foreground="{StaticResource TextMuted}" Text="Συμπληρώστε τα στοιχεία του πελάτη" />
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Row="1" Margin="25,10">
+                <TextBlock Margin="5,0,0,5" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="ΟΝΟΜΑΤΕΠΩΝΥΜΟ" />
+                <TextBox x:Name="TxtNewName" Margin="0,0,0,15" Style="{StaticResource ModernInput}" />
+
+                <TextBlock Margin="5,0,0,5" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="ΤΗΛΕΦΩΝΟ" />
+                <TextBox x:Name="TxtNewPhone" Margin="0,0,0,15" Style="{StaticResource ModernInput}" />
+
+                <TextBlock Margin="5,0,0,5" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="ΑΦΜ (ΠΡΟΑΙΡΕΤΙΚΟ)" />
+                <TextBox x:Name="TxtNewAfm" Style="{StaticResource ModernInput}" />
+            </StackPanel>
+
+            <Border Grid.Row="2" Padding="25" Background="#F8FAFC" CornerRadius="0,0,20,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="1.5*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Margin="0,0,10,0" Click="Cancel_Click" Content="Ακύρωση" Style="{StaticResource CancelBtnStyle}" />
+                    <Button Grid.Column="1" Click="Add_Click" Content="Προσθήκη Πελάτη" IsDefault="True" Style="{StaticResource PrimaryBtnStyle}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

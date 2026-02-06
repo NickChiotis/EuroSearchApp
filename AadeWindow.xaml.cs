@@ -17,6 +17,11 @@ namespace EuroSearchApp
 {
     public partial class AadeWindow : Window
     {
+        public string ResultName { get; set; }
+        public string ResultAddress { get; set; }
+        public string ResultAfm { get; set; }
+        public string ResultPhone { get; set; }
+
         // Εδώ θα αποθηκεύσουμε τα αποτελέσματα για να τα πάρει το κεντρικό παράθυρο
         public string FetchedName { get; private set; }
         public string FetchedAddress { get; private set; }
@@ -57,12 +62,19 @@ namespace EuroSearchApp
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Αποθηκεύουμε αυτά που γράφουν τα TextBox στα Properties
-            FetchedName = TxtResultName.Text;
-            FetchedAddress = TxtResultAddress.Text;
+            // Παίρνουμε τις τιμές από τα TextBoxes του παραθύρου ΑΑΔΕ
+            this.ResultName = TxtResultName.Text.Trim();
+            this.ResultAddress = TxtResultAddress.Text.Trim();
+            this.ResultAfm = TxtSearchAfm.Text.Trim();
+            this.ResultPhone = TxtResultPhone.Text.Trim(); // Από το νέο TextBox
 
-            // Επιστρέφουμε "True" στο κεντρικό παράθυρο (σημαίνει ΟΚ)
-            DialogResult = true;
+            if (string.IsNullOrWhiteSpace(this.ResultName))
+            {
+                MessageBox.Show("Δεν υπάρχει Επωνυμία για αποθήκευση!");
+                return;
+            }
+
+            this.DialogResult = true;
             Close();
         }
 

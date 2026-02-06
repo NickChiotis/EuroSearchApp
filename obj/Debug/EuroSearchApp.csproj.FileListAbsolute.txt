@@ -66,3 +66,7 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.applica
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.CopyComplete
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.exe
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp_MarkupCompile.lref
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\QuickAddWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\QuickAddWindow.g.cs

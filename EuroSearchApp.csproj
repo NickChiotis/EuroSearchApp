@@ -188,6 +188,9 @@
       <DependentUpon>GiftViewerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\GiftRecord.cs" />
+    <Compile Include="QuickAddWindow.xaml.cs">
+      <DependentUpon>QuickAddWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\AadeService.cs" />
     <Compile Include="Services\ExcelAnyLoader.cs" />
     <Compile Include="Services\ExcelLoader.cs" />
@@ -197,6 +200,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="AadeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QuickAddWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

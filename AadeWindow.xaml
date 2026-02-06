@@ -107,6 +107,9 @@
                 <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Διεύθυνση / Έδρα" />
                 <TextBox x:Name="TxtResultAddress" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
 
+                <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Τηλέφωνο (Χειροκίνητα)" />
+                <TextBox x:Name="TxtResultPhone" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
+
                 <StackPanel x:Name="StatusArea" Margin="0,15,0,0" VerticalAlignment="Center" Orientation="Horizontal">
 
                     <Grid x:Name="LoadingSpinner" Width="24" Height="24" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">

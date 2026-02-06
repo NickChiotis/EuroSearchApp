@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using ClosedXML.Excel;
 using EuroSearchApp.Models;
 using ExcelDataReader;
 using System.Text;
+using System.Linq;
 
 namespace EuroSearchApp.Services
 {
@@ -24,28 +24,39 @@ namespace EuroSearchApp.Services
                     {
                         ConfigureDataTable = _ => new ExcelDataTableConfiguration
                         {
-                            UseHeaderRow = true
+                            UseHeaderRow = true // Χρησιμοποιούμε την 1η γραμμή ως τίτλους
                         }
                     });
 
-                    // Παίρνουμε το 1ο φύλλο
                     var table = result.Tables[0];
 
                     foreach (DataRow row in table.Rows)
                     {
+                        // Διαβάζουμε πρώτα το δώρο για να αποφασίσουμε αν είναι Selected
+                        string gift = Get(row, "ΔΩΡΟ");
+
                         var record = new PersonRecord
                         {
-                            Selected = Get(row, "Επιλογή") == "ΝΑΙ", // Αν θες να κρατάει και το checkbox
+                            // 1. Σχόλια/Συμμετέχων από τη στήλη "Συμμετέχων"
+                            Comments = Get(row, "Συμμετέχων"),
 
-                            // Οι υπάρχουσες αντιστοιχίσεις σου
+                            // 2. Επωνυμία
                             Επωνυμία = Get(row, "Επωνυμία"),
-                            ΑΦΜ = Get(row, "Επαφές - Α.Φ.Μ"),
+
+                            // 3. ΑΦΜ
+                            ΑΦΜ = Get(row, "ΑΦΜ"),
+
+                            // 4. Τηλέφωνο 1
                             Τηλέφωνο = Get(row, "Τηλέφωνο 1"),
+
+                            // 5. Τηλέφωνο 2
                             Τηλέφωνο2 = Get(row, "Τηλέφωνο 2"),
 
-                            // ΠΡΟΣΘΕΣΕ ΑΥΤΕΣ ΤΙΣ ΔΥΟ ΓΡΑΜΜΕΣ:
-                            Comments = Get(row, "Συμμετέχων"),      // Διαβάζει το όνομα συμμετέχοντος
-                            SelectedGift = Get(row, "SelectedGift") // Διαβάζει το επιλεγμένο δώρο
+                            // 6. Δώρο
+                            SelectedGift = gift,
+
+                            // Αυτόματη επιλογή αν υπάρχει δώρο
+                            Selected = !string.IsNullOrWhiteSpace(gift)
                         };
 
                         list.Add(record);
@@ -58,6 +69,7 @@ namespace EuroSearchApp.Services
 
         private static string Get(DataRow row, string columnName)
         {
+            // Έλεγχος αν υπάρχει η στήλη για να μην "κρασάρει" το πρόγραμμα
             if (!row.Table.Columns.Contains(columnName)) return "";
             return row[columnName]?.ToString()?.Trim() ?? "";
         }
