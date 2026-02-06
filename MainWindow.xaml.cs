@@ -49,6 +49,20 @@ namespace EuroSearchApp
             set { _giftsList = value; OnPropertyChanged(nameof(GiftsList)); }
         }
 
+        private void BtnHelperMenu_Click(object sender, RoutedEventArgs e)
+        {
+            // Βρίσκουμε το κουμπί που πατήθηκε
+            Button btn = sender as Button;
+
+            // Αν το κουμπί έχει ContextMenu, το ανοίγουμε
+            if (btn != null && btn.ContextMenu != null)
+            {
+                // Ορίζουμε το Target στο κουμπί για να ανοίξει στη σωστή θέση
+                btn.ContextMenu.PlacementTarget = btn;
+                btn.ContextMenu.IsOpen = true;
+            }
+        }
+
         private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
 
         private ICollectionView _selectedRecordsView;
@@ -659,32 +673,112 @@ namespace EuroSearchApp
 
         private void ExportToExcel(List<PersonRecord> records, string suffix)
         {
+            // Ρύθμιση License
             OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            SaveFileDialog sfd = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"ΛΙΣΤΑ_{DateTime.Now:dd_MM_yyyy}.xlsx" };
+
+            // Διάλογος αποθήκευσης
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx",
+                FileName = $"ΛΙΣΤΑ_{DateTime.Now:dd_MM_yyyy}.xlsx"
+            };
 
             if (sfd.ShowDialog() == true)
             {
-                using (var package = new ExcelPackage(new FileInfo(sfd.FileName)))
+                try
                 {
-                    var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
-                    // Ορίζουμε τις 6 στήλες που ζήτησες
-                    string[] h = { "Συμμετέχων", "Επωνυμία", "ΑΦΜ", "Τηλέφωνο 1", "Τηλέφωνο 2", "ΔΩΡΟ" };
-                    for (int i = 0; i < h.Length; i++) ws.Cells[1, i + 1].Value = h[i];
+                    // Αν το αρχείο υπάρχει ήδη, το σβήνουμε πρώτα για να μην έχουμε conflicts
+                    if (File.Exists(sfd.FileName)) File.Delete(sfd.FileName);
 
-                    int r = 2;
-                    foreach (var item in records)
+                    using (var package = new ExcelPackage(new FileInfo(sfd.FileName)))
                     {
-                        ws.Cells[r, 1].Value = item.Comments;
-                        ws.Cells[r, 2].Value = item.Επωνυμία;
-                        ws.Cells[r, 3].Value = item.ΑΦΜ;
-                        ws.Cells[r, 4].Value = item.Τηλέφωνο;
-                        ws.Cells[r, 5].Value = item.Τηλέφωνο2;
-                        ws.Cells[r, 6].Value = item.SelectedGift;
-                        r++;
+                        var ws = package.Workbook.Worksheets.Add("ΠΕΛΑΤΟΛΟΓΙΟ");
+
+                        // --- 1. ΕΠΙΚΕΦΑΛΙΔΕΣ (HEADERS) ---
+                        string[] h = { "Συμμετέχων", "Επωνυμία", "ΑΦΜ", "Τηλέφωνο 1", "Τηλέφωνο 2", "ΔΩΡΟ" };
+                        for (int i = 0; i < h.Length; i++)
+                        {
+                            ws.Cells[1, i + 1].Value = h[i];
+                        }
+
+                        // Στυλ Επικεφαλίδων (Μπλε φόντο, Λευκά γράμματα, Bold, Κεντραρισμένα)
+                        using (var rng = ws.Cells[1, 1, 1, 6])
+                        {
+                            rng.Style.Font.Bold = true;
+                            rng.Style.Font.Size = 12;
+                            rng.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                            rng.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                            rng.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#3B82F6")); // Το μπλε της εφαρμογής σου
+                            rng.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            rng.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        }
+                        ws.Row(1).Height = 25; // Λίγο πιο ψηλή η γραμμή τίτλων
+
+                        // --- 2. ΔΕΔΟΜΕΝΑ (DATA) ---
+                        int r = 2;
+                        foreach (var item in records)
+                        {
+                            ws.Cells[r, 1].Value = item.Comments;
+                            ws.Cells[r, 2].Value = item.Επωνυμία;
+                            ws.Cells[r, 3].Value = item.ΑΦΜ;
+                            ws.Cells[r, 4].Value = item.Τηλέφωνο;
+                            ws.Cells[r, 5].Value = item.Τηλέφωνο2;
+                            ws.Cells[r, 6].Value = item.SelectedGift;
+
+                            // Zebra Striping (Εναλλάξ χρωματισμός γραμμών για ευκολία ανάγνωσης)
+                            if (r % 2 == 0)
+                            {
+                                var rowRange = ws.Cells[r, 1, r, 6];
+                                rowRange.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                rowRange.Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#F1F5F9")); // Απαλό γκρι
+                            }
+
+                            r++;
+                        }
+
+                        // --- 3. ΜΟΡΦΟΠΟΙΗΣΗ ΠΙΝΑΚΑ (BORDERS & AUTOFIT) ---
+                        int lastRow = r - 1;
+                        if (lastRow >= 1)
+                        {
+                            var fullRange = ws.Cells[1, 1, lastRow, 6];
+
+                            // Λεπτό περίγραμμα (Border) γύρω από όλα τα κελιά
+                            fullRange.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            fullRange.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            fullRange.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            fullRange.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                            fullRange.Style.Border.Top.Color.SetColor(System.Drawing.ColorTranslator.FromHtml("#CBD5E1"));
+                            fullRange.Style.Border.Bottom.Color.SetColor(System.Drawing.ColorTranslator.FromHtml("#CBD5E1"));
+                            fullRange.Style.Border.Left.Color.SetColor(System.Drawing.ColorTranslator.FromHtml("#CBD5E1"));
+                            fullRange.Style.Border.Right.Color.SetColor(System.Drawing.ColorTranslator.FromHtml("#CBD5E1"));
+
+                            // Κεντράρισμα κειμένου στα κελιά (προαιρετικό - αν το θες βγάλε τα σχόλια)
+                            // fullRange.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                        }
+
+                        // Αυτόματη προσαρμογή πλάτους στηλών
+                        ws.Cells.AutoFitColumns();
+
+                        package.Save();
                     }
-                    package.Save();
+
+                    // Ερώτηση για άνοιγμα του αρχείου
+                    var result = MessageBox.Show("Η εξαγωγή ολοκληρώθηκε επιτυχώς!\nΘέλετε να ανοίξετε το αρχείο τώρα;",
+                                                 "Επιτυχία", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
                 }
-                MessageBox.Show("Η εξαγωγή ολοκληρώθηκε!");
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Προέκυψε σφάλμα κατά την αποθήκευση:\n{ex.Message}", "Σφάλμα", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -791,23 +885,31 @@ namespace EuroSearchApp
 
             if (person != null)
             {
-                // 1. Αφαίρεση από τη λίστα που ελέγχει τα διπλότυπα (ΑΥΤΟ ΕΛΕΙΠΕ)
+                // 1. Αφαίρεση από τη λίστα των επιλεγμένων (Κάτω πίνακας)
                 if (SelectedParticipants.Contains(person))
                 {
                     SelectedParticipants.Remove(person);
                 }
 
-                // 2. Αποεπιλογή του πελάτη
-                person.Selected = false;
+                // 2. Αφαίρεση από την ΚΥΡΙΑ λίστα δεδομένων (ΒΑΣΙΚΗ ΔΙΟΡΘΩΣΗ)
+                // Μετατρέπουμε τη συλλογή σε λίστα για να μπορέσουμε να κάνουμε Remove
+                var sourceList = RecordsView.SourceCollection as System.Collections.IList;
+                if (sourceList != null && sourceList.Contains(person))
+                {
+                    sourceList.Remove(person);
+                }
 
-                // 3. Μηδενισμός του δώρου για να επιστρέψει στο stock
+                // 3. Καθαρισμός πεδίων του αντικειμένου (προαιρετικό πλέον αφού διαγράφεται)
+                person.Selected = false;
                 person.SelectedGift = null;
 
-                // 4. Αποθήκευση και Ανανέωση
+                // 4. Αποθήκευση στο temp_data.xlsx
+                // Τώρα που αφαιρέθηκε από τη λίστα, το SaveToTemp θα γράψει το αρχείο ΧΩΡΙΣ αυτόν τον πελάτη.
                 SaveToTemp();
-                RefreshFilter(); // Θα εξαφανίσει τη γραμμή από το DataGrid
-                LoadGifts();     // Θα ενημερώσει τα αποθέματα
 
+                // 5. Ανανέωση των Views
+                RefreshFilter();
+                LoadGifts();
                 RecordsGrid.Items.Refresh();
             }
         }
