@@ -1,115 +1,156 @@
 ﻿using System;
-using System.Data;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using OfficeOpenXml; // Απαραίτητο για το EPPlus
+using System.IO;
+using OfficeOpenXml; // Χρειάζεται για την αποθήκευση του νέου δώρου
 
 namespace EuroSearchApp
 {
     public partial class GiftViewerWindow : Window
     {
+        // Η επιλογή που θα επιστραφεί στο κυρίως παράθυρο
         public string SelectedGiftName { get; private set; }
 
-        // Το Path για το αρχείο των δώρων
-        private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "temp_gift.xlsx");
+        // Η λίστα που περιέχει τα δεδομένα (Όνομα, Απόθεμα, κτλ)
+        public List<GiftStockItem> GiftItems { get; set; } = new List<GiftStockItem>();
+
+        // Path για το Excel (για την προσθήκη νέου δώρου)
+        private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
 
         public GiftViewerWindow()
         {
             InitializeComponent();
         }
 
-        // Αναζήτηση
-        private void TxtGiftSearch_TextChanged(object sender, TextChangedEventArgs e)
+        // --- 1. ΔΙΑΧΕΙΡΙΣΗ ΠΛΗΚΤΡΩΝ (ESCAPE) ---
+        // ΑΥΤΗ Η ΜΕΘΟΔΟΣ ΕΛΕΙΠΕ ΚΑΙ ΣΟΥ ΕΒΓΑΖΕ ΤΟ ΣΦΑΛΜΑ
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            var dv = GiftsGrid.ItemsSource as DataView;
-            if (dv == null) return;
-
-            string query = TxtGiftSearch.Text.Trim().Replace("'", "''");
-
-            if (string.IsNullOrEmpty(query))
+            if (e.Key == Key.Escape)
             {
-                dv.RowFilter = "";
-            }
-            else
-            {
-                try
+                // Αν είναι ανοιχτό το Overlay προσθήκης, κλείσε μόνο αυτό
+                if (AddOverlay != null && AddOverlay.Visibility == Visibility.Visible)
                 {
-                    string colName = dv.Table.Columns[0].ColumnName;
-                    dv.RowFilter = $"[{colName}] LIKE '{query}%'";
+                    AddOverlay.Visibility = Visibility.Collapsed;
+                    return;
                 }
-                catch
-                {
-                    dv.RowFilter = "";
-                }
-            }
-        }
 
-        // Επιλογή με διπλό κλικ
-        private void GiftsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var row = GiftsGrid.SelectedItem as DataRowView;
-            if (row != null)
-            {
-                SelectedGiftName = row[0].ToString();
-                this.DialogResult = true;
+                // Αλλιώς κλείσε το παράθυρο
                 this.Close();
             }
         }
 
-        // --- ΛΕΙΤΟΥΡΓΙΕΣ ΚΟΥΜΠΙΩΝ ---
+        // --- 2. ΑΝΑΖΗΤΗΣΗ (Search) ---
+        private void TxtGiftSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string filter = TxtGiftSearch.Text.Trim();
 
-        // Κουμπί (-) : Καθαρισμός (Χωρίς Δώρο)
+            if (string.IsNullOrEmpty(filter))
+            {
+                // Αν δεν γράφει τίποτα, δείξε τα όλα
+                GiftsGrid.ItemsSource = GiftItems;
+            }
+            else
+            {
+                // Αν γράφει, φίltrare τη λίστα στη μνήμη
+                var filtered = GiftItems.Where(x => x.Name != null &&
+                                               x.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                GiftsGrid.ItemsSource = filtered;
+            }
+        }
+
+        // --- 3. ΕΠΙΛΟΓΗ ΔΩΡΟΥ (Double Click) ---
+        private void GiftsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (GiftsGrid.SelectedItem is GiftStockItem item)
+            {
+                // Έλεγχος αν έχει μείνει απόθεμα
+                if (item.RemainingQty <= 0)
+                {
+                    var result = MessageBox.Show(
+                        $"Το δώρο '{item.Name}' έχει εξαντληθεί (Διαθέσιμα: 0).\nΘέλετε να το επιλέξετε παρόλα αυτά;",
+                        "Εξαντλημένο Δώρο",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.No) return;
+                }
+
+                SelectedGiftName = item.Name;
+                DialogResult = true; // Επιστρέφει true στο MainWindow
+                Close();
+            }
+        }
+
+        // --- 4. ΔΙΑΓΡΑΦΗ ΔΩΡΟΥ (Κάδος) ---
+        private void BtnDeleteRow_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var item = button.DataContext as GiftStockItem;
+
+            if (item != null)
+            {
+                if (MessageBox.Show($"Είσαι σίγουρος ότι θέλεις να διαγράψεις το δώρο: {item.Name};\n(Θα αφαιρεθεί μόνο από τη λίστα προβολής)",
+                    "Επιβεβαίωση", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    GiftItems.Remove(item);
+                    RefreshGrid();
+                }
+            }
+        }
+
+        // --- 5. ΚΑΘΑΡΙΣΜΟΣ ΕΠΙΛΟΓΗΣ (Κουμπί Χ) ---
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            SelectedGiftName = ""; // Επιστρέφει κενό
-            this.DialogResult = true; // Κλείνει το παράθυρο και ενημερώνει το Grid
-            this.Close();
+            SelectedGiftName = null; // Κανένα δώρο
+            DialogResult = true;
+            Close();
         }
 
-        // Κουμπί (+) : Εμφάνιση παραθύρου προσθήκης
+        // --- 6. ΠΡΟΣΘΗΚΗ ΝΕΟΥ ΔΩΡΟΥ (Overlay) ---
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
-            TxtNewGift.Text = "";
-            AddOverlay.Visibility = Visibility.Visible;
-            TxtNewGift.Focus();
+            if (AddOverlay != null)
+            {
+                AddOverlay.Visibility = Visibility.Visible;
+                if (TxtNewGift != null)
+                {
+                    TxtNewGift.Text = "";
+                    TxtNewGift.Focus();
+                }
+            }
         }
 
-        // Ακύρωση Προσθήκης
         private void BtnCancelAdd_Click(object sender, RoutedEventArgs e)
         {
-            AddOverlay.Visibility = Visibility.Collapsed;
+            if (AddOverlay != null) AddOverlay.Visibility = Visibility.Collapsed;
         }
 
-        // Αποθήκευση Νέου Δώρου
         private void BtnSaveNew_Click(object sender, RoutedEventArgs e)
         {
-            string newGift = TxtNewGift.Text.Trim();
-            if (string.IsNullOrEmpty(newGift))
-            {
-                MessageBox.Show("Παρακαλώ εισάγετε ονομασία δώρου.");
-                return;
-            }
+            string newName = TxtNewGift.Text.Trim();
+            if (string.IsNullOrEmpty(newName)) return;
 
             try
             {
-                // 1. Αποθήκευση στο Excel
-                SaveGiftToExcel(newGift);
-
-                // 2. Ενημέρωση του Πίνακα (DataView) τοπικά
-                var view = GiftsGrid.ItemsSource as DataView;
-                if (view != null)
+                // 1. Το προσθέτουμε στη λίστα (Προσωρινά με 0 απόθεμα, ή όσο θες)
+                var newItem = new GiftStockItem
                 {
-                    DataRow newRow = view.Table.NewRow();
-                    newRow[0] = newGift;
-                    view.Table.Rows.InsertAt(newRow, 0); // Το βάζουμε στην κορυφή (μπροστά)
-                }
+                    Name = newName,
+                    TotalQty = 0,
+                    UsedQty = 0
+                };
 
-                // 3. Κλείσιμο του Overlay
-                AddOverlay.Visibility = Visibility.Collapsed;
-                TxtGiftSearch.Text = ""; // Καθαρισμός φίλτρου
+                GiftItems.Insert(0, newItem); // Προσθήκη στην αρχή
+                RefreshGrid();
+
+                // 2. Προσπάθεια αποθήκευσης στο Excel (Προαιρετικό)
+                SaveGiftToExcel(newName);
+
+                if (AddOverlay != null) AddOverlay.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -117,94 +158,48 @@ namespace EuroSearchApp
             }
         }
 
-        // --- ΛΕΙΤΟΥΡΓΙΑ ΔΙΑΓΡΑΦΗΣ ---
-        private void BtnDeleteRow_Click(object sender, RoutedEventArgs e)
+        // --- ΒΟΗΘΗΤΙΚΕΣ ΜΕΘΟΔΟΙ ---
+
+        private void RefreshGrid()
         {
-            if (MessageBox.Show("Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το δώρο;", "Επιβεβαίωση", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-                return;
-
-            var button = sender as Button;
-            var rowView = button.DataContext as DataRowView;
-
-            if (rowView != null)
-            {
-                string giftToDelete = rowView[0].ToString();
-
-                try
-                {
-                    // 1. Διαγραφή από Excel
-                    DeleteGiftFromExcel(giftToDelete);
-
-                    // 2. Διαγραφή από τον Πίνακα (UI)
-                    rowView.Delete();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Σφάλμα κατά τη διαγραφή: " + ex.Message);
-                }
-            }
+            GiftsGrid.ItemsSource = null; // Reset για να δει τις αλλαγές
+            GiftsGrid.ItemsSource = GiftItems;
         }
-
-        // --- ΜΕΘΟΔΟΙ EXCEL ---
 
         private void SaveGiftToExcel(string giftName)
         {
             if (!File.Exists(giftPath)) return;
 
-            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-
-            using (var package = new ExcelPackage(new FileInfo(giftPath)))
+            try
             {
-                var ws = package.Workbook.Worksheets[0];
-                if (ws.Dimension == null)
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(new FileInfo(giftPath)))
                 {
-                    ws.Cells[1, 1].Value = "ΕΙΔΟΣ";
-                    ws.Cells[2, 1].Value = giftName;
-                }
-                else
-                {
-                    // Ελέγχουμε αν υπάρχει ήδη
-                    bool exists = false;
-                    for (int r = 2; r <= ws.Dimension.End.Row; r++)
-                    {
-                        if (ws.Cells[r, 1].Value?.ToString() == giftName)
-                        {
-                            exists = true;
-                            break;
-                        }
-                    }
-
-                    if (!exists)
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension != null)
                     {
                         int lastRow = ws.Dimension.End.Row;
                         ws.Cells[lastRow + 1, 1].Value = giftName;
+                        ws.Cells[lastRow + 1, 2].Value = 0; // Αρχική ποσότητα 0
                         package.Save();
                     }
                 }
             }
+            catch { /* Αγνοούμε λάθη excel αν είναι ανοιχτό */ }
         }
+    }
 
-        private void DeleteGiftFromExcel(string giftName)
-        {
-            if (!File.Exists(giftPath)) return;
+    // --- Η ΚΛΑΣΗ ΜΟΝΤΕΛΟΥ (ΕΔΩ ΕΙΝΑΙ Η ΣΩΣΤΗ ΘΕΣΗ - ΕΚΤΟΣ ΤΟΥ WINDOW) ---
+    public class GiftStockItem
+    {
+        public string Name { get; set; }        // Όνομα Δώρου
+        public int TotalQty { get; set; }       // Αρχικά (από Excel)
+        public int UsedQty { get; set; }        // Χρησιμοποιημένα (από Πελάτες)
 
-            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+        // Αυτό υπολογίζει αυτόματα το υπόλοιπο
+        public int RemainingQty => TotalQty - UsedQty;
 
-            using (var package = new ExcelPackage(new FileInfo(giftPath)))
-            {
-                var ws = package.Workbook.Worksheets[0];
-                if (ws.Dimension == null) return;
-
-                for (int r = 2; r <= ws.Dimension.End.Row; r++)
-                {
-                    if (ws.Cells[r, 1].Value?.ToString() == giftName)
-                    {
-                        ws.DeleteRow(r); // Διαγραφή της γραμμής
-                        package.Save();
-                        return;
-                    }
-                }
-            }
-        }
+        // Βοηθητικό για να κοκκινίζει η γραμμή στο XAML αν τελειώνει
+        public bool IsLowStock => RemainingQty <= 0;
     }
 }
