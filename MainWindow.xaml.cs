@@ -46,6 +46,8 @@ namespace EuroSearchApp
             get => _selectedRecordsView;
             set { _selectedRecordsView = value; OnPropertyChanged(nameof(SelectedRecordsView)); }
         }
+        private string originalGiftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
+        private string tempGiftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "temp_gift.xlsx");
 
         private ICollectionView _recordsView; // Το "κρυφό" View για τα Suggestions και το Enter
         public ICollectionView RecordsView
@@ -286,18 +288,36 @@ namespace EuroSearchApp
         {
             try
             {
-                if (!File.Exists(giftPath)) return;
                 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(new FileInfo(giftPath)))
+
+                // ΛΟΓΙΚΗ: Αν υπάρχει το Temp διάβασε το, αλλιώς διάβασε το Original
+                string fileToRead = File.Exists(tempGiftPath) ? tempGiftPath : originalGiftPath;
+
+                if (!File.Exists(fileToRead)) return;
+
+                using (var package = new ExcelPackage(new FileInfo(fileToRead)))
                 {
                     var ws = package.Workbook.Worksheets[0];
                     if (ws.Dimension == null) return;
-                    GiftsList.Clear();
-                    GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου" });
-                    for (int row = 2; row <= ws.Dimension.End.Row; row++)
+
+                    int rowCount = ws.Dimension.End.Row;
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        GiftsList.Clear();
+                        GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου" });
+                    });
+
+                    for (int row = 2; row <= rowCount; row++)
                     {
                         var val = ws.Cells[row, 1].Value?.ToString()?.Trim();
-                        if (!string.IsNullOrEmpty(val)) GiftsList.Add(new GiftRecord { Eidos = val });
+                        if (!string.IsNullOrEmpty(val))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                GiftsList.Add(new GiftRecord { Eidos = val });
+                            });
+                        }
                     }
                 }
             }
@@ -394,7 +414,65 @@ namespace EuroSearchApp
         }
 
         protected override void OnClosing(CancelEventArgs e) { SaveToTemp(); base.OnClosing(e); }
-        private void GiftInfo_Click(object sender, RoutedEventArgs e) { /* Placeholder */ }
+        private void GiftInfo_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // ΛΟΓΙΚΗ: Αν υπάρχει το Temp διάβασε το, αλλιώς διάβασε το Original
+                string fileToRead = File.Exists(tempGiftPath) ? tempGiftPath : originalGiftPath;
+
+                if (!File.Exists(fileToRead)) return;
+
+                DataTable dt = new DataTable();
+                OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(fileToRead)))
+                {
+                    var ws = package.Workbook.Worksheets[0];
+                    if (ws.Dimension == null) return;
+
+                    for (int i = 1; i <= ws.Dimension.End.Column; i++) dt.Columns.Add(ws.Cells[1, i].Value?.ToString()?.Trim() ?? $"Column {i}");
+
+                    for (int rowNum = 2; rowNum <= ws.Dimension.End.Row; rowNum++)
+                    {
+                        DataRow dr = dt.NewRow();
+                        bool hasValue = false;
+                        for (int colNum = 1; colNum <= ws.Dimension.End.Column; colNum++)
+                        {
+                            var val = ws.Cells[rowNum, colNum].Value?.ToString()?.Trim() ?? "";
+                            dr[colNum - 1] = val;
+                            if (!string.IsNullOrEmpty(val)) hasValue = true;
+                        }
+                        if (hasValue) dt.Rows.Add(dr);
+                    }
+                }
+
+                var viewer = new GiftViewerWindow();
+                viewer.Owner = this;
+                viewer.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                viewer.GiftsGrid.ItemsSource = dt.DefaultView;
+                viewer.GiftsGrid.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
+
+                // Ανοίγουμε το παράθυρο
+                bool? result = viewer.ShowDialog();
+
+                // ΞΑΝΑΦΟΡΤΩΝΟΥΜΕ ΤΑ ΔΩΡΑ ΣΤΟ ΚΥΡΙΩΣ ΠΑΡΑΘΥΡΟ (μήπως έγινε προσθήκη)
+                LoadGifts();
+
+                if (result == true)
+                {
+                    var button = sender as Button;
+                    var selectedPerson = button.DataContext as PersonRecord;
+                    if (selectedPerson != null)
+                    {
+                        selectedPerson.SelectedGift = viewer.SelectedGiftName;
+                        RecordsGrid.Items.Refresh();
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
         private void Close_Click(object sender, RoutedEventArgs e) => Close();

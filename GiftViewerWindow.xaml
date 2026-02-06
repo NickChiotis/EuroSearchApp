@@ -35,14 +35,36 @@
                 <SolidColorBrush x:Key="BorderColor" Color="#E2E8F0" />
                 <SolidColorBrush x:Key="HeaderBg" Color="#F1F5F9" />
 
+                <Style x:Key="BtnDelete" TargetType="Button">
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="5" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}" CornerRadius="4">
+                                    <Path x:Name="icon" Width="14" Height="14" Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" Fill="#94A3B8" Stretch="Uniform" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="#FEE2E2" />
+                                        <Setter TargetName="icon" Property="Fill" Value="#EF4444" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
                 <Style TargetType="DataGrid">
                     <Setter Property="Background" Value="White" />
                     <Setter Property="BorderThickness" Value="1" />
                     <Setter Property="BorderBrush" Value="#E2E8F0" />
                     <Setter Property="RowHeaderWidth" Value="0" />
-                    <Setter Property="GridLinesVisibility" Value="All" />
+                    <Setter Property="GridLinesVisibility" Value="Horizontal" />
                     <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0" />
-                    <Setter Property="VerticalGridLinesBrush" Value="#E2E8F0" />
+                    <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
                     <Setter Property="HeadersVisibility" Value="Column" />
                     <Setter Property="RowHeight" Value="48" />
                     <Setter Property="FontSize" Value="14" />
@@ -91,30 +113,101 @@
                     <Border Grid.Row="0" Margin="0,0,0,20" Background="White" CornerRadius="10">
                         <StackPanel Margin="24,15">
                             <TextBlock Margin="0,0,0,8" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMuted}" Text="Αναζήτηση στον κατάλογο" />
-                            <TextBox x:Name="TxtGiftSearch" Height="40" Padding="10,0" VerticalContentAlignment="Center" TextChanged="TxtGiftSearch_TextChanged">
-                                <TextBox.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="8" />
-                                    </Style>
-                                </TextBox.Resources>
-                            </TextBox>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox x:Name="TxtGiftSearch" Grid.Column="0" Height="40" Padding="10,0" VerticalContentAlignment="Center" TextChanged="TxtGiftSearch_TextChanged">
+                                    <TextBox.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="8" />
+                                        </Style>
+                                    </TextBox.Resources>
+                                </TextBox>
+
+                                <Button Grid.Column="1" Width="40" Height="40" Margin="10,0,0,0" Background="#10B981" BorderThickness="0" Click="BtnAdd_Click" Cursor="Hand" ToolTip="Προσθήκη Νέου Δώρου">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <Path Width="16" Height="16" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Stretch="Uniform" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Opacity" Value="0.9" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <Button Grid.Column="2" Width="40" Height="40" Margin="5,0,0,0" Background="#EF4444" BorderThickness="0" Click="BtnClear_Click" Cursor="Hand" ToolTip="Χωρίς Δώρο (Καθαρισμός)">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <Path Width="16" Height="16" Data="M19,13H5V11H19V13Z" Fill="White" Stretch="Uniform" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Opacity" Value="0.9" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Row="1" Background="White" ClipToBounds="True" CornerRadius="5">
-                        <DataGrid x:Name="GiftsGrid" AutoGenerateColumns="True" CanUserAddRows="False" IsReadOnly="True" MouseDoubleClick="GiftsGrid_MouseDoubleClick">
-                            <DataGrid.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                    <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
-                                    <Setter Property="MaxWidth" Value="50" />
-                                    <Setter Property="Padding" Value="5,0" />
-                                </Style>
-                            </DataGrid.Resources>
+                        <DataGrid x:Name="GiftsGrid" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" MouseDoubleClick="GiftsGrid_MouseDoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="50">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Click="BtnDeleteRow_Click" Style="{StaticResource BtnDelete}" ToolTip="Διαγραφή Δώρου" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Width="*" Binding="{Binding [0]}" Header="ΠΕΡΙΓΡΑΦΗ ΔΩΡΟΥ">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                                            <Setter Property="Padding" Value="5,0" />
+                                            <Setter Property="VerticalAlignment" Value="Center" />
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
                         </DataGrid>
                     </Border>
                 </Grid>
             </Border>
+
+            <Grid x:Name="AddOverlay" Grid.RowSpan="2" Background="#80000000" Visibility="Collapsed">
+                <Border Width="350" Padding="20" VerticalAlignment="Center" Background="White" CornerRadius="8">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" Opacity="0.4" ShadowDepth="0" />
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Margin="0,0,0,15" FontSize="16" FontWeight="Bold" Text="Προσθήκη Νέου Δώρου" />
+
+                        <TextBlock Margin="0,0,0,5" FontSize="12" Foreground="#64748B" Text="Ονομασία Δώρου:" />
+                        <TextBox x:Name="TxtNewGift" Height="35" Padding="5,0" VerticalContentAlignment="Center" />
+
+                        <StackPanel Margin="0,20,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button Width="80" Height="30" Margin="0,0,10,0" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1" Click="BtnCancelAdd_Click" Content="Ακύρωση" />
+                            <Button Width="100" Height="30" Background="#3B82F6" BorderThickness="0" Click="BtnSaveNew_Click" Content="Αποθήκευση" FontWeight="SemiBold" Foreground="White" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
         </Grid>
     </Border>
 </Window>
