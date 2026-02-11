@@ -160,9 +160,29 @@ namespace EuroSearchApp
             string defaultPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "Template.xlsx");
             string tempPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "temp_data.xlsx");
 
-            if (File.Exists(tempPath)) LoadData(tempPath);
-            else if (File.Exists(defaultPath)) LoadData(defaultPath);
-            else MessageBox.Show("Δεν βρέθηκε κανένα αρχείο δεδομένων (Template ή Temp).");
+            if (File.Exists(defaultPath))
+    {
+        var mainData = ExcelLoader.Load(defaultPath);
+        RecordsView = CollectionViewSource.GetDefaultView(mainData);
+        RecordsView.Filter = FilterRecords;
+    }
+    else
+    {
+        MessageBox.Show("Δεν βρέθηκε το αρχείο Template.xlsx για την αναζήτηση.");
+    }
+
+    // 2. Φορτώνουμε το temp_data.xlsx ΜΟΝΟ για τη λίστα συμμετεχόντων (κάτω πλαίσιο)
+    if (File.Exists(tempPath))
+    {
+        var savedParticipants = ExcelLoader.Load(tempPath);
+        SelectedParticipants.Clear();
+        foreach (var p in savedParticipants)
+        {
+            // Προαιρετικά: Αν θες να ταυτίζονται τα αντικείμενα με τη βάση, 
+            // αλλά για απλή εμφάνιση αρκεί να τα προσθέσεις:
+            SelectedParticipants.Add(p);
+        }
+    }
 
             LoadGifts();
             TxtName.Focus();
@@ -268,8 +288,16 @@ namespace EuroSearchApp
                 RecordsView = CollectionViewSource.GetDefaultView(rawList);
                 RecordsView.Filter = FilterRecords;
 
-                SelectedRecordsView = CollectionViewSource.GetDefaultView(rawList);
-                SelectedRecordsView.Filter = (item) => ((PersonRecord)item).Selected;
+                SelectedParticipants.Clear();
+                foreach (var person in rawList)
+                {
+                    // Αν το ExcelLoader είδε δώρο, έχει κάνει το person.Selected = true.
+                    // Εμείς απλά τον βάζουμε στη σωστή λίστα.
+                    if (person.Selected)
+                    {
+                        SelectedParticipants.Add(person);
+                    }
+                }
 
                 RefreshFilter();
             }
@@ -638,8 +666,7 @@ namespace EuroSearchApp
         {
             try
             {
-                var allRecords = RecordsView?.SourceCollection as IEnumerable<PersonRecord>;
-                if (allRecords == null) return;
+                if (SelectedParticipants == null) return;
 
                 string tempPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Templates", "temp_data.xlsx");
                 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -651,7 +678,7 @@ namespace EuroSearchApp
                     for (int i = 0; i < headers.Length; i++) ws.Cells[1, i + 1].Value = headers[i];
 
                     int row = 2;
-                    foreach (var item in allRecords)
+                    foreach (var item in SelectedParticipants)
                     {
                         ws.Cells[row, 1].Value = item.Comments;
                         ws.Cells[row, 2].Value = item.Επωνυμία;
