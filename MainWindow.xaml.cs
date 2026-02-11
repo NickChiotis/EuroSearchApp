@@ -161,28 +161,38 @@ namespace EuroSearchApp
             string tempPath = System.IO.Path.Combine(baseDir, "Assets", "Templates", "temp_data.xlsx");
 
             if (File.Exists(defaultPath))
-    {
-        var mainData = ExcelLoader.Load(defaultPath);
-        RecordsView = CollectionViewSource.GetDefaultView(mainData);
-        RecordsView.Filter = FilterRecords;
-    }
-    else
-    {
-        MessageBox.Show("Δεν βρέθηκε το αρχείο Template.xlsx για την αναζήτηση.");
-    }
+            {
+                var mainData = ExcelLoader.Load(defaultPath);
+                RecordsView = CollectionViewSource.GetDefaultView(mainData);
+                RecordsView.Filter = FilterRecords;
+            }
+            else
+            {
+                MessageBox.Show("Δεν βρέθηκε το αρχείο Template.xlsx για την αναζήτηση.");
+            }
 
-    // 2. Φορτώνουμε το temp_data.xlsx ΜΟΝΟ για τη λίστα συμμετεχόντων (κάτω πλαίσιο)
-    if (File.Exists(tempPath))
-    {
-        var savedParticipants = ExcelLoader.Load(tempPath);
-        SelectedParticipants.Clear();
-        foreach (var p in savedParticipants)
-        {
-            // Προαιρετικά: Αν θες να ταυτίζονται τα αντικείμενα με τη βάση, 
-            // αλλά για απλή εμφάνιση αρκεί να τα προσθέσεις:
-            SelectedParticipants.Add(p);
-        }
-    }
+            // 2. Φορτώνουμε το temp_data.xlsx ΜΟΝΟ για τη λίστα συμμετεχόντων (κάτω πλαίσιο)
+            if (File.Exists(tempPath))
+            {
+                var savedParticipants = ExcelLoader.Load(tempPath);
+                SelectedParticipants.Clear();
+                foreach (var p in savedParticipants)
+                {
+                    // Προαιρετικά: Αν θες να ταυτίζονται τα αντικείμενα με τη βάση, 
+                    // αλλά για απλή εμφάνιση αρκεί να τα προσθέσεις:
+                    SelectedParticipants.Add(p);
+                }
+            }
+
+            // Αφού φορτώσαμε τα πάντα, ενημερώνουμε το νούμερο!
+            if (SelectedParticipants != null)
+            {
+                ResultCount = SelectedParticipants.Count.ToString();
+            }
+            else
+            {
+                ResultCount = "0";
+            }
 
             LoadGifts();
             TxtName.Focus();
@@ -397,7 +407,7 @@ namespace EuroSearchApp
                 LoadGifts();
 
                 var allRecords = RecordsView.SourceCollection as IEnumerable<PersonRecord>;
-                var usedGifts = allRecords?
+                var usedGifts = SelectedParticipants?
                     .Where(p => !string.IsNullOrEmpty(p.SelectedGift))
                     .GroupBy(p => p.SelectedGift)
                     .ToDictionary(g => g.Key, g => g.Count()) ?? new Dictionary<string, int>();
@@ -599,7 +609,7 @@ namespace EuroSearchApp
             {
                 // 1. Υπολογισμός Χρησιμοποιημένων από το Grid
                 var allRecords = RecordsView?.SourceCollection as IEnumerable<PersonRecord>;
-                var usedGifts = allRecords?
+                var usedGifts = SelectedParticipants?
                     .Where(p => !string.IsNullOrEmpty(p.SelectedGift))
                     .GroupBy(p => p.SelectedGift)
                     .ToDictionary(g => g.Key, g => g.Count()) ?? new Dictionary<string, int>();

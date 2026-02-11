@@ -13,6 +13,7 @@ namespace EuroSearchApp
     {
         // Η επιλογή που θα επιστραφεί στο κυρίως παράθυρο
         public string SelectedGiftName { get; private set; }
+        public int NewGiftQty { get; set; }
 
         // Η λίστα που περιέχει τα δεδομένα (Όνομα, Απόθεμα, κτλ)
         public List<GiftStockItem> GiftItems { get; set; } = new List<GiftStockItem>();
@@ -119,6 +120,7 @@ namespace EuroSearchApp
                 if (TxtNewGift != null)
                 {
                     TxtNewGift.Text = "";
+                    newQtyGift.Text = "";
                     TxtNewGift.Focus();
                 }
             }
@@ -132,7 +134,11 @@ namespace EuroSearchApp
         private void BtnSaveNew_Click(object sender, RoutedEventArgs e)
         {
             string newName = TxtNewGift.Text.Trim();
-            if (string.IsNullOrEmpty(newName)) return;
+            if (string.IsNullOrEmpty(newName))
+            {
+                MessageBox.Show("Παρακαλώ δώστε ονομασία δώρου.");
+                return;
+            }
 
             try
             {
@@ -140,7 +146,7 @@ namespace EuroSearchApp
                 var newItem = new GiftStockItem
                 {
                     Name = newName,
-                    TotalQty = 0,
+                    TotalQty = NewGiftQty,
                     UsedQty = 0
                 };
 
@@ -148,7 +154,7 @@ namespace EuroSearchApp
                 RefreshGrid();
 
                 // 2. Προσπάθεια αποθήκευσης στο Excel (Προαιρετικό)
-                SaveGiftToExcel(newName);
+                SaveGiftToExcel(newName, NewGiftQty);
 
                 if (AddOverlay != null) AddOverlay.Visibility = Visibility.Collapsed;
             }
@@ -166,7 +172,7 @@ namespace EuroSearchApp
             GiftsGrid.ItemsSource = GiftItems;
         }
 
-        private void SaveGiftToExcel(string giftName)
+        private void SaveGiftToExcel(string giftName, int quantity)
         {
             if (!File.Exists(giftPath)) return;
 

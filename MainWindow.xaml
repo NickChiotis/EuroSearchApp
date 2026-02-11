@@ -1,4 +1,4 @@
-﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:EuroSearchApp" Title="EuroSearch" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:EuroSearchApp" Title="EuroWheelApp" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
