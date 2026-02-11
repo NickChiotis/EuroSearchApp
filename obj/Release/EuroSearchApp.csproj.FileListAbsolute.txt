@@ -69,3 +69,5 @@ C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\GiftViewerWindow.g.
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\GeneratedInternalTypeHelper.g.cs
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp_MarkupCompile.lref
 C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\EuroSearchApp.csproj.AssemblyReference.cache
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\QuickAddWindow.baml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Release\QuickAddWindow.g.cs

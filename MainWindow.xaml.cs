@@ -49,6 +49,20 @@ namespace EuroSearchApp
             set { _giftsList = value; OnPropertyChanged(nameof(GiftsList)); }
         }
 
+        private void BtnHelperMenu_Click(object sender, RoutedEventArgs e)
+        {
+            // Βρίσκουμε το κουμπί που πατήθηκε
+            Button btn = sender as Button;
+
+            // Αν το κουμπί έχει ContextMenu, το ανοίγουμε
+            if (btn != null && btn.ContextMenu != null)
+            {
+                // Ορίζουμε το Target στο κουμπί για να ανοίξει στη σωστή θέση
+                btn.ContextMenu.PlacementTarget = btn;
+                btn.ContextMenu.IsOpen = true;
+            }
+        }
+
         private string giftPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Gifts", "EuroGifts.xlsx");
 
         private ICollectionView _selectedRecordsView;
@@ -267,8 +281,6 @@ namespace EuroSearchApp
             var person = item as PersonRecord;
             if (person == null) return false;
 
-            if (person.Selected) return true;
-
             bool hasActiveFilter = !string.IsNullOrWhiteSpace(NameQuery) || !string.IsNullOrWhiteSpace(PhoneQuery) || !string.IsNullOrWhiteSpace(AfmQuery);
             if (!hasActiveFilter) return false;
 
@@ -302,8 +314,6 @@ namespace EuroSearchApp
             RecordsView?.Refresh();
             SelectedRecordsView?.Refresh();
 
-            RecordsView?.Refresh();
-            SelectedRecordsView?.Refresh();
             if (SelectedRecordsView != null)
             {
                 int count = 0;
@@ -340,6 +350,7 @@ namespace EuroSearchApp
             }
 
             RefreshFilter();
+            SaveToTemp();
 
             // Αυτόματο άνοιγμα παραθύρου δώρων
             Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
@@ -601,14 +612,21 @@ namespace EuroSearchApp
                         GiftsList.Add(new GiftRecord { Eidos = "Επιλογή Δώρου", Remaining = 9999 });
                         foreach (var item in excelItems) GiftsList.Add(item);
                     }
-                    else
+                    // Αντί να σβήσεις τα πάντα, ενημέρωσε μόνο τα υπάρχοντα
+                    foreach (var excelItem in excelItems)
                     {
-                        // Αν υπάρχει ήδη, απλά ενημέρωσε τα νούμερα Remaining
-                        foreach (var excelItem in excelItems)
+                        // Βρες το δώρο στη μνήμη
+                        var existing = GiftsList.FirstOrDefault(g => g.Eidos == excelItem.Eidos);
+
+                        if (existing != null)
                         {
-                            var existing = GiftsList.FirstOrDefault(g => g.Eidos == excelItem.Eidos);
-                            if (existing != null) existing.Remaining = excelItem.Remaining;
-                            else GiftsList.Add(excelItem);
+                            // Απλά άλλαξε το νούμερο, μην πειράξεις το αντικείμενο
+                            existing.Remaining = excelItem.Remaining;
+                        }
+                        else
+                        {
+                            // Αν είναι καινούργιο δώρο που δεν υπήρχε πριν, πρόσθεσέ το
+                            GiftsList.Add(excelItem);
                         }
                     }
                 });
@@ -870,9 +888,9 @@ namespace EuroSearchApp
                     sourceList.Add(newPerson);
                 }
 
+                AddParticipant(newPerson);
                 NameQuery = "";
                 RefreshFilter();
-                OpenGiftSelectionForPerson(newPerson);
             }
         }
         private string RemoveAccents(string text)

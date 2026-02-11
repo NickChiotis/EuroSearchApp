@@ -1,77 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using EuroSearchApp.Models;
-using ExcelDataReader;
-using System.Text;
 using System.Linq;
+using EuroSearchApp.Models;
+using OfficeOpenXml; // EPPlus
 
 namespace EuroSearchApp.Services
 {
     public static class ExcelLoader
     {
-        public static List<PersonRecord> Load(string path)
+        public static List<PersonRecord> Load(string filePath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var list = new List<PersonRecord>();
+            var output = new List<PersonRecord>();
 
-            using (var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            if (!File.Exists(filePath)) return output;
+
+            try
             {
-                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                // Ρύθμιση για το EPPlus (δωρεάν χρήση)
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
-                    var result = reader.AsDataSet(new ExcelDataSetConfiguration
+                    var ws = package.Workbook.Worksheets.FirstOrDefault();
+                    if (ws == null || ws.Dimension == null) return output;
+
+                    // --- ΒΗΜΑ 1: Εντοπισμός Στηλών (Ψάχνουμε "έξυπνα" τις επικεφαλίδες) ---
+                    int colComments = -1;
+                    int colName = -1;
+                    int colAfm = -1;
+                    int colPhone1 = -1;
+                    int colPhone2 = -1;
+                    int colGift = -1;
+
+                    // Σαρώνουμε την 1η γραμμή για να βρούμε πού είναι τι
+                    for (int c = 1; c <= ws.Dimension.End.Column; c++)
                     {
-                        ConfigureDataTable = _ => new ExcelDataTableConfiguration
+                        var header = ws.Cells[1, c].Text.Trim();
+
+                        // 1. ΕΥΡΕΣΗ ΟΝΟΜΑΤΟΣ
+                        if (IsHeader(header, "Επωνυμία", "TITLE", "Name", "Ονοματεπώνυμο"))
+                            colName = c;
+
+                        // 2. ΕΥΡΕΣΗ ΑΦΜ (Εδώ ήταν το πρόβλημα πριν)
+                        else if (IsHeader(header, "ΑΦΜ", "AFM", "Α.Φ.Μ.", "Α.Φ.Μ", "VAT", "Επαφές - Α.Φ.Μ"))
+                            colAfm = c;
+
+                        // 3. ΕΥΡΕΣΗ ΤΗΛΕΦΩΝΟΥ 1
+                        else if (IsHeader(header, "Τηλέφωνο 1", "Τηλέφωνο", "TEL", "Phone", "Mobile", "Κινητό"))
+                            colPhone1 = c;
+
+                        // 4. ΕΥΡΕΣΗ ΤΗΛΕΦΩΝΟΥ 2
+                        else if (IsHeader(header, "Τηλέφωνο 2", "Phone 2", "TEL 2"))
+                            colPhone2 = c;
+
+                        // 5. ΕΥΡΕΣΗ ΔΩΡΟΥ
+                        else if (IsHeader(header, "ΔΩΡΟ", "Gift", "SelectedGift"))
+                            colGift = c;
+
+                        // 6. ΕΥΡΕΣΗ ΣΧΟΛΙΩΝ
+                        else if (IsHeader(header, "Συμμετέχων", "Σχόλια", "Comments", "Παρατηρήσεις"))
+                            colComments = c;
+                    }
+
+                    // --- ΒΗΜΑ 2: Διάβασμα Δεδομένων ---
+                    for (int row = 2; row <= ws.Dimension.End.Row; row++)
+                    {
+                        // Αν δεν βρήκαμε στήλη ονόματος, δοκιμάζουμε την 2η ή την 1η ως λύση ανάγκης
+                        if (colName == -1) colName = 2;
+
+                        // Παίρνουμε το όνομα
+                        var name = ws.Cells[row, colName].Value?.ToString()?.Trim();
+                        if (string.IsNullOrWhiteSpace(name)) continue; // Αν δεν έχει όνομα, αγνόησε τη γραμμή
+
+                        var p = new PersonRecord();
+                        p.Επωνυμία = name;
+
+                        // ΑΦΜ: Χρησιμοποιούμε .Text για να κρατήσουμε τα μηδενικά (π.χ. 099...)
+                        if (colAfm != -1)
+                            p.ΑΦΜ = ws.Cells[row, colAfm].Text?.Trim();
+
+                        // Τηλέφωνα
+                        if (colPhone1 != -1)
+                            p.Τηλέφωνο = ws.Cells[row, colPhone1].Text?.Trim();
+
+                        if (colPhone2 != -1)
+                            p.Τηλέφωνο2 = ws.Cells[row, colPhone2].Text?.Trim();
+
+                        // Σχόλια
+                        if (colComments != -1)
+                            p.Comments = ws.Cells[row, colComments].Value?.ToString()?.Trim();
+
+                        // Δώρο
+                        if (colGift != -1)
                         {
-                            UseHeaderRow = true // Χρησιμοποιούμε την 1η γραμμή ως τίτλους
+                            string gift = ws.Cells[row, colGift].Value?.ToString()?.Trim();
+                            p.SelectedGift = gift;
+                            if (!string.IsNullOrEmpty(gift)) p.Selected = true;
                         }
-                    });
 
-                    var table = result.Tables[0];
-
-                    foreach (DataRow row in table.Rows)
-                    {
-                        // Διαβάζουμε πρώτα το δώρο για να αποφασίσουμε αν είναι Selected
-                        string gift = Get(row, "ΔΩΡΟ");
-
-                        var record = new PersonRecord
-                        {
-                            // 1. Σχόλια/Συμμετέχων από τη στήλη "Συμμετέχων"
-                            Comments = Get(row, "Συμμετέχων"),
-
-                            // 2. Επωνυμία
-                            Επωνυμία = Get(row, "Επωνυμία"),
-
-                            // 3. ΑΦΜ
-                            ΑΦΜ = Get(row, "ΑΦΜ"),
-
-                            // 4. Τηλέφωνο 1
-                            Τηλέφωνο = Get(row, "Τηλέφωνο 1"),
-
-                            // 5. Τηλέφωνο 2
-                            Τηλέφωνο2 = Get(row, "Τηλέφωνο 2"),
-
-                            // 6. Δώρο
-                            SelectedGift = gift,
-
-                            // Αυτόματη επιλογή αν υπάρχει δώρο
-                            Selected = !string.IsNullOrWhiteSpace(gift)
-                        };
-
-                        list.Add(record);
+                        output.Add(p);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error loading Excel: " + ex.Message);
+            }
 
-            return list;
+            return output;
         }
 
-        private static string Get(DataRow row, string columnName)
+        // Βοηθητική μέθοδος για να ελέγχουμε πολλές πιθανές ονομασίες επικεφαλίδων
+        private static bool IsHeader(string header, params string[] candidates)
         {
-            // Έλεγχος αν υπάρχει η στήλη για να μην "κρασάρει" το πρόγραμμα
-            if (!row.Table.Columns.Contains(columnName)) return "";
-            return row[columnName]?.ToString()?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(header)) return false;
+
+            foreach (var candidate in candidates)
+            {
+                // Έλεγχος για ακριβή ισοτιμία
+                if (string.Equals(header, candidate, StringComparison.OrdinalIgnoreCase)) return true;
+
+                // Έλεγχος αν περιέχεται (π.χ. το "Επαφές - Α.Φ.Μ" περιέχει το "Α.Φ.Μ")
+                if (candidate.Length > 2 && header.IndexOf(candidate, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            }
+            return false;
         }
     }
 }
