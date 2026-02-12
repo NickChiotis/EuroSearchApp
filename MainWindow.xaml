@@ -595,7 +595,7 @@
                                     <DataGridTextColumn Width="*" Binding="{Binding Επωνυμία}" Header="ΕΠΩΝΥΜΙΑ" IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding ΑΦΜ}" Header="Α.Φ.Μ." IsReadOnly="True" />
                                     <DataGridTextColumn Width="*" Binding="{Binding Τηλέφωνο}" Header="ΤΗΛΕΦΩΝΟ" IsReadOnly="True" />
-                                    <DataGridTemplateColumn Width="360" Header="ΔΩΡΟ">
+                                    <DataGridTemplateColumn Width="700" Header="ΔΩΡΟ">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="2">
@@ -606,7 +606,67 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
 
-                                                    <ComboBox Grid.Column="0" Height="30" DisplayMemberPath="Eidos" ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Eidos" Style="{StaticResource ModernComboBox}" />
+                                                    <!--<ComboBox Grid.Column="0" Height="30" DisplayMemberPath="Eidos" IsEnabled="False" ItemsSource="{Binding DataContext.GiftsList, RelativeSource={RelativeSource AncestorType=Window}}" SelectedValue="{Binding SelectedGift, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Eidos" Style="{StaticResource ModernComboBox}" />-->
+
+                                                    <Button Height="34" Margin="0,1" Padding="10,0" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="White" BorderThickness="2" Click="GiftInfo_Click" Content="{Binding SelectedGift, TargetNullValue='Επιλογή Δώρου...', FallbackValue='Επιλογή Δώρου...'}" Cursor="Hand">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
+                                                                <Setter Property="Foreground" Value="#334155" />
+
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="MainBorder" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="0">
+                                                                                <Border.BorderBrush>
+                                                                                    <SolidColorBrush x:Name="AnimatedBrush" Color="Red" />
+                                                                                </Border.BorderBrush>
+
+                                                                                <Border.Resources>
+                                                                                    <Storyboard x:Key="RGBLoop" RepeatBehavior="Forever">
+                                                                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="AnimatedBrush" Storyboard.TargetProperty="Color" Duration="0:0:6">
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:0" Value="#51DADD" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:1" Value="#1A4CBF" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:2" Value="#471FA9" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:3" Value="#61059B" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:4" Value="#1056C4" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:5" Value="#1ECC90" />
+                                                                                            <LinearColorKeyFrame KeyTime="0:0:6" Value="#33CC66" />
+                                                                                        </ColorAnimationUsingKeyFrames>
+                                                                                    </Storyboard>
+                                                                                </Border.Resources>
+
+                                                                                <Border.Triggers>
+                                                                                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                                                        <BeginStoryboard Storyboard="{StaticResource RGBLoop}" />
+                                                                                    </EventTrigger>
+                                                                                </Border.Triggers>
+
+                                                                                <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding SelectedGift}" Value="{x:Null}">
+                                                                        <Setter Property="Foreground" Value="#94A3B8" />
+                                                                        <Setter Property="FontStyle" Value="Italic" />
+                                                                        <Setter Property="FontWeight" Value="Normal" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding SelectedGift}" Value="">
+                                                                        <Setter Property="Foreground" Value="#94A3B8" />
+                                                                        <Setter Property="FontStyle" Value="Italic" />
+                                                                        <Setter Property="FontWeight" Value="Normal" />
+                                                                    </DataTrigger>
+
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#F1F5F9" />
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
 
                                                     <Border Grid.Column="1" Height="26" Margin="5,0,0,0" Padding="6,0" VerticalAlignment="Center" Background="#F1F5F9" CornerRadius="4">
                                                         <Border.Style>

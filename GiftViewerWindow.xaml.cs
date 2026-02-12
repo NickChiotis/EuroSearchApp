@@ -72,7 +72,7 @@ namespace EuroSearchApp
                 if (item.RemainingQty <= 0)
                 {
                     var result = MessageBox.Show(
-                        $"Το δώρο '{item.Name}' έχει εξαντληθεί (Διαθέσιμα: 0).\nΘέλετε να το επιλέξετε παρόλα αυτά;",
+                        $"Το δώρο '{item.Name}' έχει εξαντληθεί \n(Διαθέσιμα: 0).\nΘέλετε να το επιλέξετε παρόλα αυτά;",
                         "Εξαντλημένο Δώρο",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Warning);

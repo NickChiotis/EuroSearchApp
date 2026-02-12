@@ -188,6 +188,12 @@ namespace EuroSearchApp
             if (SelectedParticipants != null)
             {
                 ResultCount = SelectedParticipants.Count.ToString();
+
+                // Αυτή η εντολή λέει: "Κάθε φορά που αλλάζει κάτι στη λίστα, ξαναμετρα!"
+                SelectedParticipants.CollectionChanged += (s, args) =>
+                {
+                    ResultCount = SelectedParticipants.Count.ToString();
+                };
             }
             else
             {
