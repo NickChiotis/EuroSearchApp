@@ -1,4 +1,4 @@
-﻿<Window x:Class="EuroSearchApp.AadeWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Έλεγχος Στοιχείων ΑΑΔΕ" Width="600" Height="500" AllowsTransparency="True"
+﻿<Window x:Class="EuroSearchApp.AadeWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Έλεγχος Στοιχείων ΑΑΔΕ" Width="400" Height="500" AllowsTransparency="True"
         Background="Transparent" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="None">
 
     <Window.Resources>
@@ -57,103 +57,104 @@
         </Style>
     </Window.Resources>
 
-    <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Border Margin="0,0,50,0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" MouseLeftButtonDown="Window_MouseLeftButtonDown">
         <Border.Effect>
             <DropShadowEffect BlurRadius="20" Direction="270" Opacity="0.25" ShadowDepth="5" Color="#1E293B" />
         </Border.Effect>
+        <Viewbox Stretch="Uniform">
+            <Grid Width="400" Height="500" Margin="25">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-        <Grid Margin="25">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Margin="0,0,0,25">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel>
-                    <TextBlock FontSize="22" FontWeight="Bold" Foreground="#0F172A" Text="Έλεγχος Στοιχείων ΑΑΔΕ" />
-                    <TextBlock Margin="0,5,0,0" FontSize="13" Foreground="#64748B" Text="Αναζήτηση βάσει ΑΦΜ και αυτόματη ενημέρωση." />
-                </StackPanel>
-
-                <Button Grid.Column="1" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="Cancel_Click" Style="{StaticResource ModernButton}">
-                    <Path Width="12" Height="12" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="#94A3B8" Stretch="Uniform" />
-                </Button>
-            </Grid>
-
-            <StackPanel Grid.Row="1">
-                <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="ΑΦΜ προς αναζήτηση" />
-                <Grid Margin="0,0,0,20">
+                <Grid Grid.Row="0" Margin="0,0,0,25">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="TxtSearchAfm" Background="#F1F5F9" FontWeight="Bold" IsReadOnly="True" Style="{StaticResource ModernTextBox}" />
-                    <Button Grid.Column="1" Width="140" Height="40" Margin="10,0,0,0" Background="#3B82F6" BorderThickness="0" Click="FetchAade_Click" Foreground="White" Style="{StaticResource ModernButton}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Width="14" Height="14" Margin="0,0,8,0" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" Fill="White" Stretch="Uniform" />
-                            <TextBlock Text="Ανάκτηση" />
-                        </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock FontSize="22" FontWeight="Bold" Foreground="#0F172A" Text="Έλεγχος Στοιχείων ΑΑΔΕ" />
+                        <TextBlock Margin="0,5,0,0" FontSize="13" Foreground="#64748B" Text="Αναζήτηση βάσει ΑΦΜ και αυτόματη ενημέρωση." />
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Width="30" Height="30" Background="Transparent" BorderThickness="0" Click="Cancel_Click" Style="{StaticResource ModernButton}">
+                        <Path Width="12" Height="12" Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="#94A3B8" Stretch="Uniform" />
                     </Button>
                 </Grid>
 
-                <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Επωνυμία (Από ΑΑΔΕ)" />
-                <TextBox x:Name="TxtResultName" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
-
-                <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Διεύθυνση / Έδρα" />
-                <TextBox x:Name="TxtResultAddress" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
-
-                <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Τηλέφωνο (Χειροκίνητα)" />
-                <TextBox x:Name="TxtResultPhone" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
-
-                <StackPanel x:Name="StatusArea" Margin="0,15,0,0" VerticalAlignment="Center" Orientation="Horizontal">
-
-                    <Grid x:Name="LoadingSpinner" Width="24" Height="24" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
-
-                        <Path Data="M12,2 A10,10 0 1,1 2,12" RenderTransformOrigin="0.5,0.5" Stroke="#3B82F6" StrokeEndLineCap="Round" StrokeThickness="2.5">
-                            <Path.Effect>
-                                <DropShadowEffect BlurRadius="5" Opacity="0.4" ShadowDepth="0" Color="#3B82F6" />
-                            </Path.Effect>
-                            <Path.RenderTransform>
-                                <RotateTransform x:Name="OuterRot" Angle="0" />
-                            </Path.RenderTransform>
-                        </Path>
-
-                        <Path Data="M12,6 A6,6 0 1,0 6,12" Opacity="0.9" RenderTransformOrigin="0.5,0.5" Stroke="#660099" StrokeEndLineCap="Round" StrokeThickness="2.5">
-                            <Path.RenderTransform>
-                                <RotateTransform x:Name="InnerRot" Angle="0" />
-                            </Path.RenderTransform>
-                        </Path>
-
-                        <Grid.Triggers>
-                            <EventTrigger RoutedEvent="Grid.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation RepeatBehavior="Forever" Storyboard.TargetName="OuterRot" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1.5" />
-
-                                        <DoubleAnimation RepeatBehavior="Forever" Storyboard.TargetName="InnerRot" Storyboard.TargetProperty="Angle" From="360" To="0" Duration="0:0:1" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </Grid.Triggers>
+                <StackPanel Grid.Row="1">
+                    <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="ΑΦΜ προς αναζήτηση" />
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TxtSearchAfm" Background="#F1F5F9" FontWeight="Bold" IsReadOnly="True" Style="{StaticResource ModernTextBox}" />
+                        <Button Grid.Column="1" Width="140" Height="40" Margin="10,0,0,0" Background="#3B82F6" BorderThickness="0" Click="FetchAade_Click" Foreground="White" Style="{StaticResource ModernButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="14" Height="14" Margin="0,0,8,0" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" Fill="White" Stretch="Uniform" />
+                                <TextBlock Text="Ανάκτηση" />
+                            </StackPanel>
+                        </Button>
                     </Grid>
-                    <TextBlock x:Name="TxtStatus" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#D97706" Text="Αναμονή" />
-                </StackPanel>
-            </StackPanel>
+                    <StackPanel x:Name="StatusArea" Margin="0,0,0,15" VerticalAlignment="Center" Orientation="Horizontal">
 
-            <StackPanel Grid.Row="2" Margin="0,30,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button Width="110" Height="40" Margin="0,0,10,0" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1" Click="Cancel_Click" Content="Ακύρωση" Foreground="#64748B" Style="{StaticResource ModernButton}" />
-                <Button Width="200" Height="40" Background="#10B981" BorderThickness="0" Click="Save_Click" Foreground="White" Style="{StaticResource ModernButton}">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Width="16" Height="16" Margin="0,0,8,0" Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" Fill="White" Stretch="Uniform" />
-                        <TextBlock Text="Αποθήκευση" />
+                        <Grid x:Name="LoadingSpinner" Width="24" Height="24" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5" Visibility="Collapsed">
+
+                            <Grid.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation RepeatBehavior="Forever" Storyboard.TargetName="OuterRot" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:1.5" />
+
+                                            <DoubleAnimation RepeatBehavior="Forever" Storyboard.TargetName="InnerRot" Storyboard.TargetProperty="Angle" From="360" To="0" Duration="0:0:1" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Grid.Triggers>
+
+                            <Path Data="M12,2 A10,10 0 1,1 2,12" RenderTransformOrigin="0.5,0.5" Stroke="#3B82F6" StrokeEndLineCap="Round" StrokeThickness="2.5">
+                                <Path.Effect>
+                                    <DropShadowEffect BlurRadius="5" Opacity="0.4" ShadowDepth="0" Color="#3B82F6" />
+                                </Path.Effect>
+                                <Path.RenderTransform>
+                                    <RotateTransform x:Name="OuterRot" Angle="0" />
+                                </Path.RenderTransform>
+                            </Path>
+
+                            <Path Data="M12,6 A6,6 0 1,0 6,12" Opacity="0.9" RenderTransformOrigin="0.5,0.5" Stroke="#660099" StrokeEndLineCap="Round" StrokeThickness="2.5">
+                                <Path.RenderTransform>
+                                    <RotateTransform x:Name="InnerRot" Angle="0" />
+                                </Path.RenderTransform>
+                            </Path>
+
+                        </Grid>
+                        <TextBlock x:Name="TxtStatus" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold" Foreground="#D97706" Text="Αναμονή" />
                     </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
+
+                    <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Επωνυμία (Από ΑΑΔΕ)" />
+                    <TextBox x:Name="TxtResultName" Height="29" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
+
+                    <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Διεύθυνση / Έδρα" />
+                    <TextBox x:Name="TxtResultAddress" Height="29" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
+
+                    <TextBlock Margin="0,0,0,6" FontWeight="SemiBold" Foreground="#475569" Text="Τηλέφωνο (Χειροκίνητα)" />
+                    <TextBox x:Name="TxtResultPhone" Height="29" Margin="0,0,0,15" Style="{StaticResource ModernTextBox}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Margin="0,30,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Width="110" Height="40" Margin="0,0,10,0" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1" Click="Cancel_Click" Content="Ακύρωση" Foreground="#64748B" Style="{StaticResource ModernButton}" />
+                    <Button Width="200" Height="40" Background="#10B981" BorderThickness="0" Click="Save_Click" Foreground="White" Style="{StaticResource ModernButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="16" Height="16" Margin="0,0,8,0" Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" Fill="White" Stretch="Uniform" />
+                            <TextBlock Text="Αποθήκευση" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Viewbox>
     </Border>
 </Window>

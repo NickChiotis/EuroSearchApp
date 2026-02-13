@@ -377,8 +377,8 @@ namespace EuroSearchApp
                 (p.Τηλέφωνο == person.Τηλέφωνο && !string.IsNullOrEmpty(p.Τηλέφωνο)) ||
                 (RemoveAccents(p.Επωνυμία) == RemoveAccents(person.Επωνυμία)))) // Αλλαγή εδώ
             {
-                MessageBox.Show("Αυτός ο Πελάτης έχει ήδη προστεθεί στις σημερινές εγγραφές!",
-                                "Διπλότυπη Εγγραφή",
+                MessageBox.Show("Αυτό το φαρμακείο έχει ήδη παίξει στον τροχό.",
+                                "Ουππς!",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);
                 return; // Σταματάει τη διαδικασία εδώ
