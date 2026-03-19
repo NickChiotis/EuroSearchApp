@@ -1,0 +1,87 @@
+﻿<Window x:Class="EuroSearchApp.LeadInfoWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Στοιχεία Πελάτη" Width="480" Height="800" Background="#F1F5F9" WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <ScrollViewer Padding="25" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <Border Padding="25" Background="White" CornerRadius="15">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.1" ShadowDepth="2" />
+                    </Border.Effect>
+
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontSize" Value="12" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                                <Setter Property="Foreground" Value="#64748B" />
+                                <Setter Property="Margin" Value="2,0,0,5" />
+                            </Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="Height" Value="40" />
+                                <Setter Property="Background" Value="#F8FAFC" />
+                                <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                <Setter Property="BorderThickness" Value="1" />
+                                <Setter Property="Padding" Value="10,0" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="0,0,0,15" />
+                                <Setter Property="FontSize" Value="14" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TextBox">
+                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                                                <ScrollViewer x:Name="PART_ContentHost" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </StackPanel.Resources>
+
+                        <TextBlock Margin="0,0,0,20" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="#1E293B" Text="Στοιχεία Επικοινωνίας" />
+
+                        <TextBlock Text="1. Promoter" />
+                        <TextBox x:Name="TxtPromoter" />
+
+                        <TextBlock Text="2. Επωνυμία Φαρμακείου *" />
+                        <TextBox x:Name="TxtPharmacy" />
+
+                        <TextBlock Text="3. Πόλη *" />
+                        <TextBox x:Name="TxtCity" />
+
+                        <TextBlock Text="4. Τηλέφωνο *" />
+                        <TextBox x:Name="TxtPhone" />
+
+                        <TextBlock Text="5. e-mail *" />
+                        <TextBox x:Name="TxtEmail" />
+
+                        <TextBlock Text="6. Πρόγραμμα *" />
+                        <TextBox x:Name="TxtProgram" />
+
+                        <TextBlock Text="7. Πελάτης *" />
+                        <TextBox x:Name="TxtClient" />
+
+                        <TextBlock Text="8. PRESENTATION *" />
+                        <TextBox x:Name="TxtPresentation" />
+
+                        <TextBlock Text="9. SALES *" />
+                        <TextBox x:Name="TxtSales" />
+
+                        <TextBlock Text="10. Παρατηρήσεις" />
+                        <TextBox x:Name="TxtNotes" Height="100" Padding="10,8" VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
+
+                        <Button Height="50" Margin="0,10,0,0" Background="#2563EB" Click="BtnNext_Click" Content="Συνέχεια" Cursor="Hand" FontSize="16" FontWeight="Bold" Foreground="White">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="10" />
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Margin="5,15,0,0" HorizontalAlignment="Center" FontSize="11" FontWeight="Normal" Foreground="#94A3B8" Text="* Τα πεδία είναι υποχρεωτικά" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

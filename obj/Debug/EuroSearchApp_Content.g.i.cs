@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/templates/template.xlsx")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("assets/eurologo.png")]
 
 

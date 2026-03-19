@@ -1,0 +1,1 @@
+- Fixed visual regression when rendering complex borders.

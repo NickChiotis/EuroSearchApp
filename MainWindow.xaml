@@ -1,5 +1,5 @@
 ﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:EuroSearchApp" Title="Ο τροχός της Europharmacy" Width="1280" Height="800"
-        Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
@@ -574,17 +574,6 @@
                                           ScrollViewer.CanContentScroll="False" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="VerticalOnly" SelectionMode="Extended" SelectionUnit="FullRow" VirtualizingStackPanel.IsVirtualizing="True"
                                           VirtualizingStackPanel.VirtualizationMode="Recycling">
                                     <DataGrid.Columns>
-                                        <DataGridTemplateColumn Width="50">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                                        <CheckBox.LayoutTransform>
-                                                            <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
-                                                        </CheckBox.LayoutTransform>
-                                                    </CheckBox>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Width="*" MinWidth="120" Binding="{Binding Comments, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Header="ΣΥΜΜΕΤΈΧΩΝ" IsReadOnly="False">
                                             <DataGridTextColumn.ElementStyle>
                                                 <Style TargetType="TextBlock">

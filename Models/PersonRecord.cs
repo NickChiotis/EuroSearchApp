@@ -100,6 +100,20 @@ namespace EuroSearchApp.Models
             }
         } // Εδώ θα αποθηκεύεται η επιλογή από το dropdown
 
+        private string _pdfPath;
+        public string PdfPath
+        {
+            get { return _pdfPath; }
+            set
+            {
+                if (_pdfPath != value)
+                {
+                    _pdfPath = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string Τηλέφωνο
         {
             get { return _tilefono; }

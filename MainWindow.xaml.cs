@@ -25,11 +25,43 @@ using System.IO;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
+using iText.IO.Image;
 
 namespace EuroSearchApp
 {
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Αν ο Launcher σου είναι ήδη ανοιχτός (αλλά κρυμμένος), τον εμφανίζουμε
+            bool launcherFound = false;
+
+            foreach (Window win in Application.Current.Windows)
+            {
+                // Αντικατάστησε το 'LauncherWindow' με το όνομα της κλάσης του Launcher σου
+                if (win is LauncherWindow)
+                {
+                    win.Show();
+                    launcherFound = true;
+                    break;
+                }
+            }
+
+            // Αν ο Launcher είχε κλείσει τελείως, δημιουργούμε νέο instance
+            if (!launcherFound)
+            {
+                LauncherWindow launcher = new LauncherWindow();
+                launcher.Show();
+            }
+
+            // Σημαντικό: Δεν χρειάζεται e.Cancel = true αν θέλουμε 
+            // το EuroWheel να κλείσει όντως και να μείνει μόνο ο Launcher.
+        }
+
         // --- 1. ΣΤΑΤΙΚΗ ΑΝΑΦΟΡΑ ΓΙΑ TON CONVERTER ---
         public static MainWindow AppInstance;
 
@@ -394,13 +426,7 @@ namespace EuroSearchApp
             }
 
             RefreshFilter();
-            SaveToTemp();
 
-            // Αυτόματο άνοιγμα παραθύρου δώρων
-            Application.Current.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(() =>
-            {
-                OpenGiftSelectionForPerson(person);
-            }));
         }
 
         private void OpenGiftSelectionForPerson(PersonRecord person)
