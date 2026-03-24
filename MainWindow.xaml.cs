@@ -279,7 +279,7 @@ namespace EuroSearchApp
 
                 // 2. Αναζητούμε στη λίστα μετατρέποντας προσωρινά και την Επωνυμία σε "καθαρή" μορφή
                 var matches = source.Where(p => p.Επωνυμία != null &&
-                                               RemoveAccents(p.Επωνυμία).Contains(cleanQuery))
+                                               RemoveAccents(p.Επωνυμία).StartsWith(cleanQuery))
                                     .Select(p => p.Επωνυμία)
                                     .Distinct()
                                     .Take(10)
@@ -291,14 +291,14 @@ namespace EuroSearchApp
             else if (type == "Phone")
             {
                 string cleanVal = NormalizeDigits(value);
-                var matches = source.Where(p => (p.Τηλέφωνο != null && NormalizeDigits(p.Τηλέφωνο).Contains(cleanVal)) || (p.Τηλέφωνο2 != null && NormalizeDigits(p.Τηλέφωνο2).Contains(cleanVal)))
+                var matches = source.Where(p => (p.Τηλέφωνο != null && NormalizeDigits(p.Τηλέφωνο).StartsWith(cleanVal)) || (p.Τηλέφωνο2 != null && NormalizeDigits(p.Τηλέφωνο2).StartsWith(cleanVal)))
                                     .Select(p => p.Τηλέφωνο).Distinct().Take(10).ToList();
                 PhoneSuggestions = new ObservableCollection<string>(matches);
                 IsPhonePopupOpen = PhoneSuggestions.Any();
             }
             else if (type == "Afm")
             {
-                var matches = source.Where(p => p.ΑΦΜ != null && p.ΑΦΜ.Contains(value))
+                var matches = source.Where(p => p.ΑΦΜ != null && p.ΑΦΜ.StartsWith(value))
                                     .Select(p => p.ΑΦΜ).Distinct().Take(10).ToList();
                 AfmSuggestions = new ObservableCollection<string>(matches);
                 IsAfmPopupOpen = AfmSuggestions.Any();
@@ -362,18 +362,24 @@ namespace EuroSearchApp
 
             if (!string.IsNullOrWhiteSpace(NameQuery))
             {
-                string cleanName = RemoveAccents(person.Επωνυμία);
-                string cleanQuery = RemoveAccents(NameQuery);
-                if (!cleanName.Contains(cleanQuery)) return false;
+                if (string.IsNullOrWhiteSpace(person.Επωνυμία)) return false;
+
+                string cleanName = RemoveAccents(person.Επωνυμία).ToLower();
+                string cleanQuery = RemoveAccents(NameQuery).ToLower().Trim();
+                if (!cleanName.StartsWith(cleanQuery)) return false;
             }
 
-            if (!string.IsNullOrWhiteSpace(NameQuery) && (person.Επωνυμία == null || person.Επωνυμία.IndexOf(NameQuery, StringComparison.OrdinalIgnoreCase) < 0)) return false;
-            if (!string.IsNullOrWhiteSpace(AfmQuery) && (person.ΑΦΜ == null || !person.ΑΦΜ.StartsWith(AfmQuery))) return false;
+            if (!string.IsNullOrWhiteSpace(AfmQuery))
+            {
+                if (string.IsNullOrWhiteSpace(person.ΑΦΜ) || !person.ΑΦΜ.StartsWith(AfmQuery.Trim()))
+                    return false;
+            }
+
             if (!string.IsNullOrWhiteSpace(PhoneQuery))
             {
                 string q = NormalizeDigits(PhoneQuery);
-                string p1 = NormalizeDigits(person.Τηλέφωνο);
-                string p2 = NormalizeDigits(person.Τηλέφωνο2);
+                string p1 = NormalizeDigits(person.Τηλέφωνο ?? "");
+                string p2 = NormalizeDigits(person.Τηλέφωνο2 ?? "");
                 if (!p1.StartsWith(q) && !p2.StartsWith(q)) return false;
             }
 
