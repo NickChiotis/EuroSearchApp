@@ -117,10 +117,18 @@
 
                         <TextBlock Margin="0,0,0,20" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="#1E293B" Text="Στοιχεία Επικοινωνίας" />
 
-                        <TextBlock Text="1. Promoter" />
+                        <TextBlock Text="1. Promoter*" />
                         <ComboBox x:Name="ComboPromoter" SelectedIndex="0">
-                            <ComboBoxItem Content="Promoter 1" />
-                            <ComboBoxItem Content="Promoter 2" />
+                            <ComboBoxItem Content="-- Επιλέξτε Promoter --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="Αντώνης" />
+                            <ComboBoxItem Content="Βασιλική" />
+                            <ComboBoxItem Content="Γεωργία" />
+                            <ComboBoxItem Content="Γιάννης" />
+                            <ComboBoxItem Content="Δημήτρης" />
+                            <ComboBoxItem Content="Εύη" />
+                            <ComboBoxItem Content="Ιφιγένεια" />
+                            <ComboBoxItem Content="Ιωάννα" />
+                            <ComboBoxItem Content="Μαρία" />
                         </ComboBox>
 
                         <TextBlock Text="2. Επωνυμία Φαρμακείου *" />
@@ -140,24 +148,56 @@
 
                         <TextBlock Text="7. Πελάτης" />
                         <ComboBox x:Name="ComboClient" SelectedIndex="0">
+                            <ComboBoxItem Content="-- Επιλέξτε ΝΑΙ/ΟΧΙ --" IsEnabled="False" Visibility="Collapsed"/>
                             <ComboBoxItem Content="ΝΑΙ" />
                             <ComboBoxItem Content="ΟΧΙ" />
                         </ComboBox>
 
                         <TextBlock Text="8. PRESENTATION" />
                         <ComboBox x:Name="ComboPresentation" SelectedIndex="0">
-                            <ComboBoxItem Content="Presentator 1" />
-                            <ComboBoxItem Content="Presentator 2" />
+                            <ComboBoxItem Content="-- Επιλέξτε Presentator --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="-- Δεν έγινε --" />
+                            <ComboBoxItem Content="Αθηνά" />
+                            <ComboBoxItem Content="Αντώνης" />
+                            <ComboBoxItem Content="Βασιλική" />
+                            <ComboBoxItem Content="Γεωργία" />
+                            <ComboBoxItem Content="Γιάννης" />
+                            <ComboBoxItem Content="Δημήτρης" />
+                            <ComboBoxItem Content="Εύη" />
+                            <ComboBoxItem Content="Ζωή" />
+                            <ComboBoxItem Content="Ιφιγένεια" />
+                            <ComboBoxItem Content="Ιωάννα" />
+                            <ComboBoxItem Content="Μαρία" />
                         </ComboBox>
 
                         <TextBlock Text="9. SALES" />
                         <ComboBox x:Name="ComboSales" SelectedIndex="0">
-                            <ComboBoxItem Content="Sales 1" />
-                            <ComboBoxItem Content="Sales 2" />
+                            <ComboBoxItem Content="-- Επιλέξτε Sales --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="Αθηνά" />
+                            <ComboBoxItem Content="Ζωή" />
+                            <ComboBoxItem Content="Νίκος" />
                         </ComboBox>
 
-                        <TextBlock Text="10. Παρατηρήσεις" />
-                        <TextBox x:Name="TxtNotes" Height="100" Padding="10,8" VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
+                        <TextBlock Text="10. Παρατηρήσεις" Margin="0,10,0,5" FontWeight="SemiBold"/>
+
+                        <WrapPanel Margin="0,0,0,5">
+                            <Button Content="+ Ήρθε ο/η βοηθός" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Content="+ Θα ανοίξει φαρμακείο" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Content="+ Έχει άλλο πρόγραμμα, είναι ευχαριστημένος" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Content="+ Έχει άλλο πρόγραμμα αλλά θέλει να αλλάξει" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Content="+ Να καλέσουμε για παρουσίαση" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Content="+ Να καλέσουμε για ραντεβού εγκατάστασης" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
+                            <Button Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" MaxWidth="250">
+                                <TextBlock Text="+ Πήρε φυλλάδιο και ενημερώθηκε για την προσφορά της έκθεσης" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button>
+                        </WrapPanel>
+
+                        <TextBox x:Name="TxtNotes" 
+                             Height="100" 
+                             Padding="10,8" 
+                             VerticalContentAlignment="Top" 
+                             AcceptsReturn="True" 
+                             TextWrapping="Wrap" />
 
                         <Button Height="50" Margin="0,10,0,0" Background="#2563EB" Click="BtnNext_Click" Content="Συνέχεια" Cursor="Hand" FontSize="16" FontWeight="Bold" Foreground="White">
                             <Button.Resources>

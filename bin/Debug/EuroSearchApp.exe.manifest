@@ -139,14 +139,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EuroSearchApp.exe" size="5156312">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EuroSearchApp.exe" size="5156824">
       <assemblyIdentity name="EuroSearchApp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>a7XZEGV4+lrruYY4DC3K+p8DdPU5tJpNDB/DrmYPEFM=</dsig:DigestValue>
+        <dsig:DigestValue>8EefG0ND8ZRFVY0/VWxd+S2pwfQZv6jDhCldDeHvij0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -675,13 +675,13 @@
       <dsig:DigestValue>FOiliP9CFytZ9dbFfWYRps1SstJMpnTKB0bRJUJlT7E=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="EuroSearchApp.exe.config" size="2169">
+  <file name="EuroSearchApp.exe.config" size="2264">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>rt0fkZhGfjhaxfGyA1a9VWQzxV9FlVTXWKmN8iIb2j4=</dsig:DigestValue>
+      <dsig:DigestValue>Fk38WsJPhMX9o/FCCOvo5kNleb0uPhJaqoSJYO/NokY=</dsig:DigestValue>
     </hash>
   </file>
 </asmv1:assembly>

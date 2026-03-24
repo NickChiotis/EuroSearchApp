@@ -58,5 +58,17 @@ namespace EuroSearchApp.Properties {
                 this["MyAfm"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastPromoter {
+            get {
+                return ((string)(this["LastPromoter"]));
+            }
+            set {
+                this["LastPromoter"] = value;
+            }
+        }
     }
 }

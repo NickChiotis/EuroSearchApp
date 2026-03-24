@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace EuroSearchApp
@@ -42,161 +43,123 @@ namespace EuroSearchApp
                 string htmlContent = $@"
                 <html>
                 <head>
+                    <meta charset='UTF-8'>
                     <style>
-                        /* Στήσιμο Σελίδας */
-                        @page {{ size: A4; margin: 40px; }}
-                        body {{ 
-                            font-family: 'Helvetica', 'Arial', sans-serif; 
-                            color: #333; 
-                            background-color: #fff;
-                            margin: 0;
-                            padding: 0;
-                        }}
+                        body {{ font-family: 'Arial', sans-serif; color: #333; margin: 0; padding: 0; }}
+                        .wrapper {{ width: 95%; max-width: 700px; margin: 20px auto; }}
+        
+                        .header-table {{ width: 100%; border-bottom: 3px solid #0A3D70; margin-bottom: 20px; padding-bottom: 10px; }}
+                        .brand-title {{ color: #0A3D70; font-size: 20px; font-weight: bold; text-align: left; }}
+                        .brand-subtitle {{ color: #666; font-size: 10px; text-align: right; }}
 
-                        /* Header με το Λογότυπο */
-                        .header {{ 
-                            border-bottom: 3px solid #0A3D70; /* Βαθύ Μπλε */
-                            padding-bottom: 15px; 
-                            margin-bottom: 30px; 
-                            width: 100%; 
-                        }}
-                        .header table {{ width: 100%; }}
-                        .logo {{ max-height: 65px; width: auto; }}
-                        
-                        .title-box {{ text-align: right; }}
-                        .title {{ color: #0A3D70; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }}
-                        .subtitle {{ color: #666; font-size: 11px; margin-top: 4px; letter-spacing: 0.5px; }}
-
-                        /* Κεντρικός Πίνακας (Στυλ Κάρτας) */
-                        .content-card {{ 
-                            background: #fff; 
-                            border-radius: 8px; 
-                            padding: 10px; 
-                            border: 1px solid #E2E8F0; 
-                            margin-bottom: 25px; 
-                        }}
-
-                        table.form-table {{ width: 100%; border-collapse: collapse; }}
-                        table.form-table td, table.form-table th {{ 
-                            padding: 12px 15px; 
-                            border-bottom: 1px solid #EDF2F7; 
-                            font-size: 12px; 
-                            vertical-align: middle;
-                        }}
-                        table.form-table tr:last-child td, table.form-table tr:last-child th {{ border-bottom: none; }}
-                        
-                        /* Χρώματα στις Επικεφαλίδες του πίνακα */
-                        table.form-table th {{ 
-                            background-color: #F0F4F8; /* Πολύ απαλό γαλάζιο/γκρι */
-                            color: #0A3D70; 
-                            font-weight: bold; 
+                        .info-table {{ width: 100%; border-collapse: collapse; margin-bottom: 20px; }}
+                        .info-table th {{ 
+                            background-color: #F1F5F9; 
+                            color: #475569; 
                             text-align: left; 
-                            width: 25%; 
-                            border-right: 3px solid #fff; /* Κενό ανάμεσα στα κελιά */
-                        }}
-
-                        /* Ενότητα Συναίνεσης */
-                        .consent-box {{ 
-                            background-color: #F8FAFC; 
-                            border-left: 5px solid #007BFF; /* Έντονο μπλε αριστερά */
-                            padding: 15px 20px; 
-                            border-radius: 4px; 
-                            display: table; 
-                            width: 100%; 
-                            box-sizing: border-box; 
-                            margin-bottom: 30px;
-                        }}
-                        .consent-check {{ 
-                            display: table-cell; 
-                            vertical-align: middle; 
-                            width: 45px; 
-                            font-size: 28px; 
-                            color: #007BFF; 
-                        }}
-                        .consent-text {{ 
-                            display: table-cell; 
-                            vertical-align: middle; 
+                            padding: 10px; 
                             font-size: 11px; 
-                            color: #4A5568; 
-                            line-height: 1.5; 
+                            border: 1px solid #CBD5E0;
+                            width: 30%;
+                        }}
+                        .info-table td {{ 
+                            padding: 10px; 
+                            font-size: 13px; 
+                            border: 1px solid #CBD5E0; 
                         }}
 
-                        /* Περιοχή Υπογραφής */
-                        .signature-area {{ width: 100%; margin-top: 30px; }}
-                        .signature-box {{ float: right; width: 250px; text-align: center; }}
-                        .sig-date {{ text-align: right; font-size: 11px; margin-bottom: 15px; color: #718096; }}
-                        .sig-title {{ font-weight: bold; color: #0A3D70; margin-bottom: 5px; font-size: 13px; }}
-                        .sig-img {{ max-width: 160px; max-height: 70px; border-bottom: 1px dashed #CBD5E0; padding-bottom: 5px; margin-bottom: 5px; }}
-                        .sig-label {{ font-size: 10px; color: #A0AEC0; }}
+                        .consent-box {{ 
+                            width: 100%; 
+                            background-color: #F0F9FF; 
+                            border: 1px solid #BEE3F8;
+                            padding: 15px;
+                            margin-bottom: 25px;
+                        }}
 
-                        /* Footer */
+                        .sig-table {{ width: 100%; margin-top: 30px; }}
+                        .sig-line {{ border-bottom: 2px solid #0A3D70; width: 200px; margin: 10px auto; }}
+
                         .footer {{ 
-                            position: fixed; 
-                            bottom: 10px; 
-                            left: 0; 
-                            right: 0; 
                             text-align: center; 
                             font-size: 9px; 
-                            color: #A0AEC0; 
-                            border-top: 1px solid #EDF2F7; 
-                            padding-top: 15px; 
+                            color: #94A3B8; 
+                            margin-top: 30px; 
+                            border-top: 1px solid #E2E8F0; 
+                            padding-top: 10px; 
+                        }}
+                        .sig-img {{
+                            max - width: 180px; /* Ή όποιο πλάτος θέλεις */
+                            height: auto;
+        
+                            /* ΑΥΤΕΣ ΟΙ ΓΡΑΜΜΕΣ ΚΡΑΤΑΝΕ ΤΗΝ ΥΠΟΓΡΑΦΗ ΚΑΘΑΡΗ */
+                            image-rendering: crisp-edges; /* Για Firefox */
+                            image-rendering: pixelated;   /* Για Chrome/Safari */
+                            -ms-interpolation-mode: nearest-neighbor; /* Για IE */
                         }}
                     </style>
                 </head>
                 <body>
-                    <div class='header'>
-                        <table>
+                    <div class='wrapper'>
+                        <table class='header-table'>
                             <tr>
-                                <td style='width: 50%; vertical-align: bottom;'>
-                                    {logoHtml}
-                               </td>
-                                <td style='width: 50%; vertical-align: bottom;' class='title-box'>
-                                    <div class='title'>ΔΕΛΤΙΟ ΕΠΙΚΟΙΝΩΝΙΑΣ</div>
-                                    <div class='subtitle'>ΥΠΕΥΘΥΝΗ ΔΗΛΩΣΗ ΠΕΛΑΤΗ / PROMOTER</div>
+                                <td class='brand-title'>EUROPHARMACY IKE</td>
+                                <td>
+                                    <div class='brand-subtitle'>ΔΕΛΤΙΟ ΕΠΙΚΟΙΝΩΝΙΑΣ</div>
                                 </td>
                             </tr>
                         </table>
-                    </div>
 
-                    <div class='content-card'>
-                        <table class='form-table'>
-                            <tr><th>ΕΠΩΝΥΜΙΑ ΦΑΡΜΑΚΕΙΟΥ</th><td colspan='3'><strong>{pharmacyName}</strong></td></tr>
-                            <tr>
-                                <th>PROMOTER</th><td>{promoter}</td>
-                                <th style='width:15%'>ΠΟΛΗ</th><td>{city}</td>
-                            </tr>
-                            <tr>
-                                <th>ΤΗΛΕΦΩΝΟ</th><td>{phone}</td>
-                                <th style='width:15%'>E-MAIL</th><td>{email}</td>
-                            </tr>
-                            <tr><th>ΠΡΟΓΡΑΜΜΑ</th><td colspan='3'>{program}</td></tr>
-                            <tr><th>ΠΕΛΑΤΗΣ</th><td colspan='3'>{client}</td></tr>
-                            <tr>
-                                <th>PRESENTATION</th><td>{presentation}</td>
-                                <th style='width:15%'>SALES</th><td>{sales}</td>
-                            </tr>
-                            <tr><th>ΠΑΡΑΤΗΡΗΣΕΙΣ</th><td colspan='3'>{notes}</td></tr>
+                        <table class='info-table'>
+                            <tr><th>ΦΑΡΜΑΚΕΙΟ</th><td><strong>{pharmacyName}</strong></td></tr>
+                            <tr><th>PROMOTER</th><td>{promoter}</td></tr>
+                            <tr><th>ΠΟΛΗ</th><td>{city}</td></tr>
+                            <tr><th>ΤΗΛΕΦΩΝΟ</th><td>{phone}</td></tr>
+                            <tr><th>E-MAIL</th><td>{email}</td></tr>
+                            <tr><th>ΠΕΛΑΤΗΣ</th><td>{client}</td></tr>
+                            <tr><th>ΠΡΟΓΡΑΜΜΑ</th><td>{program}</td></tr>
+                            <tr><th>PRESENTATION</th><td>{presentation}</td></tr>
+                            <tr><th>SALES</th><td>{sales}</td></tr>
+                            <tr><th>ΠΑΡΑΤΗΡΗΣΕΙΣ</th><td>{notes}</td></tr>
                         </table>
-                    </div>
 
-                    <div class='consent-box'>
-                        <div class='consent-check'>☑</div>
-                        <div class='consent-text'>
-                            <strong>ΣΥΝΑΙΝΩ</strong> για την τήρηση των προσωπικών μου στοιχείων από τη <strong>Europharmacy ΙΚΕ</strong> για μελλοντική επικοινωνία με σκοπό την ενημέρωσή μου.
+                        <div class='consent-box'>
+                            <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+                                <tr>
+                                    <td width='30' valign='top' style='font-size: 18px; color: #3182CE;'>☑</td>
+                                    <td style='font-size: 11px; color: #2C5282;'>
+                                        <strong>ΣΥΝΑΙΝΩ</strong> για την τήρηση των προσωπικών μου στοιχείων από τη <strong>Europharmacy ΙΚΕ</strong> για μελλοντική επικοινωνία με σκοπό την ενημέρωσή μου.
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
-                    </div>
 
-                    <div class='signature-area'>
-                        <div class='signature-box'>
-                            <div class='sig-date'>Ημερομηνία: {DateTime.Now:dd/MM/yyyy}</div>
-                            <div class='sig-title'>Ο - Η Δηλ.</div>
-                            <img src='data:image/png;base64,{signatureBase64}' class='sig-img' />
-                            <div class='sig-label'>(Υπογραφή)</div>
+                        <table class='sig-table'>
+                            <tr>
+                                <td width='50%' valign='bottom' style='font-size: 11px; color: #64748B;'>
+                                    Ημερομηνία: {DateTime.Now:dd/MM/yyyy}
+                                </td>
+                                <td width='50%' align='right'>
+                                    <div style='text-align: center; width: 220px;'>
+                                        <div style='font-size: 12px; font-weight: bold; color: #0A3D70; text-align: right;'>Ο - Η Δηλών/ούσα</div>
+                                        <div class='sig-line'>
+                                            <img src='data:image/png;base64,{signatureBase64}' style='max-width: 180px; height: auto; 
+                                                image-rendering: crisp-edges; 
+                                                image-rendering: pixelated; 
+                                                -ms-interpolation-mode: nearest-neighbor; 
+                                                display: block; 
+                                                margin-left: auto; 
+                                                margin-right: auto;' />
+                                        </div>
+                                        <div style='font-size: 9px; color: #94A3B8; text-align: right;'>ΨΗΦΙΑΚΗ ΥΠΟΓΡΑΦΗ</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div class='footer'>
+                            Στην περίπτωση που επιθυμείτε να διαγραφούν τα προσωπικά σας στοιχεία από τη βάση δεδομένων της Europharmacy, μπορείτε να ανακαλέσετε
+εγγράφως τη συγκατάθεσή σας ανά πάσα στιγμή.
                         </div>
-                    </div>
-
-                    <div class='footer'>
-                        Στην περίπτωση που επιθυμείτε να διαγραφούν τα προσωπικά σας στοιχεία από τη βάση δεδομένων της Europharmacy, μπορείτε να ανακαλέσετε εγγράφως τη συγκατάθεσή σας ανά πάσα στιγμή.
                     </div>
                 </body>
                 </html>";
@@ -215,14 +178,44 @@ namespace EuroSearchApp
 
         private byte[] GetCanvasImage(InkCanvas canvas)
         {
-            System.Windows.Rect rect = new System.Windows.Rect(canvas.RenderSize);
-            if (rect.Width <= 0 || rect.Height <= 0) return null;
+            // 1. Έλεγχος αν υπάρχουν διαστάσεις
+            if (canvas.ActualWidth <= 0 || canvas.ActualHeight <= 0) return null;
 
-            RenderTargetBitmap rtb = new RenderTargetBitmap((int)rect.Right, (int)rect.Bottom, 96d, 96d, System.Windows.Media.PixelFormats.Default);
-            rtb.Render(canvas);
+            // 2. Ορισμός High DPI (300 DPI για κρυστάλλινη ποιότητα)
+            double dpi = 300;
+            double scale = dpi / 96.0;
+
+            // 3. Υπολογισμός νέων διαστάσεων
+            int width = (int)(canvas.ActualWidth * scale);
+            int height = (int)(canvas.ActualHeight * scale);
+
+            // 4. Δημιουργία του RenderTargetBitmap με υψηλή ανάλυση
+            RenderTargetBitmap rtb = new RenderTargetBitmap(
+                width,
+                height,
+                dpi,
+                dpi,
+                System.Windows.Media.PixelFormats.Pbgra32);
+
+            // 5. Χρήση VisualBrush για τέλειο rendering των strokes
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(canvas);
+                dc.DrawRectangle(vb, null, new System.Windows.Rect(new System.Windows.Point(0, 0), new System.Windows.Point(canvas.ActualWidth, canvas.ActualHeight)));
+            }
+
+            rtb.Render(dv);
+
+            // 6. Κωδικοποίηση σε PNG
             PngBitmapEncoder encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(rtb));
-            using (MemoryStream ms = new MemoryStream()) { encoder.Save(ms); return ms.ToArray(); }
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                encoder.Save(ms);
+                return ms.ToArray();
+            }
         }
     }
 }
