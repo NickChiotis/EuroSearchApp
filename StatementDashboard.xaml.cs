@@ -132,17 +132,17 @@ namespace EuroSearchApp
                         PDFGenerator generator = new PDFGenerator();
                         generator.CreatePdfWithSignature(
                             fullDestPath,
-                            infoWin.TxtPharmacy.Text,    // ΕΠΩΝΥΜΙΑ ΦΑΡΜΑΚΕΙΟΥ [cite: 25]
-                            infoWin.TxtSales.Text,       // PROMOTER [cite: 24]
-                            infoWin.TxtCity.Text,        // ΠΟΛΗ 
-                            infoWin.TxtPhone.Text,       // ΤΗΛΕΦΩΝΟ 
-                            infoWin.TxtEmail.Text,       // e-mail 
-                            infoWin.TxtProgram.Text,     // Πρόγραμμα 
-                            infoWin.TxtClient.Text,      // Πελάτης 
-                            infoWin.TxtPresentation.Text,// PRESENTATION 
-                            infoWin.TxtSales.Text,       // SALES 
-                            infoWin.TxtNotes.Text,       // ΠΑΡΑΤΗΡΗΣΕΙΣ [cite: 28]
-                            sigWin.SignCanvas            // Υπογραφή 
+                            infoWin.Pharmacy,      // Αντί για infoWin.TxtPharmacy.Text
+                            infoWin.Promoter,      // Χρησιμοποιεί το SelectionBoxItem αυτόματα
+                            infoWin.City,          // Αντί για infoWin.TxtCity.Text
+                            infoWin.Phone,         // Αντί για infoWin.TxtPhone.Text
+                            infoWin.Email,         // Αντί για infoWin.TxtEmail.Text
+                            infoWin.Program,       // Αντί για infoWin.TxtProgram.Text
+                            infoWin.Client,        // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
+                            infoWin.Presentation,  // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
+                            infoWin.Sales,         // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
+                            infoWin.Notes,         // Αντί για infoWin.TxtNotes.Text
+                            sigWin.SignCanvas
                         );
 
                         // 5. Ανανέωση λίστας

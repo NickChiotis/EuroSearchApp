@@ -11,20 +11,28 @@ namespace EuroSearchApp
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)
         {
-            // Έλεγχος για τα υποχρεωτικά πεδία 2 έως 9
+            // ΕΛΕΓΧΟΣ: Μόνο για το Φαρμακείο (2) και το Τηλέφωνο (4)
             if (string.IsNullOrWhiteSpace(TxtPharmacy.Text) ||
-                string.IsNullOrWhiteSpace(TxtCity.Text) ||
-                string.IsNullOrWhiteSpace(TxtPhone.Text) ||
-                string.IsNullOrWhiteSpace(TxtEmail.Text) ||
-                string.IsNullOrWhiteSpace(TxtProgram.Text) ||
-                string.IsNullOrWhiteSpace(TxtClient.Text) ||
-                string.IsNullOrWhiteSpace(TxtPresentation.Text) ||
-                string.IsNullOrWhiteSpace(TxtSales.Text))
+                string.IsNullOrWhiteSpace(TxtPhone.Text))
             {
-                MessageBox.Show("Τα πεδία 2 έως 9 είναι υποχρεωτικά!");
+                MessageBox.Show("Το Φαρμακείο και το Τηλέφωνο είναι υποχρεωτικά πεδία!");
                 return;
             }
-            this.DialogResult = true; // Προχωράμε
+
+            // Αν όλα είναι οκ, κλείνει το παράθυρο και επιστρέφει true
+            this.DialogResult = true;
         }
+
+        // Helper properties για να παίρνεις τις τιμές εύκολα από το MainWindow
+        public string Promoter => ComboPromoter.SelectionBoxItem?.ToString();
+        public string Pharmacy => TxtPharmacy.Text;
+        public string City => TxtCity.Text;
+        public string Phone => TxtPhone.Text;
+        public string Email => TxtEmail.Text;
+        public string Program => TxtProgram.Text;
+        public string Client => ComboClient.SelectionBoxItem?.ToString();
+        public string Presentation => ComboPresentation.SelectionBoxItem?.ToString();
+        public string Sales => ComboSales.SelectionBoxItem?.ToString();
+        public string Notes => TxtNotes.Text;
     }
 }

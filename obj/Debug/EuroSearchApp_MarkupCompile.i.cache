@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\
+D:\Repos\EuroSearchApp\obj\Debug\
 EuroSearchApp
 none
 false
 DEBUG;TRACE
-C:\Users\konstantinos\source\repos\EuroSearchApp\App.xaml
+D:\Repos\EuroSearchApp\App.xaml
 9-2091223387
 
-21383021955
-68-2083532455
+221380325939
+73-714399544
 AadeSettingsWindow.xaml;GiftViewerWindow.xaml;LauncherWindow.xaml;LeadInfoWindow.xaml;MainWindow.xaml;AadeWindow.xaml;QuickAddWindow.xaml;SignatureWindow.xaml;StatementDashboard.xaml;
 
-False
+True
 

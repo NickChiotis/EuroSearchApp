@@ -1,6 +1,7 @@
 ﻿using iText.Html2pdf;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
@@ -205,6 +206,8 @@ namespace EuroSearchApp
                 {
                     ConverterProperties converterProperties = new ConverterProperties();
                     HtmlConverter.ConvertToPdf(htmlContent, pdfDest, converterProperties);
+                    var driveService = new GoogleDriveVault();
+                    Task.Run(() => driveService.UploadFileToDrive(dest));
                 }
             }
             catch (Exception ex) { throw new Exception("Σφάλμα Premium Design PDF: " + ex.Message); }
