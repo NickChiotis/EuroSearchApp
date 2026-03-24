@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace EuroSearchApp
 {
@@ -104,7 +105,7 @@ namespace EuroSearchApp
                 MessageBox.Show("Το αρχείο δεν βρέθηκε πλέον στον φάκελο.");
             }
         }
-        private void BtnAddNewStatement_Click(object sender, RoutedEventArgs e)
+        private async void AsyncBtnAddNewStatement_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -142,13 +143,31 @@ namespace EuroSearchApp
                             infoWin.Presentation,  // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
                             infoWin.Sales,         // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
                             infoWin.Notes,         // Αντί για infoWin.TxtNotes.Text
+                            sigWin.IsConsentChecked,
                             sigWin.SignCanvas
                         );
 
-                        // 5. Ανανέωση λίστας
-                        LoadPdfFiles();
+                        // 4.5 ΑΠΟΣΤΟΛΗ ΣΤΟ GOOGLE DRIVE
+                        try
+                        {
+                            // Δημιουργούμε το αντικείμενο του Drive Vault
+                            GoogleDriveVault driveVault = new GoogleDriveVault();
 
-                        MessageBox.Show($"Το έγγραφο δημιουργήθηκε επιτυχώς!", "Ολοκλήρωση", MessageBoxButton.OK, MessageBoxImage.Information);
+                            // Ξεκινάει το ανέβασμα
+                            await driveVault.UploadFileToDrive(fullDestPath);
+
+                            // Αν φτάσει εδώ, πέτυχε
+                            MessageBox.Show("Η αναφορά ανέβηκε επιτυχώς στο Google Drive!", "Drive Sync", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Αν κοπεί το ίντερνετ ή γίνει λάθος, το PDF υπάρχει ήδη τοπικά, οπότε απλά προειδοποιούμε
+                            MessageBox.Show("Η αναφορά σώθηκε τοπικά, αλλά απέτυχε η αποστολή στο Drive.\nΣφάλμα: " + ex.Message,
+                                            "Προσοχή", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+
+                        // 5. Ανανέωση λίστας (αυτό το έχεις ήδη)
+                        LoadPdfFiles();
                     }
                 }
             }

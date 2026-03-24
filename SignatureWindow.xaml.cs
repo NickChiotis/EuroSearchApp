@@ -4,6 +4,8 @@ namespace EuroSearchApp
 {
     public partial class SignatureWindow : Window
     {
+        public bool IsConsentChecked => ChkConsent.IsChecked == true;
+
         public SignatureWindow()
         {
             InitializeComponent();

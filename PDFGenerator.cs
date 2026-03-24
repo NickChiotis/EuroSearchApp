@@ -10,7 +10,7 @@ namespace EuroSearchApp
 {
     class PDFGenerator
     {
-        public void CreatePdfWithSignature(string dest, string pharmacyName, string promoter, string city, string phone, string email, string program, string client, string presentation, string sales, string notes, InkCanvas canvas)
+        public void CreatePdfWithSignature(string dest, string pharmacyName, string promoter, string city, string phone, string email, string program, string client, string presentation, string sales, string notes, bool hasConsent, InkCanvas canvas)
         {
             try
             {
@@ -40,6 +40,21 @@ namespace EuroSearchApp
                     : "<div class='title'>EUROPHARMACY IKE</div>";
 
                 // 3. ΤΟ PREMIUM DESIGN ΣΕ HTML/CSS
+                string consentHtml = "";
+                if (hasConsent)
+                {
+                    consentHtml = $@"
+                        <div class='consent-box'>
+                            <table width='100%' border='0' cellspacing='0' cellpadding='0'>
+                                <tr>
+                                    <td width='30' valign='top' style='font-size: 18px; color: #3182CE;'>☑</td>
+                                    <td style='font-size: 11px; color: #2C5282;'>
+                                        <strong>ΣΥΝΑΙΝΩ</strong> για την τήρηση των προσωπικών μου στοιχείων από τη <strong>Europharmacy ΙΚΕ</strong> για μελλοντική επικοινωνία με σκοπό την ενημέρωσή μου.
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>";
+                }
                 string htmlContent = $@"
                 <html>
                 <head>
@@ -122,16 +137,7 @@ namespace EuroSearchApp
                             <tr><th>ΠΑΡΑΤΗΡΗΣΕΙΣ</th><td>{notes}</td></tr>
                         </table>
 
-                        <div class='consent-box'>
-                            <table width='100%' border='0' cellspacing='0' cellpadding='0'>
-                                <tr>
-                                    <td width='30' valign='top' style='font-size: 18px; color: #3182CE;'>☑</td>
-                                    <td style='font-size: 11px; color: #2C5282;'>
-                                        <strong>ΣΥΝΑΙΝΩ</strong> για την τήρηση των προσωπικών μου στοιχείων από τη <strong>Europharmacy ΙΚΕ</strong> για μελλοντική επικοινωνία με σκοπό την ενημέρωσή μου.
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        {consentHtml}
 
                         <table class='sig-table'>
                             <tr>
@@ -169,8 +175,8 @@ namespace EuroSearchApp
                 {
                     ConverterProperties converterProperties = new ConverterProperties();
                     HtmlConverter.ConvertToPdf(htmlContent, pdfDest, converterProperties);
-                    var driveService = new GoogleDriveVault();
-                    Task.Run(() => driveService.UploadFileToDrive(dest));
+                    //var driveService = new GoogleDriveVault();
+                    //Task.Run(() => driveService.UploadFileToDrive(dest));
                 }
             }
             catch (Exception ex) { throw new Exception("Σφάλμα Premium Design PDF: " + ex.Message); }

@@ -85,7 +85,7 @@
                             </Grid>
                         </Border>
 
-                        <Button Grid.Column="1" Width="45" Height="45" Click="BtnAddNewStatement_Click" Cursor="Hand">
+                        <Button Grid.Column="1" Width="45" Height="45" Click="AsyncBtnAddNewStatement_Click" Cursor="Hand">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="btnBorder" Background="#660099" CornerRadius="12">

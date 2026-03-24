@@ -66,7 +66,7 @@ namespace EuroSearchApp
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Drive Error: " + ex.Message);
+                throw new Exception("Σφάλμα κατά το ανέβασμα στο Google Drive: " + ex.Message);
             }
         }
 
