@@ -7,7 +7,9 @@ namespace EuroSearchApp
     {
         public LeadInfoWindow()
         {
+            System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
             InitializeComponent();
+
 
             // ΦΟΡΤΩΣΗ: Αν υπάρχει αποθηκευμένος Promoter, επέλεξέ τον
             string lastIdx = Properties.Settings.Default.LastPromoter;

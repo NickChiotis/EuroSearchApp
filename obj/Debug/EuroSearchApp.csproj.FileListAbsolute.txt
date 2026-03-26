@@ -319,3 +319,17 @@ D:\Repos\EuroSearchApp\obj\Debug\EuroSearchApp.application
 D:\Repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.CopyComplete
 D:\Repos\EuroSearchApp\obj\Debug\EuroSearchApp.exe
 D:\Repos\EuroSearchApp\obj\Debug\EuroSearchApp.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Assets\client_secrets.json
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Auth.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Core.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Drive.v3.dll
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Auth.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Auth.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Core.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Core.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Drive.v3.pdb
+C:\Users\konstantinos\source\repos\EuroSearchApp\bin\Debug\Google.Apis.Drive.v3.xml
+C:\Users\konstantinos\source\repos\EuroSearchApp\obj\Debug\EuroSearchApp.csproj.AssemblyReference.cache

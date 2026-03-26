@@ -1,17 +1,10 @@
-﻿<Window x:Class="EuroSearchApp.LeadInfoWindow" 
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-        Title="Στοιχεία Πελάτη" Width="480" Height="800" Background="#F1F5F9" WindowStartupLocation="CenterScreen">
+﻿<Window x:Class="EuroSearchApp.LeadInfoWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Στοιχεία Πελάτη" Width="480" Height="800" Background="#F1F5F9" WindowStartupLocation="CenterScreen">
 
     <Grid>
         <ScrollViewer Padding="25" VerticalScrollBarVisibility="Auto">
             <StackPanel>
 
-                <Border Padding="25" Background="White" CornerRadius="15">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="15" Direction="270" Opacity="0.1" ShadowDepth="2" />
-                    </Border.Effect>
-
+                <Border Padding="25" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="15">
                     <StackPanel>
                         <StackPanel.Resources>
                             <Style TargetType="TextBlock">
@@ -49,11 +42,7 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ComboBox">
                                             <Grid>
-                                                <ToggleButton x:Name="ToggleButton" 
-                                                              Grid.ColumnSpan="2" 
-                                                              Focusable="false" 
-                                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                                              ClickMode="Press">
+                                                <ToggleButton x:Name="ToggleButton" Grid.ColumnSpan="2" ClickMode="Press" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                                     <ToggleButton.Template>
                                                         <ControlTemplate TargetType="ToggleButton">
                                                             <Border x:Name="templateBorder" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
@@ -62,7 +51,7 @@
                                                                         <ColumnDefinition Width="*" />
                                                                         <ColumnDefinition Width="30" />
                                                                     </Grid.ColumnDefinitions>
-                                                                    <Path Grid.Column="1" Data="M 0 0 L 4 4 L 8 0" Stroke="#64748B" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                                    <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0" Stroke="#64748B" StrokeThickness="2" />
                                                                 </Grid>
                                                             </Border>
                                                             <ControlTemplate.Triggers>
@@ -77,10 +66,10 @@
                                                     </ToggleButton.Template>
                                                 </ToggleButton>
 
-                                                <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" Margin="12,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                                                <ContentPresenter x:Name="ContentSite" Margin="12,0,30,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False" />
 
                                                 <Popup x:Name="PART_Popup" AllowsTransparency="True" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom">
-                                                    <Border x:Name="DropDownBorder" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" MinWidth="{TemplateBinding ActualWidth}" Margin="0,4,0,0">
+                                                    <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}" Margin="0,4,0,0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
                                                         <ScrollViewer Margin="4" SnapsToDevicePixels="True">
                                                             <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
                                                         </ScrollViewer>
@@ -97,7 +86,7 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ComboBoxItem">
-                                            <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="4" Margin="2">
+                                            <Border x:Name="ItemBorder" Margin="2" Background="Transparent" CornerRadius="4">
                                                 <ContentPresenter />
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -119,7 +108,7 @@
 
                         <TextBlock Text="1. Promoter*" />
                         <ComboBox x:Name="ComboPromoter" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Promoter --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="-- Επιλέξτε Promoter --" IsEnabled="False" Visibility="Collapsed" />
                             <ComboBoxItem Content="Αντώνης" />
                             <ComboBoxItem Content="Βασιλική" />
                             <ComboBoxItem Content="Γεωργία" />
@@ -148,14 +137,14 @@
 
                         <TextBlock Text="7. Πελάτης" />
                         <ComboBox x:Name="ComboClient" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε ΝΑΙ/ΟΧΙ --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="-- Επιλέξτε ΝΑΙ/ΟΧΙ --" IsEnabled="False" Visibility="Collapsed" />
                             <ComboBoxItem Content="ΝΑΙ" />
                             <ComboBoxItem Content="ΟΧΙ" />
                         </ComboBox>
 
                         <TextBlock Text="8. PRESENTATION" />
                         <ComboBox x:Name="ComboPresentation" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Presentator --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="-- Επιλέξτε Presentator --" IsEnabled="False" Visibility="Collapsed" />
                             <ComboBoxItem Content="-- Δεν έγινε --" />
                             <ComboBoxItem Content="Αθηνά" />
                             <ComboBoxItem Content="Αντώνης" />
@@ -172,32 +161,27 @@
 
                         <TextBlock Text="9. SALES" />
                         <ComboBox x:Name="ComboSales" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Sales --" IsEnabled="False" Visibility="Collapsed"/>
+                            <ComboBoxItem Content="-- Επιλέξτε Sales --" IsEnabled="False" Visibility="Collapsed" />
                             <ComboBoxItem Content="Αθηνά" />
                             <ComboBoxItem Content="Ζωή" />
                             <ComboBoxItem Content="Νίκος" />
                         </ComboBox>
 
-                        <TextBlock Text="10. Παρατηρήσεις" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                        <TextBlock Margin="0,10,0,5" FontWeight="SemiBold" Text="10. Παρατηρήσεις" />
 
                         <WrapPanel Margin="0,0,0,5">
-                            <Button Content="+ Ήρθε ο/η βοηθός" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Content="+ Θα ανοίξει φαρμακείο" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Content="+ Έχει άλλο πρόγραμμα, είναι ευχαριστημένος" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Content="+ Έχει άλλο πρόγραμμα αλλά θέλει να αλλάξει" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Content="+ Να καλέσουμε για παρουσίαση" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Content="+ Να καλέσουμε για ραντεβού εγκατάστασης" Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9"/>
-                            <Button Click="QuickNote_Click" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" MaxWidth="250">
-                                <TextBlock Text="+ Πήρε φυλλάδιο και ενημερώθηκε για την προσφορά της έκθεσης" TextWrapping="Wrap" TextAlignment="Center"/>
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Ήρθε ο/η βοηθός" />
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Θα ανοίξει φαρμακείο" />
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα, είναι ευχαριστημένος" />
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα αλλά θέλει να αλλάξει" />
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για παρουσίαση" />
+                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για ραντεβού εγκατάστασης" />
+                            <Button MaxWidth="250" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click">
+                                <TextBlock Text="+ Πήρε φυλλάδιο και ενημερώθηκε για την προσφορά της έκθεσης" TextAlignment="Center" TextWrapping="Wrap" />
                             </Button>
                         </WrapPanel>
 
-                        <TextBox x:Name="TxtNotes" 
-                             Height="100" 
-                             Padding="10,8" 
-                             VerticalContentAlignment="Top" 
-                             AcceptsReturn="True" 
-                             TextWrapping="Wrap" />
+                        <TextBox x:Name="TxtNotes" Height="100" Padding="10,8" VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
 
                         <Button Height="50" Margin="0,10,0,0" Background="#2563EB" Click="BtnNext_Click" Content="Συνέχεια" Cursor="Hand" FontSize="16" FontWeight="Bold" Foreground="White">
                             <Button.Resources>

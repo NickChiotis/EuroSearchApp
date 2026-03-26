@@ -75,9 +75,6 @@
             <StackPanel Grid.Row="1" Margin="30">
 
                 <Border Margin="0,0,0,20" Padding="15" Background="White" CornerRadius="10">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="10" Opacity="0.1" ShadowDepth="2" />
-                    </Border.Effect>
                     <CheckBox x:Name="ChkConsent" VerticalContentAlignment="Top">
                         <TextBlock FontSize="13" FontWeight="Bold" Foreground="#334155" LineHeight="18" Text="ΣΥΝΑΙΝΩ για την τήρηση των προσωπικών μου στοιχείων απο τη Europharmacy ΙΚΕ για μελλοντική επικοινωνία με σκοπό την ενημέρωσή μου." TextWrapping="Wrap" />
                     </CheckBox>
@@ -85,9 +82,6 @@
 
                 <TextBlock Margin="5,0,0,10" FontWeight="SemiBold" Foreground="#475569" Text="Παρακαλώ υπογράψτε στο παρακάτω πλαίσιο:" />
                 <Border Height="250" Background="White" BorderBrush="#CBD5E1" BorderThickness="2" CornerRadius="12">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="15" Opacity="0.05" ShadowDepth="5" />
-                    </Border.Effect>
                     <Grid>
                         <InkCanvas x:Name="SignCanvas" Margin="5" Background="Transparent" />
                         <Line Margin="10,0,10,30" VerticalAlignment="Bottom" Stroke="#E2E8F0" StrokeThickness="1" X1="20" X2="500" Y1="230" Y2="230" />

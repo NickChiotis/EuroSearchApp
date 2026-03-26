@@ -52,15 +52,9 @@
         <Grid Grid.Row="1" Margin="30">
 
             <Border Background="#AAFFFFFF" CornerRadius="20" Opacity="0.8">
-                <Border.Effect>
-                    <BlurEffect Radius="25" />
-                </Border.Effect>
             </Border>
 
             <Border Padding="20" Background="White" CornerRadius="20">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="30" Opacity="0.12" ShadowDepth="8" Color="#660099" />
-                </Border.Effect>
 
                 <Grid>
                     <Grid.RowDefinitions>
