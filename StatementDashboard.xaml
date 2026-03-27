@@ -2,7 +2,7 @@
         xmlns:local="clr-namespace:EuroSearchApp" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" Title="EuroStatement Dashboard" Width="1280" Height="800" Background="#F1F5F9" ResizeMode="CanResize" SnapsToDevicePixels="True"
         WindowStartupLocation="CenterOwner" WindowState="Maximized" mc:Ignorable="d">
 
-    <Window.Triggers>
+    <!--<Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
                 <Storyboard AutoReverse="True" RepeatBehavior="Forever">
@@ -15,7 +15,7 @@
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
-    </Window.Triggers>
+    </Window.Triggers>-->
 
     <Grid>
         <Grid.RowDefinitions>
@@ -25,10 +25,10 @@
 
         <Border Grid.RowSpan="2">
             <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop x:Name="back1" Offset="0.0" Color="#00CCCC" />
-                    <GradientStop x:Name="back2" Offset="0.5" Color="#fff" />
-                    <GradientStop x:Name="back3" Offset="1.0" Color="#00CCCC" />
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Offset="0.0" Color="#00CCCC" />
+                    <GradientStop Offset="0.5" Color="#ffff" />
+                    <GradientStop Offset="1.0" Color="#00CCCC" />
                 </LinearGradientBrush>
             </Border.Background>
         </Border>
@@ -51,8 +51,7 @@
 
         <Grid Grid.Row="1" Margin="30">
 
-            <Border Background="#AAFFFFFF" CornerRadius="20" Opacity="0.8">
-            </Border>
+            <Border Background="#AAFFFFFF" CornerRadius="20" Opacity="0.8" />
 
             <Border Padding="20" Background="White" CornerRadius="20">
 

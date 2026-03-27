@@ -1,7 +1,7 @@
 ﻿<Window x:Class="EuroSearchApp.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:EuroSearchApp" Title="Ο τροχός της Europharmacy" Width="1280" Height="800"
         Closing="Window_Closing" Loaded="Window_Loaded" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
-    <Window.Triggers>
+    <!--<Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
                 <Storyboard AutoReverse="True" RepeatBehavior="Forever">
@@ -27,18 +27,18 @@
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>
-    </Window.Triggers>
+    </Window.Triggers>-->
 
     <Border BorderBrush="#E2E8F0" BorderThickness="1">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop x:Name="back1" Offset="0.0" Color="#00CCCC" />
-                <GradientStop x:Name="back2" Offset="0.5" Color="#fff" />
-                <GradientStop x:Name="back3" Offset="1.0" Color="#00CCCC" />
+                <GradientStop Offset="0.0" Color="#00CCCC" />
+                <GradientStop Offset="0.5" Color="#fff" />
+                <GradientStop Offset="1.0" Color="#00CCCC" />
             </LinearGradientBrush>
         </Border.Background>
 
-        <Viewbox Stretch="Uniform">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Grid Width="1280" Height="800" SnapsToDevicePixels="True" UseLayoutRounding="True">
                 <Grid.Resources>
                     <local:GiftStockConverter x:Key="StockConverter" />
@@ -92,14 +92,9 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="TextBox">
                                     <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                                        <Grid>
-                                            <ScrollViewer x:Name="PART_ContentHost" Margin="0" VerticalAlignment="Center" />
-                                        </Grid>
+                                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                                     </Border>
                                     <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="border" Property="BorderBrush" Value="#94A3B8" />
-                                        </Trigger>
                                         <Trigger Property="IsFocused" Value="True">
                                             <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource Primary}" />
                                         </Trigger>
@@ -114,8 +109,6 @@
                         <Setter Property="Background" Value="{StaticResource Primary}" />
                         <Setter Property="Foreground" Value="White" />
                         <Setter Property="FontWeight" Value="SemiBold" />
-                        <Setter Property="FontSize" Value="14" />
-                        <Setter Property="Cursor" Value="Hand" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
@@ -124,15 +117,7 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.9" />
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.8" />
-                                            <Setter TargetName="bd" Property="RenderTransform">
-                                                <Setter.Value>
-                                                    <ScaleTransform CenterX="50" CenterY="20" ScaleX="0.98" ScaleY="0.98" />
-                                                </Setter.Value>
-                                            </Setter>
+                                            <Setter TargetName="bd" Property="Background" Value="#2563EB" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -318,12 +303,12 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Height="76" Padding="24,18" VerticalAlignment="Top" CornerRadius="0,0,15,15">
+                <Border Grid.Row="0" Height="76" Padding="24,18" VerticalAlignment="Top" CornerRadius="0,0,15,15" Margin="0,0,10,0">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop x:Name="Stop1" Offset="0.0" Color="#53DDDD" />
-                            <GradientStop x:Name="Stop2" Offset="0.5" Color="#0066CC" />
-                            <GradientStop x:Name="Stop3" Offset="1.0" Color="#660099" />
+                            <GradientStop Offset="0.0" Color="#53DDDD" />
+                            <GradientStop Offset="0.5" Color="#0066CC" />
+                            <GradientStop Offset="1.0" Color="#660099" />
                         </LinearGradientBrush>
                     </Border.Background>
 
@@ -700,6 +685,6 @@
                     </Grid>
                 </Border>
             </Grid>
-        </Viewbox>
+        </ScrollViewer>
     </Border>
 </Window>
