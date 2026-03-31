@@ -125,6 +125,12 @@ namespace EuroSearchApp
                         string folderPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EuroStatementPdf");
                         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
+                        string finalProgram = (infoWin.ComboProgram.SelectedItem == infoWin.ItemOther)
+                          ? infoWin.TxtOtherProgram.Text.Trim()
+                          : infoWin.Program;
+
+                        if (string.IsNullOrEmpty(finalProgram)) finalProgram = "Μη καθορισμένο";
+
                         // Όνομα αρχείου: Φαρμακείο_Ημερομηνία.pdf
                         string fileName = $"{infoWin.TxtPharmacy.Text}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
                         string fullDestPath = System.IO.Path.Combine(folderPath, fileName);
@@ -138,7 +144,7 @@ namespace EuroSearchApp
                             infoWin.City,          // Αντί για infoWin.TxtCity.Text
                             infoWin.Phone,         // Αντί για infoWin.TxtPhone.Text
                             infoWin.Email,         // Αντί για infoWin.TxtEmail.Text
-                            infoWin.Program,       // Αντί για infoWin.TxtProgram.Text
+                            finalProgram,       // Αντί για infoWin.TxtProgram.Text
                             infoWin.Client,        // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
                             infoWin.Presentation,  // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)
                             infoWin.Sales,         // Χρησιμοποιεί το SelectionBoxItem (ΝΑΙ/ΟΧΙ)

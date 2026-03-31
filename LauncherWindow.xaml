@@ -73,7 +73,7 @@
                     <Button Width="350" Height="250" Margin="20" Click="BtnEuroStatement_Click" Style="{StaticResource LauncherCardStyle}">
                         <StackPanel VerticalAlignment="Center">
                             <Image Width="60" Height="60" Margin="0,0,0,15" Source="Assets/EuroStatementLogo.png" />
-                            <TextBlock HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Text="EuroStatement" />
+                            <TextBlock HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Text="EuroPromotion" />
                             <TextBlock HorizontalAlignment="Center" FontSize="14" Foreground="#64748B" Text="Δελτίο &amp; Υπογραφή" />
                         </StackPanel>
                     </Button>

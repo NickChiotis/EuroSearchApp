@@ -1,200 +1,286 @@
-﻿<Window x:Class="EuroSearchApp.LeadInfoWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Στοιχεία Πελάτη" Width="480" Height="500" Background="#F1F5F9" WindowStartupLocation="CenterScreen">
+﻿<Window x:Class="EuroSearchApp.LeadInfoWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroPromoter - Στοιχεία Πελάτη" Width="550" Height="850" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
 
-    <Grid>
-        <ScrollViewer Padding="25" PanningMode="Both" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard AutoReverse="True" RepeatBehavior="Forever">
+                    <ColorAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Color" From="#00CCCC" To="#fff" Duration="0:0:3" />
+                    <ColorAnimation Storyboard.TargetName="back2" Storyboard.TargetProperty="Color" From="#fff" To="#00CCCC" Duration="0:0:3" />
+                    <DoubleAnimation Storyboard.TargetName="back1" Storyboard.TargetProperty="Offset" From="0.0" To="0.4" Duration="0:0:5" />
+                    <DoubleAnimation Storyboard.TargetName="back3" Storyboard.TargetProperty="Offset" From="1.0" To="0.6" Duration="0:0:5" />
 
-                <Border Padding="25" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="15">
-                    <StackPanel>
-                        <StackPanel.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="12" />
-                                <Setter Property="FontWeight" Value="SemiBold" />
-                                <Setter Property="Foreground" Value="#64748B" />
-                                <Setter Property="Margin" Value="2,0,0,5" />
-                            </Style>
+                    <ColorAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Color" From="#53DDDD" To="#660099" Duration="0:0:4" />
+                    <DoubleAnimation Storyboard.TargetName="Stop1" Storyboard.TargetProperty="Offset" From="0.0" To="0.3" Duration="0:0:4" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
 
-                            <Style TargetType="TextBox">
-                                <Setter Property="Height" Value="40" />
-                                <Setter Property="Background" Value="#F8FAFC" />
-                                <Setter Property="BorderBrush" Value="#E2E8F0" />
-                                <Setter Property="BorderThickness" Value="1" />
-                                <Setter Property="Padding" Value="10,0" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Setter Property="Margin" Value="0,0,0,15" />
-                                <Setter Property="FontSize" Value="14" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TextBox">
-                                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                                                <ScrollViewer x:Name="PART_ContentHost" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
+    <Border BorderBrush="#E2E8F0" BorderThickness="1">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop x:Name="back1" Offset="0.0" Color="#00CCCC" />
+                <GradientStop x:Name="back2" Offset="0.5" Color="#fff" />
+                <GradientStop x:Name="back3" Offset="1.0" Color="#00CCCC" />
+            </LinearGradientBrush>
+        </Border.Background>
 
-                            <Style TargetType="ComboBox">
-                                <Setter Property="Height" Value="40" />
-                                <Setter Property="Margin" Value="0,0,0,15" />
-                                <Setter Property="FontSize" Value="14" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ComboBox">
-                                            <Grid>
-                                                <ToggleButton x:Name="ToggleButton" Grid.ColumnSpan="2" ClickMode="Press" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
-                                                    <ToggleButton.Template>
-                                                        <ControlTemplate TargetType="ToggleButton">
-                                                            <Border x:Name="templateBorder" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="30" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0" Stroke="#64748B" StrokeThickness="2" />
-                                                                </Grid>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="true">
-                                                                    <Setter TargetName="templateBorder" Property="BorderBrush" Value="#2563EB" />
-                                                                </Trigger>
-                                                                <Trigger Property="IsChecked" Value="true">
-                                                                    <Setter TargetName="templateBorder" Property="BorderBrush" Value="#2563EB" />
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </ToggleButton.Template>
-                                                </ToggleButton>
+        <Grid SnapsToDevicePixels="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                                                <ContentPresenter x:Name="ContentSite" Margin="12,0,30,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False" />
+            <Border Grid.Row="0" Height="70" Padding="20,0" CornerRadius="0,0,15,15">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop x:Name="Stop1" Offset="0.0" Color="#53DDDD" />
+                        <GradientStop x:Name="Stop2" Offset="0.5" Color="#0066CC" />
+                        <GradientStop x:Name="Stop3" Offset="1.0" Color="#660099" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock FontSize="22" FontWeight="Bold" Foreground="White" Text="EuroPromoter" />
+                    <TextBlock Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="14" Foreground="White" Opacity="0.8" Text="Στοιχεία Πελάτη" />
+                </StackPanel>
+            </Border>
 
-                                                <Popup x:Name="PART_Popup" AllowsTransparency="True" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom">
-                                                    <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}" Margin="0,4,0,0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
-                                                        <ScrollViewer Margin="4" SnapsToDevicePixels="True">
-                                                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
-                                                        </ScrollViewer>
-                                                    </Border>
-                                                </Popup>
-                                            </Grid>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-
-                            <Style TargetType="ComboBoxItem">
-                                <Setter Property="Padding" Value="10,10" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ComboBoxItem">
-                                            <Border x:Name="ItemBorder" Margin="2" Background="Transparent" CornerRadius="4">
-                                                <ContentPresenter />
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#F1F5F9" />
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#DBEAFE" />
-                                                    <Setter Property="Foreground" Value="#2563EB" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </StackPanel.Resources>
-
-                        <TextBlock Margin="0,0,0,20" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="#1E293B" Text="Στοιχεία Επικοινωνίας" />
-
-                        <TextBlock Text="1. Promoter*" />
-                        <ComboBox x:Name="ComboPromoter" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Promoter --" IsEnabled="False" Visibility="Collapsed" />
-                            <ComboBoxItem Content="Αντώνης" />
-                            <ComboBoxItem Content="Βασιλική" />
-                            <ComboBoxItem Content="Γεωργία" />
-                            <ComboBoxItem Content="Γιάννης" />
-                            <ComboBoxItem Content="Δημήτρης" />
-                            <ComboBoxItem Content="Εύη" />
-                            <ComboBoxItem Content="Ιφιγένεια" />
-                            <ComboBoxItem Content="Ιωάννα" />
-                            <ComboBoxItem Content="Μαρία" />
-                        </ComboBox>
-
-                        <TextBlock Text="2. Επωνυμία Φαρμακείου *" />
-                        <TextBox x:Name="TxtPharmacy" />
-
-                        <TextBlock Text="3. Πόλη" />
-                        <TextBox x:Name="TxtCity" />
-
-                        <TextBlock Text="4. Τηλέφωνο *" />
-                        <TextBox x:Name="TxtPhone" />
-
-                        <TextBlock Text="5. e-mail" />
-                        <TextBox x:Name="TxtEmail" />
-
-                        <TextBlock Text="6. Πρόγραμμα" />
-                        <TextBox x:Name="TxtProgram" />
-
-                        <TextBlock Text="7. Πελάτης" />
-                        <ComboBox x:Name="ComboClient" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε ΝΑΙ/ΟΧΙ --" IsEnabled="False" Visibility="Collapsed" />
-                            <ComboBoxItem Content="ΝΑΙ" />
-                            <ComboBoxItem Content="ΟΧΙ" />
-                        </ComboBox>
-
-                        <TextBlock Text="8. PRESENTATION" />
-                        <ComboBox x:Name="ComboPresentation" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Presentator --" IsEnabled="False" Visibility="Collapsed" />
-                            <ComboBoxItem Content="-- Δεν έγινε --" />
-                            <ComboBoxItem Content="Αθηνά" />
-                            <ComboBoxItem Content="Αντώνης" />
-                            <ComboBoxItem Content="Βασιλική" />
-                            <ComboBoxItem Content="Γεωργία" />
-                            <ComboBoxItem Content="Γιάννης" />
-                            <ComboBoxItem Content="Δημήτρης" />
-                            <ComboBoxItem Content="Εύη" />
-                            <ComboBoxItem Content="Ζωή" />
-                            <ComboBoxItem Content="Ιφιγένεια" />
-                            <ComboBoxItem Content="Ιωάννα" />
-                            <ComboBoxItem Content="Μαρία" />
-                        </ComboBox>
-
-                        <TextBlock Text="9. SALES" />
-                        <ComboBox x:Name="ComboSales" SelectedIndex="0">
-                            <ComboBoxItem Content="-- Επιλέξτε Sales --" IsEnabled="False" Visibility="Collapsed" />
-                            <ComboBoxItem Content="Αθηνά" />
-                            <ComboBoxItem Content="Ζωή" />
-                            <ComboBoxItem Content="Νίκος" />
-                        </ComboBox>
-
-                        <TextBlock Margin="0,10,0,5" FontWeight="SemiBold" Text="10. Παρατηρήσεις" />
-
-                        <WrapPanel Margin="0,0,0,5">
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Ήρθε ο/η βοηθός" />
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Θα ανοίξει φαρμακείο" />
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα, είναι ευχαριστημένος" />
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα αλλά θέλει να αλλάξει" />
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για παρουσίαση" />
-                            <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για ραντεβού εγκατάστασης" />
-                            <Button MaxWidth="250" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click">
-                                <TextBlock Text="+ Πήρε φυλλάδιο και ενημερώθηκε για την προσφορά της έκθεσης" TextAlignment="Center" TextWrapping="Wrap" />
-                            </Button>
-                        </WrapPanel>
-
-                        <TextBox x:Name="TxtNotes" Height="100" Padding="10,8" VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
-
-                        <Button Height="50" Margin="0,10,0,0" Background="#2563EB" Click="BtnNext_Click" Content="Συνέχεια" Cursor="Hand" FontSize="16" FontWeight="Bold" Foreground="White">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="10" />
+            <ScrollViewer Grid.Row="1" Padding="20" PanningMode="Both" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <Border Padding="20" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="15">
+                        <StackPanel>
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="Foreground" Value="#64748B" />
+                                    <Setter Property="Margin" Value="2,0,0,5" />
                                 </Style>
-                            </Button.Resources>
-                        </Button>
-                    </StackPanel>
-                </Border>
 
-                <TextBlock Margin="5,15,0,0" HorizontalAlignment="Center" FontSize="11" FontWeight="Normal" Foreground="#94A3B8" Text="* Τα πεδία είναι υποχρεωτικά" />
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Height" Value="40" />
+                                    <Setter Property="Background" Value="#F8FAFC" />
+                                    <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Setter Property="Padding" Value="10,0" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Setter Property="Margin" Value="0,0,0,15" />
+                                    <Setter Property="FontSize" Value="14" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                                                    <ScrollViewer x:Name="PART_ContentHost" />
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="Height" Value="40" />
+                                    <Setter Property="Margin" Value="0,0,0,15" />
+                                    <Setter Property="FontSize" Value="14" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBox">
+                                                <Grid>
+                                                    <ToggleButton x:Name="ToggleButton" Grid.ColumnSpan="2" ClickMode="Press" Focusable="false" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                                        <ToggleButton.Template>
+                                                            <ControlTemplate TargetType="ToggleButton">
+                                                                <Border x:Name="templateBorder" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*" />
+                                                                            <ColumnDefinition Width="30" />
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0" Stroke="#64748B" StrokeThickness="2" />
+                                                                    </Grid>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                                        <Setter TargetName="templateBorder" Property="BorderBrush" Value="#2563EB" />
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsChecked" Value="true">
+                                                                        <Setter TargetName="templateBorder" Property="BorderBrush" Value="#2563EB" />
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </ToggleButton.Template>
+                                                    </ToggleButton>
+
+                                                    <ContentPresenter x:Name="ContentSite" Margin="12,0,30,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False" />
+
+                                                    <Popup x:Name="PART_Popup" AllowsTransparency="True" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Bottom">
+                                                        <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}" Margin="0,4,0,0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
+                                                            <ScrollViewer Margin="4" SnapsToDevicePixels="True">
+                                                                <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                                            </ScrollViewer>
+                                                        </Border>
+                                                    </Popup>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="Padding" Value="10,10" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ComboBoxItem">
+                                                <Border x:Name="ItemBorder" Margin="2" Background="Transparent" CornerRadius="4">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="#F1F5F9" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="#DBEAFE" />
+                                                        <Setter Property="Foreground" Value="#2563EB" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </StackPanel.Resources>
+
+                            <TextBlock Margin="0,0,0,20" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="#1E293B" Text="Στοιχεία Επικοινωνίας" />
+
+                            <TextBlock Text="1. Promoter*" />
+                            <ComboBox x:Name="ComboPromoter" Height="40" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Content="-- ΕΠΙΛΕΞΤΕ PROMOTER --" IsEnabled="False" Visibility="Collapsed" />
+                                <ComboBoxItem Content="Αντώνης" />
+                                <ComboBoxItem Content="Βασιλική" />
+                                <ComboBoxItem Content="Γεωργία" />
+                                <ComboBoxItem Content="Γιάννης" />
+                                <ComboBoxItem Content="Δημήτρης" />
+                                <ComboBoxItem Content="Εύη" />
+                                <ComboBoxItem Content="Ιφιγένεια" />
+                                <ComboBoxItem Content="Ιωάννα" />
+                                <ComboBoxItem Content="ΜΑΡΙΑ" />
+                            </ComboBox>
+
+                            <TextBlock Text="2. Επωνυμία Φαρμακείου *" />
+                            <TextBox x:Name="TxtPharmacy" CharacterCasing="Upper" />
+
+                            <TextBlock Text="3. Πόλη" />
+                            <TextBox x:Name="TxtCity" CharacterCasing="Upper" />
+
+                            <TextBlock Text="4. Τηλέφωνο *" />
+                            <TextBox x:Name="TxtPhone" MaxLength="10" PreviewTextInput="TxtPhone_PreviewTextInput" />
+
+                            <TextBlock Text="5. e-mail" />
+                            <TextBox x:Name="TxtEmail" CharacterCasing="Upper" />
+
+                            <TextBlock Text="6. Πρόγραμμα" />
+                            <ComboBox x:Name="ComboProgram" Height="40" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Content="-- ΕΠΙΛΕΞΤΕ ΠΡΟΓΡΑΜΜΑ --" IsEnabled="False" Visibility="Collapsed" />
+                                <ComboBoxItem Content="EUROMEDICATWO" />
+                                <ComboBoxItem Content="D" />
+                                <ComboBoxItem Content="F/P" />
+                                <ComboBoxItem Content="Λ" />
+                                <ComboBoxItem Content="O" />
+                                <ComboBoxItem Content="S" />
+                                <ComboBoxItem x:Name="ItemOther" Content="ΑΛΛΟ" />
+                            </ComboBox>
+
+                            <TextBlock Text="Προσδιορίστε το Πρόγραμμα:">
+                                <TextBlock.Style>
+                                    <Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=ComboProgram, Path=SelectedItem}" Value="{x:Reference ItemOther}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <TextBox x:Name="TxtOtherProgram" CharacterCasing="Upper">
+                                <TextBox.Style>
+                                    <Style BasedOn="{StaticResource {x:Type TextBox}}" TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=ComboProgram, Path=SelectedItem}" Value="{x:Reference ItemOther}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <TextBlock Text="7. Πελάτης" />
+                            <ComboBox x:Name="ComboClient" Height="40" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Content="-- ΕΠΙΛΕΞΤΕ ΝΑΙ/ΟΧΙ --" />
+                                <ComboBoxItem Content="ΝΑΙ" />
+                                <ComboBoxItem Content="ΟΧΙ" />
+                            </ComboBox>
+
+                            <TextBlock Text="8. PRESENTATION" />
+                            <ComboBox x:Name="ComboPresentation" Height="40" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Content="-- ΕΠΙΛΕΞΤΕ PRESENTATOR --" IsEnabled="False" Visibility="Collapsed" />
+                                <ComboBoxItem Content="-- ΔΕΝ ΕΓΙΝΕ --" />
+                                <ComboBoxItem Content="ΑΘΗΝΑ" />
+                                <ComboBoxItem Content="ΑΝΤΩΝΗΣ" />
+                                <ComboBoxItem Content="ΒΑΣΙΛΙΚΗ" />
+                                <ComboBoxItem Content="ΓΕΩΡΓΙΑ" />
+                                <ComboBoxItem Content="ΓΙΑΝΝΗΣ" />
+                                <ComboBoxItem Content="ΔΗΜΗΤΡΗΣ" />
+                                <ComboBoxItem Content="ΕΥΗ" />
+                                <ComboBoxItem Content="ΖΩΗ" />
+                                <ComboBoxItem Content="ΙΦΙΓΕΝΕΙΑ" />
+                                <ComboBoxItem Content="ΙΩΑΝΝΑ" />
+                                <ComboBoxItem Content="ΜΑΡΙΑ" />
+                            </ComboBox>
+
+                            <TextBlock Text="9. SALES" />
+                            <ComboBox x:Name="ComboSales" Height="40" Margin="0,0,0,15" SelectedIndex="0">
+                                <ComboBoxItem Content="-- ΕΠΙΛΕΞΤΕ SALES --" IsEnabled="False" Visibility="Collapsed" />
+                                <ComboBoxItem Content="" />
+                                <ComboBoxItem Content="ΑΘΗΝΑ" />
+                                <ComboBoxItem Content="ΖΩΗ" />
+                                <ComboBoxItem Content="ΝΙΚΟΣ" />
+                            </ComboBox>
+
+                            <TextBlock Text="10. Παρατηρήσεις" />
+                            <WrapPanel Margin="0,0,0,5">
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Ήρθε ο/η βοηθός" />
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Θα ανοίξει φαρμακείο" />
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα, είναι ευχαριστημένος" />
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Έχει άλλο πρόγραμμα αλλά θέλει να αλλάξει" />
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για παρουσίαση" />
+                                <Button Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click" Content="+ Να καλέσουμε για ραντεβού εγκατάστασης" />
+                                <Button MaxWidth="250" Margin="0,0,5,5" Padding="8,3" Background="#F1F5F9" Click="QuickNote_Click">
+                                    <TextBlock Text="+ Πήρε φυλλάδιο και ενημερώθηκε για την προσφορά της έκθεσης" TextAlignment="Center" TextWrapping="Wrap" />
+                                </Button>
+                            </WrapPanel>
+
+                            <TextBox x:Name="TxtNotes" Height="80" VerticalContentAlignment="Top" AcceptsReturn="True" TextWrapping="Wrap" />
+
+                            <Button Height="50" Background="#2563EB" Click="BtnNext_Click" Content="Συνέχεια" FontSize="16" FontWeight="Bold" Foreground="White">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="10">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Margin="0,15" HorizontalAlignment="Center" FontSize="11" Foreground="#94A3B8" Text="* Τα πεδία είναι υποχρεωτικά" />
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
 </Window>

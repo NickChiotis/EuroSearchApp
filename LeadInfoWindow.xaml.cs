@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace EuroSearchApp
 {
@@ -49,7 +51,7 @@ namespace EuroSearchApp
         public string City => TxtCity.Text;
         public string Phone => TxtPhone.Text;
         public string Email => TxtEmail.Text;
-        public string Program => TxtProgram.Text;
+        public string Program => ComboProgram.SelectionBoxItem?.ToString();
         public string Client => ComboClient.SelectionBoxItem?.ToString();
         public string Presentation => ComboPresentation.SelectionBoxItem?.ToString();
         public string Sales => ComboSales.SelectionBoxItem?.ToString();
@@ -83,6 +85,36 @@ namespace EuroSearchApp
                 // Cursor στο τέλος
                 TxtNotes.Focus();
                 TxtNotes.SelectionStart = TxtNotes.Text.Length;
+            }
+        }
+
+        private void TxtPhone_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Ελέγχει αν ο χαρακτήρας που πατήθηκε είναι ψηφίο (0-9)
+            // Αν ΔΕΝ είναι αριθμός, τότε e.Handled = true (ακυρώνει το γράψιμο)
+            e.Handled = !IsTextAllowed(e.Text);
+        }
+
+        private static bool IsTextAllowed(string text)
+        {
+            // Χρησιμοποιούμε Regex για να επιτρέψουμε μόνο αριθμούς
+            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex("[^0-9]+");
+            return !regex.IsMatch(text);
+        }
+
+        private void TxtPhone_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(String)))
+            {
+                String text = (String)e.DataObject.GetData(typeof(String));
+                if (!IsTextAllowed(text))
+                {
+                    e.CancelCommand(); // Ακυρώνει την επικόλληση αν περιέχει γράμματα
+                }
+            }
+            else
+            {
+                e.CancelCommand();
             }
         }
     }

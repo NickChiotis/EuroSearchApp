@@ -408,6 +408,11 @@ namespace EuroSearchApp
         {
             if (person == null) return;
 
+            if (string.IsNullOrWhiteSpace(person.Comments))
+            {
+                person.Comments = "Ο φαρμακοποιός";
+            }
+
             // ΕΛΕΓΧΟΣ: Είναι ήδη ο πελάτης στον κάτω πίνακα;
             // Ελέγχουμε αν υπάρχει ήδη στην ObservableCollection των επιλεγμένων
             if (SelectedParticipants.Any(p =>
