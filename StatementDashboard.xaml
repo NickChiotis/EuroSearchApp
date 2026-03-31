@@ -94,44 +94,53 @@
                         </Button>
                     </Grid>
 
-                    <DataGrid Name="DtgFiles" Grid.Row="1" AlternatingRowBackground="#F8FAFC" AutoGenerateColumns="False" Background="Transparent" BorderThickness="0" FontSize="15" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0" IsReadOnly="True"
-                              MouseDoubleClick="DtgFiles_MouseDoubleClick" RowHeaderWidth="0" RowHeight="60">
+                    <Grid Grid.Row="1">
+                        <DataGrid Name="DtgFiles" Grid.Row="1" AlternatingRowBackground="#F8FAFC" AutoGenerateColumns="False" Background="Transparent" BorderThickness="0" FontSize="15" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E2E8F0" IsReadOnly="True"
+                                  MouseDoubleClick="DtgFiles_MouseDoubleClick" RowHeaderWidth="0" RowHeight="60">
 
-                        <DataGrid.ColumnHeaderStyle>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="#F1F5F9" />
-                                <Setter Property="Foreground" Value="#64748B" />
-                                <Setter Property="FontWeight" Value="SemiBold" />
-                                <Setter Property="Padding" Value="15,0" />
-                                <Setter Property="Height" Value="50" />
-                                <Setter Property="BorderThickness" Value="0,0,0,1" />
-                                <Setter Property="BorderBrush" Value="#E2E8F0" />
-                            </Style>
-                        </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#F1F5F9" />
+                                    <Setter Property="Foreground" Value="#64748B" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="Padding" Value="15,0" />
+                                    <Setter Property="Height" Value="50" />
+                                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                    <Setter Property="BorderBrush" Value="#E2E8F0" />
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
 
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Width="*" Header="Όνομα Αρχείου">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="10,0" VerticalAlignment="Center" Orientation="Horizontal">
-                                            <Path Width="18" Height="22" Margin="0,0,12,0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" Fill="#660099" Stretch="Uniform" />
-                                            <TextBlock VerticalAlignment="Center" FontWeight="Medium" Text="{Binding FileName}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="*" Header="Όνομα Αρχείου">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="10,0" VerticalAlignment="Center" Orientation="Horizontal">
+                                                <Path Width="18" Height="22" Margin="0,0,12,0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" Fill="#660099" Stretch="Uniform" />
+                                                <TextBlock VerticalAlignment="Center" FontWeight="Medium" Text="{Binding FileName}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
 
-                            <DataGridTextColumn Width="250" Binding="{Binding DateCreated}" Header="Ημερομηνία" />
+                                <DataGridTextColumn Width="250" Binding="{Binding DateCreated}" Header="Ημερομηνία" />
 
-                            <DataGridTemplateColumn Width="150" Header="Ενέργειες">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Button Height="35" Margin="5" Click="OpenPdf_Click" Content="Άνοιγμα" Cursor="Hand" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                                <DataGridTemplateColumn Width="150" Header="Ενέργειες">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Height="35" Margin="5" Click="OpenPdf_Click" Content="Άνοιγμα" Cursor="Hand" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid x:Name="OverlayGrid" Background="White">
+                            <Image Margin="50" Source="pack://application:,,,/Assets/Eurologo.png" Stretch="Uniform" />
+                        </Grid>
+
+                        <Button Width="40" Height="40" Margin="0,5,5,0" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ToggleButton_Click" Cursor="Hand" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                            <Path Width="20" Data="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" Fill="#64748B" Stretch="Uniform" />
+                        </Button>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

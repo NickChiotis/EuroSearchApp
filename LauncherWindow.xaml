@@ -1,4 +1,4 @@
-﻿<Window x:Class="EuroSearchApp.LauncherWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroSearch Suite" Width="1280" Height="800" Background="#F1F5F9" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+﻿<Window x:Class="EuroSearchApp.LauncherWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="EuroLauncher Suite" Width="1280" Height="800" Background="#F1F5F9" WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Window.Resources>
         <Storyboard x:Key="SmoothBackgroundAnim">

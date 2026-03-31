@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Media.Animation;
 
 namespace EuroSearchApp
 {
@@ -181,6 +182,33 @@ namespace EuroSearchApp
             {
                 MessageBox.Show($"Σφάλμα κατά τη διαδικασία: {ex.Message}");
             }
+        }
+
+        private bool isGridVisible = false;
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Δημιουργία του Animation
+            DoubleAnimation animation = new DoubleAnimation();
+            animation.Duration = TimeSpan.FromSeconds(0.4); // Διάρκεια 0.4 δευτερόλεπτα
+
+            if (isGridVisible)
+            {
+                // Fade Out της εικόνας (Εμφάνιση DataGrid)
+                animation.From = 1.0;
+                animation.To = 0.0;
+                OverlayGrid.IsHitTestVisible = false; // Επιτρέπει κλικ στο DataGrid από κάτω
+            }
+            else
+            {
+                // Fade In της εικόνας (Κρύψιμο DataGrid)
+                animation.From = 0.0;
+                animation.To = 1.0;
+                OverlayGrid.IsHitTestVisible = true; // Εμποδίζει κλικ στο DataGrid
+            }
+
+            OverlayGrid.BeginAnimation(OpacityProperty, animation);
+            isGridVisible = !isGridVisible;
         }
     }
 }
